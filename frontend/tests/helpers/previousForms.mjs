@@ -27,6 +27,7 @@ export const previousForms = {
     AccountingLedgerEntry: [
       'name | Entry No. |  | Default',
       'posting_date | Date |  | Default',
+      'party_type | Party Type |  | Default',
       'party | Party |  | Default',
       'account | Account |  | Default',
       'debit | Debit |  | Details',
@@ -61,6 +62,7 @@ export const previousForms = {
     ],
     Payment: [
       'number_series | Number Series |  | Default',
+      'party_type | Party Type |  | Default',
       'party | Party |  | Default',
       'date | Posting Date |  | Default',
       'payment_type | Payment Type | Payment Type | Default',
@@ -114,6 +116,7 @@ export const previousForms = {
   quickEditFields: {
     Payment: [
       'number_series',
+      'party_type',
       'party',
       'date',
       'payment_method',
@@ -225,7 +228,7 @@ export const previousForms = {
     DeliveryNote: {
       layout: [
         'number_series | Number Series |  | Default | ',
-        'party | Party |  | Default | ',
+        'customer | Customer |  | Default | ',
         'date | Date |  | Default | ',
         'items | Items |  | Items | ',
         'grand_total | Grand Total |  | Items | ',
@@ -239,7 +242,7 @@ export const previousForms = {
     PurchaseReceipt: {
       layout: [
         'number_series | Number Series |  | Default | ',
-        'party | Party |  | Default | ',
+        'supplier | Supplier |  | Default | ',
         'date | Date |  | Default | ',
         'items | Items |  | Items | ',
         'grand_total | Grand Total |  | Items | ',
@@ -386,10 +389,13 @@ export const previousForms = {
     'AccountingSettings.write_off_account': false,
     'AccountingSettings.round_off_account': false,
     'AccountingSettings.discount_account': false,
-    'Party.address': true,
-    'Party.default_account': true,
-    'Party.currency': true,
-    'Party.loyalty_program': true,
+    'Customer.address': true,
+    'Customer.default_account': true,
+    'Customer.currency': true,
+    'Customer.loyalty_program': true,
+    'Supplier.address': true,
+    'Supplier.default_account': true,
+    'Supplier.currency': true,
     'Lead.address': true,
     'Address.country': false,
     'ItemGroup.tax': true,
@@ -443,7 +449,7 @@ export const previousForms = {
     'POSProfile.pos_print_template': false,
     'POSClosingShift.opening_shift': false,
     'SalesInvoice.number_series': true,
-    'SalesInvoice.party': true,
+    'SalesInvoice.customer': true,
     'SalesInvoice.account': true,
     'SalesInvoice.price_list': false,
     'SalesInvoice.back_reference': false,
@@ -456,7 +462,7 @@ export const previousForms = {
     'SalesInvoiceItem.tax': true,
     'AppliedCouponCodes.coupons': false,
     'PurchaseInvoice.number_series': true,
-    'PurchaseInvoice.party': true,
+    'PurchaseInvoice.supplier': true,
     'PurchaseInvoice.account': true,
     'PurchaseInvoice.price_list': false,
     'PurchaseInvoice.back_reference': false,
@@ -467,7 +473,7 @@ export const previousForms = {
     'PurchaseInvoiceItem.account': false,
     'PurchaseInvoiceItem.tax': true,
     'Quotation.number_series': true,
-    'Quotation.party': true,
+    'Quotation.party_name': true,
     'Quotation.price_list': false,
     'QuotationItem.item': true,
     'QuotationItem.transfer_unit': false,
@@ -475,7 +481,7 @@ export const previousForms = {
     'QuotationItem.account': false,
     'QuotationItem.tax': true,
     'DeliveryNote.number_series': true,
-    'DeliveryNote.party': true,
+    'DeliveryNote.customer': true,
     'DeliveryNote.back_reference': false,
     'DeliveryNote.return_against': false,
     'DeliveryNoteItem.item': false,
@@ -483,7 +489,7 @@ export const previousForms = {
     'DeliveryNoteItem.transfer_unit': false,
     'DeliveryNoteItem.batch': false,
     'PurchaseReceipt.number_series': true,
-    'PurchaseReceipt.party': true,
+    'PurchaseReceipt.supplier': true,
     'PurchaseReceipt.back_reference': false,
     'PurchaseReceipt.return_against': false,
     'PurchaseReceiptItem.item': false,
@@ -495,6 +501,7 @@ export const previousForms = {
   quickViews: {
     Payment: [
       'number_series | Number Series',
+      'party_type | Party Type',
       'party | Party',
       'date | Posting Date',
       'payment_type | Payment Type',
@@ -514,7 +521,7 @@ export const previousForms = {
     ],
     SalesInvoice: [
       'number_series | Number Series',
-      'party | Customer',
+      'customer | Customer',
       'account | Account',
       'date | Date',
       'price_list | Price List',
@@ -539,7 +546,7 @@ export const previousForms = {
     ],
     PurchaseInvoice: [
       'number_series | Number Series',
-      'party | Supplier',
+      'supplier | Supplier',
       'account | Account',
       'date | Date',
       'price_list | Price List',
@@ -558,7 +565,7 @@ export const previousForms = {
     ],
     Quotation: [
       'number_series | Number Series',
-      'party | Customer',
+      'party_name | Customer',
       'date | Date',
       'price_list | Price List',
       'net_total | Net Total',
@@ -568,7 +575,7 @@ export const previousForms = {
       'discount_after_tax | Apply Discount After Tax',
       'outstanding_amount | Outstanding Amount',
       'terms | Notes',
-      'reference_type | Type',
+      'quotation_to | Type',
     ],
   },
 };

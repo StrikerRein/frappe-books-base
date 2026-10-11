@@ -32,7 +32,7 @@ const docs = (search, input) =>
 const invoice = (name, docstatus) => ({
   doctype: 'Books Sales Invoice',
   name,
-  party: 'Acme',
+  customer: 'Acme',
   docstatus,
 });
 
@@ -41,8 +41,9 @@ test('the palette searches the schemas the DocType search fields name', () => {
   const fields = (schemaName) => search.searchables[schemaName]?.fields;
 
   assert.equal(requests.length, 0);
-  assert.deepEqual(fields('SalesInvoice'), ['name', 'party']);
-  assert.deepEqual(fields('Party'), ['name', 'email', 'role', 'phone']);
+  assert.deepEqual(fields('SalesInvoice'), ['name', 'customer']);
+  assert.deepEqual(fields('Customer'), ['name', 'email', 'phone']);
+  assert.deepEqual(fields('Supplier'), ['name', 'email', 'phone']);
   assert.deepEqual(fields('Tax'), ['name']);
   assert.equal(fields('SalesInvoiceItem'), undefined);
   assert.equal(fields('Account'), undefined);
@@ -56,8 +57,8 @@ test('filter chips show transactions first, by schema label', () => {
     'Journal Entry',
     'Payment',
   ]);
-  assert.deepEqual(labels.slice(-2), ['Serial Number', 'Tax Template']);
-  assert.equal(labels.length, 18);
+  assert.deepEqual(labels.slice(-2), ['Supplier', 'Tax Template']);
+  assert.equal(labels.length, 19);
 });
 test('one request searches the text in the doctypes the filters allow', async () => {
   const { search, requests } = makeSearch();
@@ -70,10 +71,10 @@ test('one request searches the text in the doctypes the filters allow', async ()
   assert.equal(requests.length, 2);
   assert.equal(requests[0].path, '/api/method/frappe_books.search.search');
   assert.equal(requests[0].body.text, 'Karen SINV-1');
-  assert.equal(requests[0].body.doctypes.length, 18);
+  assert.equal(requests[0].body.doctypes.length, 19);
   assert.equal(requests[0].body.doctypes.includes('Books Sales Invoice'), true);
   assert.equal(requests[1].body.doctypes.includes('Books Sales Invoice'), false);
-  assert.equal(requests[1].body.doctypes.includes('Books Party'), true);
+  assert.equal(requests[1].body.doctypes.includes('Books Customer'), true);
 });
 test('the palette lists only the lists of features that are on', () => {
   const { AccountingSettings, InventorySettings } = fyo.singles;
@@ -193,10 +194,9 @@ test('lists, actions and reports come before documents', async () => {
 test('a document shows its search fields and opens its form', async () => {
   const { search } = makeSearch(() => [
     {
-      doctype: 'Books Party',
+      doctype: 'Books Customer',
       name: 'Acme',
       email: 'acme@example.com',
-      role: 'Customer',
       phone: '9876543210',
       docstatus: 0,
     },
@@ -213,23 +213,23 @@ test('a document shows its search fields and opens its form', async () => {
     [
       [
         'Acme',
-        ['acme@example.com', 'Customer', '9876543210'],
-        'Party',
-        '/edit/Party/Acme',
+        ['acme@example.com', '9876543210'],
+        'Customer',
+        '/edit/Customer/Acme',
       ],
     ]
   );
 });
-test('the palette lists every party under one Party list', () => {
+test('the palette lists customers and suppliers under their own lists', () => {
   const { search } = makeSearch();
-  const lists = search
-    .search('Party')
-    .filter(({ group, label }) => group === 'List' && label === 'Party');
+  const route = (label) =>
+    search
+      .search(label)
+      .filter((item) => item.group === 'List' && item.label === label)
+      .map((item) => item.route);
 
-  assert.deepEqual(
-    lists.map(({ route }) => route),
-    ['/list/Party']
-  );
+  assert.deepEqual(route('Customer'), ['/list/Customer']);
+  assert.deepEqual(route('Supplier'), ['/list/Supplier']);
 });
 
 test('recent records reopen the record instead of a list', async () => {

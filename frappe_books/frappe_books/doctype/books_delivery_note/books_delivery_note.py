@@ -24,19 +24,21 @@ class BooksDeliveryNote(StockTransferController):
 		amended_from: DF.Link | None
 		attachment: DF.Attach | None
 		back_reference: DF.Link | None
+		customer: DF.Link
 		date: DF.Datetime
 		grand_total: DF.Currency
 		is_fully_billed: DF.Check
 		is_returned: DF.Check
 		items: DF.Table[BooksDeliveryNoteItem]
 		number_series: DF.Link
-		party: DF.Link
 		return_against: DF.Link | None
 		status: DF.Literal["Saved", "Submitted", "Return", "Return Issued", "Cancelled"]
 		terms: DF.Text | None
 	# end: auto-generated types
 
 	transfer_type = "sales"
+	party_type = "Books Customer"
+	party_field = "customer"
 
 
 @frappe.whitelist()

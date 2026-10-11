@@ -14,8 +14,9 @@ from frappe_books.frappe_books.doctype.books_purchase_receipt.books_purchase_rec
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_item,
-	make_party,
+	make_supplier,
 	set_inventory_accounts,
 	stock_quantity,
 	unique_name,
@@ -31,14 +32,14 @@ class IntegrationTestBooksPurchaseReceipt(IntegrationTestCase):
 		cogs = make_account("COGS", root_type="Expense", account_type="Cost of Goods Sold")
 		income = make_account("Income", root_type="Income")
 		payable = make_account("Payable", root_type="Liability", account_type="Payable")
-		party = make_party(payable.name, role="Supplier")
+		party = make_supplier(payable.name)
 		item = make_item(income.name, received.name, track_item=1)
 		set_inventory_accounts(stock.name, received.name, cogs.name)
 
 		receipt = frappe.get_doc(
 			{
 				"doctype": "Books Purchase Receipt",
-				"party": party.name,
+				"supplier": party.name,
 				"date": now_datetime(),
 				"items": [{"item": item.name, "location": "Stores", "quantity": 4, "rate": 25}],
 			}
@@ -101,7 +102,7 @@ class IntegrationTestBooksPurchaseReceipt(IntegrationTestCase):
 			track_item=1,
 		)
 		receipt = make_receipt(item.name, quantity=2, rate=10)
-		payable = frappe.db.get_value("Books Party", receipt.party, "default_account")
+		payable = frappe.db.get_value("Books Supplier", receipt.supplier, "default_account")
 
 		invoice = make_purchase_invoice(receipt.name)
 		purchase_return = make_return(receipt.name)
@@ -140,17 +141,17 @@ class IntegrationTestBooksPurchaseReceipt(IntegrationTestCase):
 			make_account("Received", root_type="Liability").name,
 			track_item=1,
 		)
-		customer = make_party(make_account("Receivable", account_type="Receivable").name)
+		customer = make_customer(make_account("Receivable", account_type="Receivable").name)
 		receipt = frappe.get_doc(
 			{
 				"doctype": "Books Purchase Receipt",
-				"party": customer.name,
+				"supplier": customer.name,
 				"date": now_datetime(),
 				"items": [{"item": item.name, "location": "Stores", "quantity": 1, "rate": 10}],
 			}
 		)
 
-		self.assertRaisesRegex(frappe.ValidationError, "must be a Supplier", receipt.insert)
+		self.assertRaisesRegex(frappe.ValidationError, "Could not find Supplier", receipt.insert)
 
 	def test_receipt_names_missing_serial_numbers_from_the_item_series(self):
 		prefix = f"S{frappe.generate_hash(length=6)}-"
@@ -169,7 +170,7 @@ class IntegrationTestBooksPurchaseReceipt(IntegrationTestCase):
 		receipt = frappe.get_doc(
 			{
 				"doctype": "Books Purchase Receipt",
-				"party": make_party(payable.name, role="Supplier").name,
+				"supplier": make_supplier(payable.name).name,
 				"date": now_datetime(),
 				"items": [{**row, "serial_number": typed}, {**row, "quantity": 1}],
 			}
@@ -190,7 +191,7 @@ def make_receipt(item, quantity, rate, return_against=None, date=None):
 	receipt = frappe.get_doc(
 		{
 			"doctype": "Books Purchase Receipt",
-			"party": make_party(payable.name, role="Supplier").name,
+			"supplier": make_supplier(payable.name).name,
 			"date": date or now_datetime(),
 			"return_against": return_against,
 			"items": [{"item": item, "location": "Stores", "quantity": quantity, "rate": rate}],

@@ -8,7 +8,7 @@ import { ModelNameEnum } from 'models/types';
 import { DeliveryNoteItem } from './DeliveryNoteItem';
 import {
   StockTransfer,
-  transferFileFields,
+  getTransferFileFields,
   transferFields,
 } from './StockTransfer';
 
@@ -18,8 +18,9 @@ export class DeliveryNote extends StockTransfer {
     label: 'Delivery Note',
     nameField: { label: 'Transfer No', hidden: true },
     fields: transferFields,
-    fileFields: transferFileFields,
+    fileFields: getTransferFileFields('customer'),
   };
+  static override partyField = 'customer';
   static override rowModels = { items: DeliveryNoteItem };
   static override invoiceSchemaName = ModelNameEnum.SalesInvoice;
   static override invoiceMapper = 'make_delivery_note';
@@ -29,7 +30,7 @@ export class DeliveryNote extends StockTransfer {
       columns: [
         'name',
         getDocStatusListColumn(),
-        'party',
+        'customer',
         'date',
         'grand_total',
       ],

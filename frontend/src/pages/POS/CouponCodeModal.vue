@@ -136,7 +136,7 @@ export default defineComponent({
     },
     subtitle(): string {
       const name = this.sinvDoc.inserted ? this.sinvDoc.name : '';
-      return [this.sinvDoc.party, name].filter(Boolean).join(' · ');
+      return [this.sinvDoc.customer, name].filter(Boolean).join(' · ');
     },
   },
   watch: {

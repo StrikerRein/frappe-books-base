@@ -28,7 +28,8 @@ class BooksPayment(PaymentController):
 		clearance_date: DF.Date | None
 		date: DF.Datetime
 		number_series: DF.Link
-		party: DF.Link
+		party: DF.DynamicLink
+		party_type: DF.Link
 		payment_account: DF.Link
 		payment_method: DF.Link
 		payment_references: DF.Table[BooksPaymentFor]

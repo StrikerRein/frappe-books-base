@@ -2,7 +2,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import get_datetime, now_datetime, nowdate
 
-from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party
+from frappe_books.tests.accounting import make_account, make_customer, make_invoice, make_item
 
 
 class IntegrationTestFieldRules(IntegrationTestCase):
@@ -31,7 +31,7 @@ class IntegrationTestFieldRules(IntegrationTestCase):
 		item = make_item(income, make_account("Dated Expense", root_type="Expense").name).name
 		started = now_datetime().replace(microsecond=0)
 		invoice = make_invoice(
-			"Books Sales Invoice", make_party(receivable).name, receivable, item, income, date=None
+			"Books Sales Invoice", make_customer(receivable).name, receivable, item, income, date=None
 		)
 
 		self.assertGreaterEqual(get_datetime(invoice.date), started)

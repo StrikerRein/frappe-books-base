@@ -4,11 +4,13 @@ from collections import defaultdict
 
 import frappe
 from frappe import _
+from frappe.model.base_document import get_controller
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 
 from frappe_books.accounting import settlement
 from frappe_books.accounting.accounts import (
+	PARTY_ACCOUNT_TYPES,
 	latest_ledger_account,
 	validate_party_account,
 	validate_payment_account,
@@ -20,6 +22,8 @@ from frappe_books.permissions import check_preview_permission
 from frappe_books.series import SeriesNamingMixin
 from frappe_books.status import StatusMixin
 
+# Money comes in from customers and goes out to suppliers.
+PAYMENT_PARTY_TYPES = {"Receive": "Books Customer", "Pay": "Books Supplier"}
 REFERENCE_DOCTYPES = {
 	"SalesInvoice": "Books Sales Invoice",
 	"PurchaseInvoice": "Books Purchase Invoice",
@@ -53,25 +57,27 @@ class PaymentController(StatusMixin, SeriesNamingMixin, Document):
 
 	def set_missing_values(self):
 		"""Fill the party, payment type, accounts and amounts the way the Books app does while editing."""
-		party = self.get_party()
-		self.set_reference_types(party)
+		self.party_type = self.party_type or PAYMENT_PARTY_TYPES.get(self.payment_type)
+		self.set_reference_types()
 		invoice = self.get_first_invoice()
-		if not party and invoice:
-			self.party = invoice.party
-			party = self.get_party()
-		self.payment_type = self.payment_type or _default_payment_type(party, invoice)
+		if invoice:
+			self.party_type = self.party_type or invoice.party_type
+			self.party = self.party or invoice.party
+		self.payment_type = self.payment_type or _default_payment_type(self.party_type, invoice)
 		self.reference_type = _reference_type(invoice, self.payment_type) or self.reference_type
-		self.account = self.account or _default_party_account(party, invoice, self.payment_type)
+		self.account = self.account or _default_party_account(
+			self.get_party_account(), invoice, self.payment_type
+		)
 		self.payment_account = self.payment_account or _default_payment_account(self.payment_method, invoice)
 		self.set_amounts()
 
-	def get_party(self):
-		fields = ["role", "default_account"]
-		return self.party and frappe.db.get_value("Books Party", self.party, fields, as_dict=True)
+	def get_party_account(self):
+		if self.party_type in PARTY_ACCOUNT_TYPES and self.party:
+			return frappe.db.get_value(self.party_type, self.party, "default_account")
 
-	def set_reference_types(self, party):
+	def set_reference_types(self):
 		"""A reference without a type is a supplier's purchase invoice, else a sales invoice."""
-		is_supplier = party and party.role == "Supplier"
+		is_supplier = self.party_type == "Books Supplier"
 		doctype = "Books Purchase Invoice" if is_supplier else "Books Sales Invoice"
 		for row in self.payment_references:
 			row.reference_type = row.reference_type or doctype
@@ -88,11 +94,17 @@ class PaymentController(StatusMixin, SeriesNamingMixin, Document):
 		row = self.payment_references[0] if self.payment_references else None
 		if not row or row.reference_type not in REFERENCE_DOCTYPES.values():
 			return None
-		fields = ["party", "return_against", "account"]
+		controller = get_controller(row.reference_type)
+		fields = [controller.party_field, "return_against", "account"]
 		if row.reference_type == "Books Sales Invoice":
 			fields.append("is_pos")
 		invoice = frappe.db.get_value(row.reference_type, row.reference_name, fields, as_dict=True)
-		return invoice and frappe._dict(invoice, doctype=row.reference_type)
+		return invoice and frappe._dict(
+			invoice,
+			doctype=row.reference_type,
+			party_type=controller.party_type,
+			party=invoice[controller.party_field],
+		)
 
 	def validate(self):
 		if as_decimal(self.amount) <= 0:
@@ -109,7 +121,9 @@ class PaymentController(StatusMixin, SeriesNamingMixin, Document):
 
 	def validate_accounts(self):
 		"""The account is the party's ledger; the payment account suits the payment method."""
-		validate_party_account(self, "account", frappe.db.get_value("Books Party", self.party, "role"))
+		if self.party_type not in PARTY_ACCOUNT_TYPES:
+			frappe.throw(_("Party Type must be Customer or Supplier."))
+		validate_party_account(self, "account", self.party_type)
 		method_type = self.payment_method and frappe.get_cached_value(
 			"Books Payment Method", self.payment_method, "type"
 		)
@@ -152,7 +166,7 @@ class PaymentController(StatusMixin, SeriesNamingMixin, Document):
 		for row in self.payment_references:
 			invoice = frappe.get_doc(row.reference_type, row.reference_name, for_update=True)
 			settlement.settle(invoice, row.amount, reverse)
-		settlement.refresh_party(self.party)
+		settlement.refresh_party(self.party_type, self.party)
 
 	def on_trash(self):
 		delete_entries(self)
@@ -166,11 +180,11 @@ def _outstanding(row):
 	return settlement.due(invoice) if invoice else 0
 
 
-def _default_payment_type(party, invoice):
+def _default_payment_type(party_type, invoice):
 	if invoice:
 		return payment_type_for(invoice.doctype, bool(invoice.return_against))
-	if party:
-		return "Pay" if party.role == "Supplier" else "Receive"
+	if party_type:
+		return "Pay" if party_type == "Books Supplier" else "Receive"
 	return None
 
 
@@ -183,10 +197,10 @@ def _reference_type(invoice, payment_type):
 	return None
 
 
-def _default_party_account(party, invoice, payment_type):
+def _default_party_account(party_account, invoice, payment_type):
 	"""The party's ledger, else the invoice's, else the newest payable or receivable ledger."""
-	if party and party.role != "Both" and party.default_account:
-		return party.default_account
+	if party_account:
+		return party_account
 	if invoice:
 		return invoice.account
 	return latest_ledger_account("Payable" if payment_type == "Pay" else "Receivable")
@@ -243,7 +257,7 @@ def _referenced_invoice(payment, doctype, name):
 	invoice = frappe.get_doc(doctype, name, for_update=True, check_permission="read")
 	if invoice.docstatus != 1:
 		frappe.throw(_("Submit invoice {0} before allocating a payment to it.").format(name))
-	if invoice.party != payment.party:
+	if (invoice.party_type, invoice.party) != (payment.party_type, payment.party):
 		frappe.throw(_("Invoice {0} does not belong to party {1}.").format(name, payment.party))
 	return invoice
 
@@ -350,6 +364,8 @@ def _settle_invoice(invoice, payment):
 	payment.update(
 		{
 			"payment_type": payment_type_for(invoice.doctype, bool(invoice.return_against)),
+			"party_type": invoice.party_type,
+			"party": invoice.party,
 			"payment_method": _settling_method(account),
 			"payment_account": account,
 			"amount": outstanding,

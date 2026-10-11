@@ -68,10 +68,9 @@ const records: Record<string, Row[]> = {
       { location: 'Warehouse', quantity: 40 },
     ].map((row) => ({ item: coffee.name, batch: coffeeBatch.name, ...row })),
   ],
-  'Books Party': [
+  'Books Customer': [
     {
       name: 'Aarav Shah',
-      role: 'Customer',
       loyalty_program: 'Store Rewards',
       loyalty_points: 1250,
     },
@@ -83,7 +82,7 @@ const records: Record<string, Row[]> = {
   'Books Sales Invoice': [
     ...Array.from({ length: 24 }, (_, index) => ({
       name: `SINV-2026-${String(index + 1).padStart(4, '0')}`,
-      party: index % 2 ? 'Aarav Shah' : 'Meera Patel',
+      customer: index % 2 ? 'Aarav Shah' : 'Meera Patel',
       date: '2026-09-06 10:00:00',
       grand_total: 1250,
       outstanding_amount: 0,
@@ -92,7 +91,7 @@ const records: Record<string, Row[]> = {
     })),
     {
       name: 'SINV-2026-HELD',
-      party: 'Aarav Shah',
+      customer: 'Aarav Shah',
       date: '2026-09-06 11:00:00',
       grand_total: items[0].rate,
       outstanding_amount: items[0].rate,
@@ -210,13 +209,13 @@ function getDocuments(path: string, params: Row): unknown {
  */
 function preview(document: Row): Row {
   if (document.doctype === 'Books Sales Invoice') {
-    const party = getRecord('Books Party', document.party);
+    const customer = getRecord('Books Customer', document.customer);
     return {
       ...document,
       make_auto_payment: document.make_auto_payment ?? 0,
       make_auto_stock_transfer: document.make_auto_stock_transfer ?? 0,
-      loyalty_program: party?.loyalty_program ?? null,
-      available_loyalty_points: party?.loyalty_points ?? 0,
+      loyalty_program: customer?.loyalty_program ?? null,
+      available_loyalty_points: customer?.loyalty_points ?? 0,
     };
   }
 

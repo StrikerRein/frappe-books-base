@@ -3,7 +3,7 @@
     :open-modal="openModal"
     :title="t`Redeem loyalty points`"
     :subtitle="
-      [sinvDoc.party, sinvDoc.loyalty_program].filter(Boolean).join(' · ')
+      [sinvDoc.customer, sinvDoc.loyalty_program].filter(Boolean).join(' · ')
     "
     size="md"
     @closemodal="cancelLoyaltyProgram"

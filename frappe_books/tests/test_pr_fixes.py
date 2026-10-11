@@ -11,9 +11,10 @@ from frappe_books.setup_service import complete_site_setup
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
+	make_supplier,
 	restored_company_settings,
 )
 
@@ -39,6 +40,7 @@ class IntegrationTestPrFixes(IntegrationTestCase):
 						frappe.get_doc(
 							{
 								"doctype": "Books Payment",
+								"party_type": party.doctype,
 								"party": party.name,
 								"date": now_datetime(),
 								"payment_type": payment_type,
@@ -139,7 +141,7 @@ class IntegrationTestPrFixes(IntegrationTestCase):
 			root_type="Asset" if is_sales else "Liability",
 			account_type="Receivable" if is_sales else "Payable",
 		)
-		party = make_party(account.name, role="Customer" if is_sales else "Supplier")
+		party = (make_customer if is_sales else make_supplier)(account.name)
 		invoice = make_invoice(
 			"Books Sales Invoice" if is_sales else "Books Purchase Invoice",
 			party.name,

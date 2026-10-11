@@ -9,8 +9,8 @@ import { TaxSummary } from 'models/invoices/TaxSummary';
 import { AccountFieldEnum, PaymentTypeEnum } from './types';
 
 /**
- * Books Payment, served by Frappe. Its `preview` fills the party, type,
- * accounts and amounts that a save would, while the user edits.
+ * Books Payment, served by Frappe. Its `preview` fills the party type, payment
+ * type, accounts and amounts that a save would, while the user edits.
  */
 export class Payment extends FrappeDoc {
   static override doctype = 'Books Payment';
@@ -18,6 +18,12 @@ export class Payment extends FrappeDoc {
     label: 'Payment',
     nameField: { label: 'Payment No', hidden: true },
     fields: {
+      party_type: {
+        options: [
+          { value: 'Books Customer', label: 'Customer' },
+          { value: 'Books Supplier', label: 'Supplier' },
+        ],
+      },
       reference_type: {
         optionLabels: { SalesInvoice: 'Sales', PurchaseInvoice: 'Purchase' },
       },
@@ -25,6 +31,7 @@ export class Payment extends FrappeDoc {
     fileFields: [
       'name',
       'number_series',
+      'party_type',
       'party',
       'date',
       'payment_type',
@@ -44,6 +51,7 @@ export class Payment extends FrappeDoc {
     ],
     quickEditFields: [
       'number_series',
+      'party_type',
       'party',
       'date',
       'payment_method',
@@ -61,13 +69,15 @@ export class Payment extends FrappeDoc {
     ],
   };
   static override previewMethod = 'preview';
+  static override partyField = 'party';
   static override rowModels = {
     payment_references: PaymentFor,
     taxes: TaxSummary,
   };
   // What Books formulas recalculated after each edit.
   static override refills = {
-    party: ['payment_type', 'account'],
+    party_type: ['payment_type', 'account'],
+    party: ['account'],
     payment_type: ['account', 'payment_account'],
     payment_method: ['payment_account'],
     payment_references: ['amount', 'payment_type'],
@@ -112,17 +122,6 @@ export class Payment extends FrappeDoc {
   }
 
   static filters: FiltersMap = {
-    party: (doc: FrappeDoc) => {
-      if (doc.payment_type === PaymentTypeEnum.Pay) {
-        return [['role', 'in', ['Supplier', 'Both']]];
-      }
-
-      if (doc.payment_type === PaymentTypeEnum.Receive) {
-        return [['role', 'in', ['Customer', 'Both']]];
-      }
-
-      return [];
-    },
     number_series: () => [['reference_type', '=', 'Payment']],
     account: (doc: FrappeDoc) => [
       [

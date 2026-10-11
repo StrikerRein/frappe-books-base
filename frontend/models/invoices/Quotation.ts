@@ -1,5 +1,4 @@
 import { Fyo } from 'fyo';
-import type { FrappeDoc } from 'src/frappe/document';
 import { Action, FiltersMap, ListViewSettings } from 'fyo/model/types';
 import { getDocStatusListColumn, getQuoteActions } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -15,9 +14,9 @@ export class Quotation extends Invoice {
     nameField: { label: 'Invoice No', hidden: true },
     fields: {
       ...INVOICE_FIELDS,
-      reference_type: {
+      quotation_to: {
         options: [
-          { value: 'Books Party', label: 'Party' },
+          { value: 'Books Customer', label: 'Customer' },
           { value: 'Books Lead', label: 'Lead' },
         ],
       },
@@ -25,7 +24,7 @@ export class Quotation extends Invoice {
     fileFields: [
       'name',
       'number_series',
-      'party',
+      'party_name',
       'date',
       'price_list',
       'items',
@@ -41,15 +40,14 @@ export class Quotation extends Invoice {
       'terms',
       'attachment',
       'status',
-      'reference_type',
+      'quotation_to',
     ],
   };
+  static override partyField = 'party_name';
   static override rowModels = { items: QuotationItem, taxes: TaxSummary };
 
+  // A quote has no party account.
   static override filters: FiltersMap = {
-    // Leads have no role.
-    party: (doc: FrappeDoc) =>
-      doc.reference_type === 'Books Party' ? Invoice.filters.party(doc) : [],
     number_series: Invoice.filters.number_series,
     price_list: Invoice.filters.price_list,
   };
@@ -64,7 +62,7 @@ export class Quotation extends Invoice {
       columns: [
         'name',
         getDocStatusListColumn(),
-        'party',
+        'party_name',
         'date',
         'base_grand_total',
       ],

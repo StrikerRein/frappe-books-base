@@ -107,7 +107,7 @@
       :open="sheet === 'cart'"
       :disable-pay="disablePay"
       @update:open="(open: boolean) => (sheet = open ? 'cart' : null)"
-      @set-customer="(party: string) => $emit('setCustomer', party)"
+      @set-customer="(customer: string) => $emit('setCustomer', customer)"
       @edit="editRow"
       @hold="closeCart('hold')"
       @pay="closeCart('pay')"
@@ -160,7 +160,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   search: [term: string, addItem?: boolean];
   addItem: [item: POSItem];
-  setCustomer: [party: string];
+  setCustomer: [customer: string];
   hold: [];
   pay: [];
 }>();

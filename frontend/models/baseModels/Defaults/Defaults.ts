@@ -5,7 +5,6 @@ import { getDocType } from 'src/frappe/doctypes';
 import { FrappeDoc } from 'src/frappe/document';
 import { withoutCreate } from 'src/frappe/schema';
 import { call } from 'src/web/api';
-import { PartyRoleEnum } from '../Party/types';
 import { BUTTON_COLOUR_FIELDS } from '../POSProfile/PosProfile';
 
 const SET_PRINT_FORMATS =
@@ -82,7 +81,6 @@ export class Defaults extends FrappeDoc {
     purchase_receipt_number_series: () => [
       ['reference_type', '=', ModelNameEnum.PurchaseReceipt],
     ],
-    pos_customer: () => [['role', '=', PartyRoleEnum.Customer]],
   };
 
   static filters: FiltersMap = this.commonFilters;

@@ -41,6 +41,7 @@ class LedgerPosting:
 		values = {
 			"doctype": "Books Ledger Entry",
 			"posting_date": _posting_date(self.voucher),
+			"party_type": key.party and self.voucher.party_type,
 			"party": key.party,
 			"account": key.account,
 			"debit": 0,
@@ -113,7 +114,7 @@ def reverse_entries(voucher):
 			"voucher_no": voucher.name,
 			"reverted": 0,
 		},
-		fields=["name", "account", "party", "debit", "credit"],
+		fields=["name", "account", "party_type", "party", "debit", "credit"],
 		# Reverse newest first, whatever order the list sorts by.
 		order_by="creation desc",
 	)
@@ -123,6 +124,7 @@ def reverse_entries(voucher):
 			{
 				"doctype": "Books Ledger Entry",
 				"posting_date": _posting_date(voucher),
+				"party_type": entry.party_type,
 				"party": entry.party,
 				"account": entry.account,
 				"debit": entry.credit,

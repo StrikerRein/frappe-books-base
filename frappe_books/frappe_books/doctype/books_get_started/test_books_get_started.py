@@ -4,7 +4,7 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party
+from frappe_books.tests.accounting import make_account, make_customer, make_invoice, make_item, make_supplier
 
 
 class IntegrationTestBooksGetStarted(IntegrationTestCase):
@@ -12,7 +12,7 @@ class IntegrationTestBooksGetStarted(IntegrationTestCase):
 		income = make_account("Get Started Sales", root_type="Income", account_type="Income Account")
 		expense = make_account("Get Started Expense", root_type="Expense", account_type="Expense Account")
 		make_item(income.name, expense.name)
-		make_party(make_account("Get Started Receivable", account_type="Receivable").name, role="Customer")
+		make_customer(make_account("Get Started Receivable", account_type="Receivable").name)
 
 		checks = frappe.get_single("Books Get Started").as_dict()
 
@@ -21,7 +21,7 @@ class IntegrationTestBooksGetStarted(IntegrationTestCase):
 		)
 
 	def test_saving_a_task_keeps_the_record_checks_computed(self):
-		make_party(make_account("Get Started Payable", account_type="Payable").name, role="Supplier")
+		make_supplier(make_account("Get Started Payable", account_type="Payable").name)
 
 		checks = frappe.get_single("Books Get Started")
 		checks.update({"print_setup": 1, "supplier_created": 0})
@@ -35,9 +35,8 @@ class IntegrationTestBooksGetStarted(IntegrationTestCase):
 		receivable = make_account("Done Receivable", account_type="Receivable").name
 		payable = make_account("Done Payable", account_type="Payable").name
 		item = make_item(income, expense).name
-		party = make_party(receivable, role="Both").name
-		make_invoice("Books Sales Invoice", party, receivable, item, income)
-		make_invoice("Books Purchase Invoice", party, payable, item, expense)
+		make_invoice("Books Sales Invoice", make_customer(receivable).name, receivable, item, income)
+		make_invoice("Books Purchase Invoice", make_supplier(payable).name, payable, item, expense)
 		checks = frappe.get_single("Books Get Started")
 		stored = [df.fieldname for df in checks.meta.fields if not df.is_virtual]
 		checks.update(dict.fromkeys(stored, 1) | {"onboarding_complete": 0, "taxes_added": 0})

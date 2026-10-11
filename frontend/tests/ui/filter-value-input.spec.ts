@@ -210,10 +210,10 @@ test('Dynamic Link filters follow the selected type and clear stale selections',
   page,
 }) => {
   await openField(page, 'Quotation', 'Type');
-  await setValue(page, 'Party');
+  await setValue(page, 'Customer');
   await page.getByRole('button', { name: 'Add a filter', exact: true }).click();
   await choose(page, 'Field', 'Customer', 1);
-  await setValue(page, 'Party-001', 1);
+  await setValue(page, 'Customer-001', 1);
   await setValue(page, 'Lead');
   const input = page
     .getByRole('combobox', { name: 'Value', exact: true })
@@ -224,8 +224,8 @@ test('Dynamic Link filters follow the selected type and clear stale selections',
   await page.getByRole('option', { name: 'Lead-002', exact: true }).click();
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   expect(await appliedFilters(page)).toEqual([
-    ['reference_type', '=', 'Books Lead'],
-    ['party', '=', 'Lead-002'],
+    ['quotation_to', '=', 'Books Lead'],
+    ['party_name', '=', 'Lead-002'],
   ]);
 });
 
@@ -239,7 +239,7 @@ test('unresolved Dynamic Links allow text until their type is selected', async (
   await setValue(page, 'Known customer');
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   expect(await appliedFilters(page)).toEqual([
-    ['party', '=', 'Known customer'],
+    ['party_name', '=', 'Known customer'],
   ]);
 });
 
@@ -287,16 +287,16 @@ test('changing a Dynamic Link type preserves implicit record restrictions', asyn
   await openField(page, 'Quotation', 'Type');
   await page.evaluate(() => {
     (window as any).filterFixture.filter.value.addFilter(
-      'party',
+      'party_name',
       '=',
-      'Party-001',
+      'Customer-001',
       true
     );
   });
   await setValue(page, 'Lead');
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
   expect(await appliedFilters(page)).toEqual([
-    ['reference_type', '=', 'Books Lead'],
-    ['party', '=', 'Party-001'],
+    ['quotation_to', '=', 'Books Lead'],
+    ['party_name', '=', 'Customer-001'],
   ]);
 });

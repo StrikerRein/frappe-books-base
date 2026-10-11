@@ -2,49 +2,26 @@ import { Fyo } from 'fyo';
 import {
   Action,
   FiltersMap,
-  HiddenMap,
   ListViewSettings,
   ValidationMap,
 } from 'fyo/model/types';
+import { canOpenLedger, getMappedDocAction } from 'models/helpers';
+import { ModelNameEnum } from 'models/types';
+import { FrappeDoc } from 'src/frappe/document';
+import type { Presentation } from 'src/frappe/schema';
+import { getModel } from 'src/frappe/registry';
 import {
   validateEmail,
   validatePhoneNumber,
 } from 'src/frappe/validation';
-import { canOpenLedger, getMappedDocAction } from 'models/helpers';
-import { ModelNameEnum } from 'models/types';
-import { FrappeDoc } from 'src/frappe/document';
-import { getFrappeDoc } from 'src/frappe/documents';
-import { PartyRole } from './types';
 
 /**
- * Books Party, a customer or supplier, served by Frappe. The server fills
- * its default account and currency on save, and marks its lead converted.
+ * What a customer and a supplier share, served by Frappe. The server fills
+ * the default account and currency on save.
  */
-export class Party extends FrappeDoc {
-  static override doctype = 'Books Party';
-  static override presentation = {
-    label: 'Party',
-    nameField: { label: 'Name', placeholder: 'Full Name' },
-    quickEditFields: [
-      'email',
-      'phone',
-      'address',
-      'default_account',
-      'loyalty_program',
-      'currency',
-      'role',
-      'tax_id',
-    ],
-    fields: { from_lead: { create: false } },
-    // GST fields are Indian; see the Indian Party.
-    omitFields: ['gst_type', 'gstin'],
-  };
-  // The server sets the new role's default account on save.
-  static override refills = { role: ['default_account'] };
-
-  role?: PartyRole;
-  from_lead?: string;
-  declare loyalty_program?: string;
+export abstract class Party extends FrappeDoc {
+  /** The account type of the default account. */
+  static accountType: 'Receivable' | 'Payable';
 
   // Frappe checks these on save; mirrored to show its message at the field.
   validations: ValidationMap = {
@@ -52,29 +29,11 @@ export class Party extends FrappeDoc {
     phone: validatePhoneNumber,
   };
 
-  // Loyalty is for customers, while the program is on.
-  hidden: HiddenMap = {
-    loyalty_program: () =>
-      !this.fyo.singles.AccountingSettings?.enable_loyalty_program ||
-      this.role === 'Supplier',
-    loyalty_points: () => !this.loyalty_program || this.role === 'Supplier',
-  };
-
-  static filters: FiltersMap = {
-    default_account: (doc: FrappeDoc) => {
-      const role = doc.role as PartyRole;
-      if (role === 'Both') {
-        return [
-          ['is_group', '=', 0],
-          ['account_type', 'in', ['Payable', 'Receivable']],
-        ];
-      }
-
-      return [
-        ['is_group', '=', 0],
-        ['account_type', '=', role === 'Customer' ? 'Receivable' : 'Payable'],
-      ];
-    },
+  static override filters: FiltersMap = {
+    default_account: (doc: FrappeDoc) => [
+      ['is_group', '=', 0],
+      ['account_type', '=', (doc.constructor as typeof Party).accountType],
+    ],
   };
 
   static getListViewSettings(): ListViewSettings {
@@ -82,75 +41,55 @@ export class Party extends FrappeDoc {
       columns: ['name', 'email', 'phone', 'outstanding_amount'],
     };
   }
+}
 
-  async afterDelete() {
-    await super.afterDelete();
-    await this.reloadLead();
-  }
+/** A customer's or supplier's presentation; GST fields are Indian. */
+export function getPartyPresentation(
+  label: string,
+  quickEditFields: string[]
+): Presentation {
+  return {
+    label,
+    nameField: { label: 'Name', placeholder: 'Full Name' },
+    quickEditFields,
+    omitFields: ['gst_type', 'gstin'],
+  };
+}
 
-  async afterSync() {
-    await this.reloadLead();
-  }
+interface PartyInvoice {
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice;
+  mapper: string;
+  createLabel: string;
+  viewLabel: string;
+}
 
-  /** Shows the lead status the server set when this party was saved or deleted. */
-  async reloadLead() {
-    if (this.from_lead) {
-      await getFrappeDoc(ModelNameEnum.Lead, this.from_lead, { refresh: true });
-    }
-  }
-
-  /** A customer or supplier goes by its role; a party of both roles stays a Party. */
-  override get typeLabel(): string {
-    const roleLabels: Record<string, string> = {
-      Customer: this.fyo.t`Customer`,
-      Supplier: this.fyo.t`Supplier`,
-    };
-    return roleLabels[this.role ?? ''] ?? this.fyo.t`Party`;
-  }
-
-  static getActions(fyo: Fyo): Action[] {
-    return [
-      getMappedDocAction(fyo, {
-        label: fyo.t`Create purchase`,
-        condition: (doc: FrappeDoc) =>
-          !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
-        target: () => [ModelNameEnum.PurchaseInvoice, 'make_purchase_invoice'],
-      }),
-      {
-        label: fyo.t`View purchases`,
-        condition: (doc: FrappeDoc) =>
-          !doc.notInserted &&
-          (doc.role as PartyRole) !== 'Customer' &&
-          fyo.can(ModelNameEnum.PurchaseInvoice, 'read'),
-        action: async (partyDoc, router) => {
-          await router.push({
-            path: '/list/PurchaseInvoice',
-            query: { filters: JSON.stringify([['party', '=', partyDoc.name]]) },
-          });
-        },
+/** Make an invoice for the party, list its invoices, and open its ledger. */
+export function getPartyActions(
+  fyo: Fyo,
+  { schemaName, mapper, createLabel, viewLabel }: PartyInvoice
+): Action[] {
+  return [
+    getMappedDocAction(fyo, {
+      label: createLabel,
+      condition: (doc: FrappeDoc) => !doc.notInserted,
+      target: () => [schemaName, mapper],
+    }),
+    {
+      label: viewLabel,
+      condition: (doc: FrappeDoc) =>
+        !doc.notInserted && fyo.can(schemaName, 'read'),
+      action: async (partyDoc, router) => {
+        const partyField = getModel(schemaName)!.partyField!;
+        await router.push({
+          path: `/list/${schemaName}`,
+          query: {
+            filters: JSON.stringify([[partyField, '=', partyDoc.name]]),
+          },
+        });
       },
-      getMappedDocAction(fyo, {
-        label: fyo.t`Create sale`,
-        condition: (doc: FrappeDoc) =>
-          !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
-        target: () => [ModelNameEnum.SalesInvoice, 'make_sales_invoice'],
-      }),
-      {
-        label: fyo.t`View sales`,
-        condition: (doc: FrappeDoc) =>
-          !doc.notInserted &&
-          (doc.role as PartyRole) !== 'Supplier' &&
-          fyo.can(ModelNameEnum.SalesInvoice, 'read'),
-        action: async (partyDoc, router) => {
-          await router.push({
-            path: '/list/SalesInvoice',
-            query: { filters: JSON.stringify([['party', '=', partyDoc.name]]) },
-          });
-        },
-      },
-      getGeneralLedgerAction(fyo),
-    ];
-  }
+    },
+    getGeneralLedgerAction(fyo),
+  ];
 }
 
 function getGeneralLedgerAction(fyo: Fyo): Action {
@@ -160,9 +99,14 @@ function getGeneralLedgerAction(fyo: Fyo): Action {
     condition: (doc: FrappeDoc) =>
       doc.inserted && canOpenLedger('GeneralLedger'),
     action: async (partyDoc, router) => {
+      // The party type first: a new party type clears the party.
+      const filters = {
+        partyType: (partyDoc.constructor as typeof Party).doctype,
+        party: partyDoc.name,
+      };
       await router.push({
         path: '/report/GeneralLedger',
-        query: { defaultFilters: JSON.stringify({ party: partyDoc.name }) },
+        query: { defaultFilters: JSON.stringify(filters) },
       });
     },
   };

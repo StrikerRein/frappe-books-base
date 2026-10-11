@@ -7,7 +7,6 @@ import {
   getFrappeDoc,
   getMappedDoc,
   getNewDocValues,
-  getSidebarConfig,
   getSchema,
   ListFilters,
   ListView,
@@ -56,7 +55,7 @@ test('a new sales invoice shows the fields it showed, in its sections', () => {
   setSettings();
   assert.deepEqual(getLayout(newInvoice('SalesInvoice')), {
     Main: {
-      Default: ['number_series', 'party', 'account', 'date'],
+      Default: ['number_series', 'customer', 'account', 'date'],
       Items: ['items', 'net_total'],
       'Tax and Totals': ['grand_total'],
       Outstanding: ['outstanding_amount', 'stock_not_transferred'],
@@ -85,7 +84,7 @@ test('features and totals show the fields that go with them', () => {
   const layout = getLayout(invoice);
   assert.deepEqual(layout.Main.Default, [
     'number_series',
-    'party',
+    'customer',
     'account',
     'date',
     'price_list',
@@ -126,21 +125,21 @@ test('the quote asks for the Type of its party and hides invoice fields', () => 
 
   assert.deepEqual(getLayout(quote).Main.Default, [
     'number_series',
-    'party',
+    'party_name',
     'date',
-    'reference_type',
+    'quotation_to',
   ]);
-  const type = quote.fieldMap.reference_type;
+  const type = quote.fieldMap.quotation_to;
   assert.equal(type.fieldtype, 'Select');
   assert.deepEqual(
     type.options.map(({ value, label }) => [value, label]),
     [
-      ['Books Party', 'Party'],
+      ['Books Customer', 'Customer'],
       ['Books Lead', 'Lead'],
     ]
   );
-  assert.equal(quote.reference_type, 'Books Party');
-  assert.equal(quote.fieldMap.party.create, true);
+  assert.equal(quote.quotation_to, 'Books Customer');
+  assert.equal(quote.fieldMap.party_name.create, true);
   assert.equal(getSchema('Quotation').label, 'Quotation');
 });
 
@@ -174,7 +173,7 @@ test('item tables keep their columns, row editor and Invoice No', () => {
     getSchema(schemaName).fields.find((field) => field.fieldname === fieldname)
       .create;
   assert.deepEqual(
-    ['number_series', 'party', 'account', 'price_list', 'return_against'].map(
+    ['number_series', 'customer', 'account', 'price_list', 'return_against'].map(
       (fieldname) => create('SalesInvoice', fieldname)
     ),
     [true, true, true, false, false]
@@ -391,13 +390,13 @@ test('selected items offer every document made from items', () => {
     'PurchaseInvoice',
   ]);
   assert.deepEqual(offered('Item', []), []);
-  assert.deepEqual(offered('Party', ['Acme']), []);
+  assert.deepEqual(offered('Customer', ['Acme']), []);
 });
 
 test('a new date fetches the exchange rate for it again', async () => {
   setSettings();
   const invoice = newInvoice('SalesInvoice', {
-    party: 'Acme',
+    customer: 'Acme',
     currency: 'USD',
     exchange_rate: 80,
   });
@@ -432,7 +431,7 @@ test('a new party or price list prices rows again, except manual and free ones',
   invoice.push('items', { item: 'Ink', rate: fyo.pesa(9), is_manual_rate: true });
   invoice.push('items', { item: 'Cap', is_free_item: true });
 
-  await invoice.set('party', 'Acme');
+  await invoice.set('customer', 'Acme');
   const sent = invoice.getMethodDocument({
     keepRowNames: true,
     clearServerFilled: true,
@@ -443,6 +442,25 @@ test('a new party or price list prices rows again, except manual and free ones',
     sent.items.map((row) => 'rate' in row),
     [false, true, true]
   );
+});
+
+test('a new supplier or quote party leaves the party currency to the server', async () => {
+  setSettings();
+  for (const [schemaName, partyField] of [
+    ['PurchaseInvoice', 'supplier'],
+    ['Quotation', 'party_name'],
+  ]) {
+    const invoice = newInvoice(schemaName, { currency: 'USD' });
+    invoice.push('items', { item: 'Pen', rate: fyo.pesa(5) });
+
+    await invoice.set(partyField, 'Acme');
+    const sent = invoice.getMethodDocument({
+      keepRowNames: true,
+      clearServerFilled: true,
+    });
+    assert.equal('currency' in sent, false, schemaName);
+    assert.equal('rate' in sent.items[0], false, schemaName);
+  }
 });
 
 test('amounts show in the party currency, base amounts in the company one', () => {
@@ -466,11 +484,8 @@ test('amounts show in the party currency, base amounts in the company one', () =
 test('links filter by the doctypes they point to', async () => {
   const sale = newInvoice('SalesInvoice');
   const purchase = newInvoice('PurchaseInvoice');
-  const { filters, createFilters } = frappeModels.SalesInvoice;
+  const { filters } = frappeModels.SalesInvoice;
 
-  assert.deepEqual(filters.party(purchase), [
-    ['role', 'in', ['Supplier', 'Both']],
-  ]);
   assert.deepEqual(filters.account(sale), [
     ['is_group', '=', 0],
     ['account_type', '=', 'Receivable'],
@@ -482,19 +497,11 @@ test('links filter by the doctypes they point to', async () => {
     ['is_enabled', '=', 1],
     ['is_purchase', '=', 1],
   ]);
-  assert.deepEqual(createFilters.party(sale), [['role', '=', 'Customer']]);
   const quote = newInvoice('Quotation');
-  const quoteFilters = frappeModels.Quotation.filters;
-  assert.deepEqual(quoteFilters.party(quote), [
-    ['role', 'in', ['Customer', 'Both']],
-  ]);
-  assert.deepEqual(quoteFilters.price_list(quote), [
+  assert.deepEqual(frappeModels.Quotation.filters.price_list(quote), [
     ['is_enabled', '=', 1],
     ['is_sales', '=', 1],
   ]);
-  // Leads have no role.
-  quote.reference_type = 'Books Lead';
-  assert.deepEqual(quoteFilters.party(quote), []);
 });
 
 test('a new invoice from a filtered list takes the values users enter', async () => {
@@ -505,7 +512,7 @@ test('a new invoice from a filtered list takes the values users enter', async ()
   router.push = async (route) => routes.push(route);
   // A party's sales, as the dashboard's paid list narrows them.
   const filters = [
-    ['party', '=', 'Acme'],
+    ['customer', '=', 'Acme'],
     ['docstatus', '=', 1],
     ['outstanding_amount', '=', 0],
     ['date', '>=', '2031-09-01'],
@@ -516,39 +523,25 @@ test('a new invoice from a filtered list takes the values users enter', async ()
 
   const name = decodeURIComponent(routes[0].split('/').at(-1));
   const invoice = await getFrappeDoc('SalesInvoice', name);
-  assert.equal(invoice.party, 'Acme');
+  assert.equal(invoice.customer, 'Acme');
   assert.equal(invoice.docstatus, 0);
   assert.deepEqual(getNewDocValues('SalesInvoice', filters), {
-    party: 'Acme',
+    customer: 'Acme',
   });
 });
 
 test('a record created from a link takes the values its filters choose', () => {
   const sale = newInvoice('SalesInvoice');
-  const { filters, createFilters } = frappeModels.SalesInvoice;
+  const { filters } = frappeModels.SalesInvoice;
 
   assert.deepEqual(getNewDocValues('Account', filters.account(sale)), {
     is_group: false,
     account_type: 'Receivable',
   });
-  assert.deepEqual(getNewDocValues('Party', filters.party(sale)), {
-    role: 'Customer',
-  });
-  assert.deepEqual(getNewDocValues('Party', createFilters.party(sale)), {
-    role: 'Customer',
-  });
   assert.deepEqual(getNewDocValues('PriceList', filters.price_list(sale)), {
     is_enabled: true,
     is_sales: true,
   });
-});
-
-test('a new party from the list of every party takes the default role', () => {
-  const party = getSidebarConfig()
-    .flatMap(({ items }) => items ?? [])
-    .find(({ name }) => name === 'party');
-  assert.equal(party.route, '/list/Party');
-  assert.deepEqual(getNewDocValues('Party', party.filters ?? []), {});
 });
 
 test("a row's transfer unit is its item's stock unit or one of its conversions", async () => {
@@ -650,16 +643,16 @@ test('a submitted quote makes a Frappe-backed sales invoice from its mapper', as
   const requests = stubFrappe(() => ({
     message: {
       name: null,
-      party: 'Acme',
+      customer: 'Acme',
       items: [{ name: null, item: 'Pen', qty: 2, quantity: 2, rate: 5 }],
     },
   }));
 
   assert.equal(makeInvoice.condition(quote), true);
   // The mapper invoices only customers, not leads.
-  quote.reference_type = 'Books Lead';
+  quote.quotation_to = 'Books Lead';
   assert.equal(makeInvoice.condition(quote), false);
-  quote.reference_type = 'Books Party';
+  quote.quotation_to = 'Books Customer';
   const invoice = await getMappedDoc(
     quote,
     'SalesInvoice',
@@ -698,6 +691,6 @@ test('invoice lists show their columns and filter by status, totals and docstatu
   assert.deepEqual(
     frappeModels.SalesInvoice.getListViewSettings()
       .columns.map((column) => column.fieldname ?? column),
-    ['name', 'status', 'party', 'date', 'base_grand_total', 'outstanding_amount']
+    ['name', 'status', 'customer', 'date', 'base_grand_total', 'outstanding_amount']
   );
 });

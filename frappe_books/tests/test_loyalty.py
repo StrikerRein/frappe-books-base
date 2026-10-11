@@ -9,9 +9,9 @@ from frappe_books.commerce.loyalty import expire_programs_and_points, get_availa
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	unique_name,
 )
 
@@ -22,7 +22,7 @@ class IntegrationTestLoyalty(IntegrationTestCase):
 		self.income = make_account("Commerce Sales", root_type="Income", account_type="Income Account")
 		self.expense = make_account("Commerce Expense", root_type="Expense", account_type="Expense Account")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", self.expense.name)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name)
 
 	def test_loyalty_earning_redemption_and_cancel(self):
@@ -36,7 +36,7 @@ class IntegrationTestLoyalty(IntegrationTestCase):
 			loyalty_program=program.name,
 		)
 		invoice.submit()
-		self.assertEqual(frappe.db.get_value("Books Party", self.party.name, "loyalty_points"), 180)
+		self.assertEqual(frappe.db.get_value("Books Customer", self.party.name, "loyalty_points"), 180)
 
 		redemption = make_invoice(
 			"Books Sales Invoice",
@@ -51,12 +51,12 @@ class IntegrationTestLoyalty(IntegrationTestCase):
 		self.assertEqual(Decimal(str(redemption.grand_total)), Decimal("170"))
 		self.assertEqual(Decimal(str(redemption.as_dict().loyalty_points_amount)), Decimal("10"))
 		redemption.submit()
-		self.assertEqual(frappe.db.get_value("Books Party", self.party.name, "loyalty_points"), 160)
+		self.assertEqual(frappe.db.get_value("Books Customer", self.party.name, "loyalty_points"), 160)
 		entries = ledger_entries(redemption.doctype, redemption.name)
 		self.assertEqual(sum(Decimal(str(row.debit or 0)) for row in entries), Decimal("200"))
 		self.assertEqual(sum(Decimal(str(row.credit or 0)) for row in entries), Decimal("200"))
 		redemption.cancel()
-		self.assertEqual(frappe.db.get_value("Books Party", self.party.name, "loyalty_points"), 180)
+		self.assertEqual(frappe.db.get_value("Books Customer", self.party.name, "loyalty_points"), 180)
 
 	def test_expiry_job_disables_program_and_expires_points(self):
 		program = self._loyalty_program()
@@ -77,13 +77,13 @@ class IntegrationTestLoyalty(IntegrationTestCase):
 				"expiry_date": add_days(nowdate(), -1),
 			}
 		).insert()
-		frappe.db.set_value("Books Party", self.party.name, "loyalty_points", 50)
+		frappe.db.set_value("Books Customer", self.party.name, "loyalty_points", 50)
 
 		expire_programs_and_points()
 
 		self.assertEqual(program.db_get("is_enabled"), 0)
 		self.assertEqual(program.db_get("status"), "Expired")
-		self.assertEqual(frappe.db.get_value("Books Party", self.party.name, "loyalty_points"), 0)
+		self.assertEqual(frappe.db.get_value("Books Customer", self.party.name, "loyalty_points"), 0)
 
 	def test_points_expire_only_when_the_program_sets_an_expiry(self):
 		for expiry_duration, available in ((None, 180), (1, 0)):
@@ -233,7 +233,7 @@ class IntegrationTestLoyalty(IntegrationTestCase):
 		self.assertIsNone(invoice.loyalty_program)
 
 	def _points(self):
-		return frappe.db.get_value("Books Party", self.party.name, "loyalty_points")
+		return frappe.db.get_value("Books Customer", self.party.name, "loyalty_points")
 
 	def _loyalty_invoice(self, program, **values):
 		return make_invoice(

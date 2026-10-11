@@ -51,8 +51,7 @@ const options = (
     {
       label: t`Customer`,
       icon: 'lucide-user-round',
-      schemaName: ModelNameEnum.Party,
-      initData: createFilters.Customers,
+      schemaName: ModelNameEnum.Customer,
     },
     { label: t`Item`, icon: 'lucide-box', schemaName: ModelNameEnum.Item },
   ] as CreateOption[]

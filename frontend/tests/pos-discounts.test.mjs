@@ -19,8 +19,8 @@ const {
 
 /** Held sales as the server saved them, with what their previews filled. */
 const heldSales = {
-  'SINV-1001': { party: 'Asha', loyalty_program: 'Gold', points: 40 },
-  'SINV-1002': { party: 'Ravi', loyalty_program: null, points: 0 },
+  'SINV-1001': { customer: 'Asha', loyalty_program: 'Gold', points: 40 },
+  'SINV-1002': { customer: 'Ravi', loyalty_program: null, points: 0 },
 };
 
 await loadFrappeModels(frappeModels, ({ path }) => {
@@ -36,12 +36,12 @@ beforeEach(() => {
   };
 });
 
-function toSavedSale(name, { party, loyalty_program, points }) {
+function toSavedSale(name, { customer, loyalty_program, points }) {
   return {
     name,
     docstatus: 0,
     is_pos: 1,
-    party,
+    customer,
     loyalty_program,
     available_loyalty_points: points,
     items: [{ name: `${name}-1`, item: 'Pen', quantity: 1 }],
@@ -52,7 +52,7 @@ function toSavedSale(name, { party, loyalty_program, points }) {
 function makeSale(values = {}) {
   const sale = newFrappeDoc('SalesInvoice', {
     is_pos: true,
-    party: 'Asha',
+    customer: 'Asha',
     loyalty_program: 'Gold',
     available_loyalty_points: 40,
     items: [{ item: 'Pen', quantity: 1 }],
@@ -80,9 +80,9 @@ const getOffers = (sale) => [isCouponOffered(sale), isLoyaltyOffered(sale)];
 test('coupons and loyalty need an open sale with items and a customer', () => {
   assert.deepEqual(getGates(makeSale()), [true, true]);
   assert.deepEqual(getGates(makeSale({ items: [] })), [false, false]);
-  assert.deepEqual(getGates(makeSale({ party: '' })), [false, false]);
+  assert.deepEqual(getGates(makeSale({ customer: '' })), [false, false]);
   // The actions stay on offer, so their toasts can say what is missing.
-  assert.deepEqual(getOffers(makeSale({ items: [], party: '' })), [true, true]);
+  assert.deepEqual(getOffers(makeSale({ items: [], customer: '' })), [true, true]);
 
   const submitted = makeSale();
   submitted.docstatus = 1;

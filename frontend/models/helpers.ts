@@ -134,7 +134,7 @@ export function getMakeInvoiceAction(
     condition: (doc: FrappeDoc) => {
       // Quotes to leads are not invoiced.
       if (schemaName === ModelNameEnum.Quotation) {
-        return doc.isSubmitted && doc.reference_type === 'Books Party';
+        return doc.isSubmitted && doc.quotation_to === 'Books Customer';
       }
 
       // Delivery notes and receipts are Frappe-backed.
@@ -154,7 +154,7 @@ export function getCreateCustomerAction(fyo: Fyo): Action {
     group: fyo.t`Create`,
     label: fyo.t`Customer`,
     condition: (doc: FrappeDoc) => !doc.notInserted,
-    target: () => [ModelNameEnum.Party, 'make_customer'],
+    target: () => [ModelNameEnum.Customer, 'make_customer'],
   });
 }
 
@@ -190,8 +190,8 @@ async function openPayment(
     await router.push(currentRoute);
   });
 
-  // The party account comes from the invoice.
-  const hideFields = ['party', 'payment_references', 'account'];
+  // The party and its account come from the invoice.
+  const hideFields = ['party_type', 'party', 'payment_references', 'account'];
 
   if (!payment.fyo.singles.AccountingSettings?.enable_invoice_returns) {
     hideFields.push('payment_type');

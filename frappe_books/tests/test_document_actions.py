@@ -26,10 +26,11 @@ from frappe_books.frappe_books.doctype.books_quotation.books_quotation import ma
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
 	make_number_series,
-	make_party,
+	make_supplier,
 )
 
 MAPPERS = "frappe_books.frappe_books.doctype.{0}.{0}.{1}"
@@ -41,7 +42,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		self.income = make_account("Action Income", root_type="Income", account_type="Income Account")
 		self.expense = make_account("Action Expense", root_type="Expense", account_type="Expense Account")
 		self.cash = make_account("Action Cash", account_type="Cash")
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name)
 		frappe.db.set_single_value("Books Defaults", "sales_payment_account", self.cash.name)
 
@@ -71,7 +72,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		seed_stock(item.name, quantity=1, rate=10)
 		row = {"item": item.name, "location": "Stores", "quantity": 1, "rate": 25}
 		shipment = frappe.get_doc(
-			{"doctype": "Books Delivery Note", "party": self.party.name, "items": [row]}
+			{"doctype": "Books Delivery Note", "customer": self.party.name, "items": [row]}
 		)
 		shipment.insert().submit()
 
@@ -86,7 +87,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		seed_stock(item.name, quantity=2, rate=10)
 		row = {"item": item.name, "location": "Stores", "quantity": 2, "rate": 25}
 		shipment = frappe.get_doc(
-			{"doctype": "Books Delivery Note", "party": self.party.name, "items": [row]}
+			{"doctype": "Books Delivery Note", "customer": self.party.name, "items": [row]}
 		)
 		shipment.insert().submit()
 
@@ -149,7 +150,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 
 	def test_partial_and_full_return_flags_for_sales_and_purchases(self):
 		payable = make_account("Return Payable", root_type="Liability", account_type="Payable")
-		supplier = make_party(payable.name, role="Supplier")
+		supplier = make_supplier(payable.name)
 		for doctype, party, account, item_account in (
 			("Books Sales Invoice", self.party.name, self.receivable.name, self.income.name),
 			("Books Purchase Invoice", supplier.name, payable.name, self.expense.name),
@@ -226,7 +227,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 			{"purchase_receipt_location": "Stores", "purchase_payment_account": self.cash.name},
 		)
 		item = make_item(self.income.name, received.name, track_item=1)
-		supplier = make_party(payable.name, role="Supplier")
+		supplier = make_supplier(payable.name)
 		invoice = make_invoice(
 			"Books Purchase Invoice",
 			supplier.name,
@@ -392,7 +393,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		bank = make_account("Auto Bank", account_type="Bank")
 		frappe.db.set_single_value("Books Defaults", "purchase_payment_account", bank.name)
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", self.expense.name)
-		supplier = make_party(payable.name, role="Supplier")
+		supplier = make_supplier(payable.name)
 		cases = (
 			("Books Sales Invoice", self.party.name, self.receivable.name, self.income.name, "Cash"),
 			("Books Purchase Invoice", supplier.name, payable.name, self.expense.name, "Bank"),
@@ -439,7 +440,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 	def test_preview_shows_the_follow_up_defaults(self):
 		document = {
 			"doctype": "Books Sales Invoice",
-			"party": self.party.name,
+			"customer": self.party.name,
 			"items": [{"item": self.item.name, "quantity": 1}],
 			"__islocal": 1,
 		}
@@ -462,7 +463,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 	def _invoice_values(self, **values):
 		return {
 			"doctype": "Books Sales Invoice",
-			"party": self.party.name,
+			"customer": self.party.name,
 			"date": frappe.utils.now_datetime(),
 			"items": [{"item": self.item.name, "rate": 75, "quantity": 2}],
 			**values,
@@ -473,8 +474,8 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 			frappe.get_doc(
 				{
 					"doctype": "Books Quotation",
-					"reference_type": "Books Party",
-					"party": self.party.name,
+					"quotation_to": "Books Customer",
+					"party_name": self.party.name,
 					"date": frappe.utils.now_datetime(),
 					"items": [{"item": self.item.name, "rate": 75, "quantity": 2}],
 				}

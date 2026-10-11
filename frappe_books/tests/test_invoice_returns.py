@@ -6,7 +6,7 @@ from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_n
 	make_batch,
 	seed_stock,
 )
-from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party
+from frappe_books.tests.accounting import make_account, make_customer, make_invoice, make_item
 
 
 class IntegrationTestInvoiceReturns(IntegrationTestCase):
@@ -14,7 +14,7 @@ class IntegrationTestInvoiceReturns(IntegrationTestCase):
 		self.receivable = make_account("Return Receivable", account_type="Receivable")
 		self.income = make_account("Return Income", root_type="Income", account_type="Income Account")
 		self.received = make_account("Return Received", root_type="Liability").name
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 
 	def test_a_credit_note_returns_only_the_batches_the_invoice_sold(self):
 		item = make_item(self.income.name, self.received, track_item=1, has_batch=1).name

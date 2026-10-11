@@ -245,7 +245,7 @@
    "fieldname": "pos_customer",
    "fieldtype": "Link",
    "label": "POS Customer",
-   "options": "Books Party"
+   "options": "Books Customer"
   },
   {
    "fieldname": "pos_cash_denominations",

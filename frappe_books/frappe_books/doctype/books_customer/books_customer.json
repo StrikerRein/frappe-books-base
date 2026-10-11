@@ -4,14 +4,13 @@
  "allow_import": 1,
  "allow_rename": 1,
  "autoname": "Prompt",
- "creation": "2026-08-27 22:09:39.949525",
+ "creation": "2026-10-11 12:00:00.000000",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "default_section_break_1",
   "image",
-  "role",
   "contacts_section_break_4",
   "email",
   "phone",
@@ -40,15 +39,6 @@
    "fieldname": "image",
    "fieldtype": "Attach Image",
    "label": "Image"
-  },
-  {
-   "default": "Both",
-   "fieldname": "role",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Role",
-   "options": "Both\nSupplier\nCustomer",
-   "reqd": 1
   },
   {
    "fieldname": "contacts_section_break_4",
@@ -158,10 +148,10 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-05 16:00:00.000000",
+ "modified": "2026-10-11 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Books",
- "name": "Books Party",
+ "name": "Books Customer",
  "owner": "Administrator",
  "permissions": [
   {
@@ -216,7 +206,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "search_fields": "email, role, phone",
+ "search_fields": "email, phone",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],

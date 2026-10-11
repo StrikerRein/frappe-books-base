@@ -222,7 +222,7 @@ const showCoupon = computed(() => isCouponOffered(sinvDoc.value));
 const summary = computed(() => {
   const quantity = getTotalQuantity(sinvDoc.value.items ?? []);
   const items = quantity === 1 ? t`1 item` : t`${quantity} items`;
-  return [sinvDoc.value.party, items].filter(Boolean).join(' · ');
+  return [sinvDoc.value.customer, items].filter(Boolean).join(' · ');
 });
 
 // Only Net Total means nothing changed it, so the amount due says it all.

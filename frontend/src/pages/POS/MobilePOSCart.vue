@@ -11,11 +11,11 @@
           class="w-full"
           secondary-link="phone"
           :border="true"
-          :value="sinvDoc.party"
-          :df="sinvDoc.fieldMap.party"
+          :value="sinvDoc.customer"
+          :df="sinvDoc.fieldMap.customer"
           :show-clear-button="true"
           :read-only="sinvDoc.isSubmitted"
-          @change="(party: string) => $emit('setCustomer', party)"
+          @change="(customer: string) => $emit('setCustomer', customer)"
         />
       </div>
 
@@ -131,7 +131,7 @@ defineProps<{ open: boolean; disablePay: boolean }>();
 
 defineEmits<{
   'update:open': [open: boolean];
-  setCustomer: [party: string];
+  setCustomer: [customer: string];
   edit: [row: SalesInvoiceItem];
   hold: [];
   pay: [];

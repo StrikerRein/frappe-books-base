@@ -12,7 +12,7 @@ function getPOS() {
   const pos = {
     ...POS.methods,
     shortcuts: { shift: group('shift'), pmodShift: group('pmodShift') },
-    sinvDoc: { party: 'Walk-in', items: [{ item: 'Pen' }], isSubmitted: false },
+    sinvDoc: { customer: 'Walk-in', items: [{ item: 'Pen' }], isSubmitted: false },
     openPriceListModal: true,
     calls: [],
     saveOrder: async () => pos.calls.push('save'),

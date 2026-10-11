@@ -16,8 +16,8 @@ from frappe_books.reports.stock import VALUE_COLUMNS
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
+	make_customer,
 	make_item,
-	make_party,
 	root_group,
 	unique_name,
 )
@@ -370,7 +370,7 @@ class IntegrationTestGSTR(IntegrationTestCase):
 		self.receivable = make_account("GSTR Receivable", account_type="Receivable")
 		self.income = make_account("GSTR Income", root_type="Income", account_type="Income Account")
 		expense = make_account("GSTR Expense", root_type="Expense", account_type="Expense Account")
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, expense.name).name
 
 	def test_mixed_rates_give_one_row_per_rate(self):
@@ -462,7 +462,7 @@ class IntegrationTestGSTR(IntegrationTestCase):
 	def test_invoices_and_parties_are_read_in_batches(self):
 		gst_18 = _tax(("CGST", 9), ("SGST", 9))
 		first = self._invoice((gst_18, 100, 1))
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		second = self._invoice((gst_18, 200, 1))
 
 		with patch.object(gst, "IN_LIST_BATCH_SIZE", 1):
@@ -608,14 +608,14 @@ class IntegrationTestGSTR(IntegrationTestCase):
 			}
 		).insert()
 		gst_type = "Registered Regular" if values.get("gstin") else "Unregistered"
-		return make_party(self.receivable.name, address=address.name, gst_type=gst_type, **values)
+		return make_customer(self.receivable.name, address=address.name, gst_type=gst_type, **values)
 
 	def _invoice(self, *rows, date=None):
 		return (
 			frappe.get_doc(
 				{
 					"doctype": "Books Sales Invoice",
-					"party": self.party.name,
+					"customer": self.party.name,
 					"account": self.receivable.name,
 					"date": date or now_datetime(),
 					"items": [

@@ -17,7 +17,8 @@ import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEn
 import { Lead } from './baseModels/Lead/Lead';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { Payment } from './baseModels/Payment/Payment';
-import { Party } from './baseModels/Party/Party';
+import { Customer } from './baseModels/Customer/Customer';
+import { Supplier } from './baseModels/Supplier/Supplier';
 import { PaymentMethod } from './baseModels/PaymentMethod/PaymentMethod';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
@@ -60,7 +61,8 @@ export const frappeModels: Record<string, FrappeModel> = {
   Account,
   AccountingSettings,
   AccountingLedgerEntry,
-  Party,
+  Customer,
+  Supplier,
   Lead,
   Address,
   ItemGroup,
@@ -103,10 +105,10 @@ export async function getRegionalFrappeModels(
     return {};
   }
 
-  const [{ Account }, { Address }, { Party }] = await Promise.all([
+  const [{ Account }, { Address }, { Customer, Supplier }] = await Promise.all([
     import('./regionalModels/in/Account'),
     import('./regionalModels/in/Address'),
     import('./regionalModels/in/Party'),
   ]);
-  return { Account, Address, Party };
+  return { Account, Address, Customer, Supplier };
 }

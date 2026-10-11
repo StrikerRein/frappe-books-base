@@ -99,6 +99,8 @@ export class FrappeDoc extends Observable<DocValue | FrappeDoc[]> {
   static refills: Record<string, string[]> = {};
   /** Fields whose default the server decides, like one that follows a setting; see `leaveToServer`. */
   static serverDefaults: string[] = [];
+  /** The field that names the document's customer or supplier, if it has one. */
+  static partyField?: string;
 
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
@@ -220,7 +222,7 @@ export class FrappeDoc extends Observable<DocValue | FrappeDoc[]> {
     return this.name ?? '';
   }
 
-  /** The kind of record the user sees, such as Customer for a customer party. */
+  /** The kind of record the user sees, such as Sales Invoice. */
   get typeLabel(): string {
     return this.schema.label || this.schemaName;
   }

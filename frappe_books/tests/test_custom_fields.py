@@ -34,7 +34,7 @@ PARTY_FIELD = {
 	"label": "Hosted Bridge Test Party",
 	"fieldname": "hostedBridgeTestParty",
 	"fieldtype": "Link",
-	"target": "Books Party",
+	"target": "Books Customer",
 }
 REFERENCE_FIELD = {
 	"label": "Hosted Bridge Test Reference",
@@ -114,10 +114,10 @@ class IntegrationTestCustomFields(IntegrationTestCase):
 		fields = [SIZE_FIELD, PARTY_FIELD, REFERENCE_FIELD]
 		_custom_form("Books Uom", fields).insert()
 
-		self.assertEqual(_custom_field(PARTY_FIELD).options, "Books Party")
+		self.assertEqual(_custom_field(PARTY_FIELD).options, "Books Customer")
 		self.assertEqual(_custom_field(REFERENCE_FIELD).options, "custom_books_hostedbridgetestsize")
 		rows = client.get("Books Custom Form", "Books Uom")["custom_fields"]
-		self.assertEqual(_row(rows, PARTY_FIELD)["target"], "Books Party")
+		self.assertEqual(_row(rows, PARTY_FIELD)["target"], "Books Customer")
 		self.assertEqual(_row(rows, REFERENCE_FIELD)["references"], "custom_books_hostedbridgetestsize")
 
 	def test_a_loaded_form_saves_unchanged(self):

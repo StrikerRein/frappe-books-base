@@ -9,9 +9,10 @@ from frappe_books.reports.stock import get_ledger_data
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
+	make_supplier,
 	make_tax,
 	set_inventory_accounts,
 )
@@ -35,7 +36,7 @@ class IntegrationTestIssueFixes(IntegrationTestCase):
 		expense = make_account("Receipt Expense", root_type="Expense")
 		tax_account = make_account("Recoverable Tax", account_type="Tax")
 		tax = make_tax(tax_account.name, rate=18)
-		party = make_party(payable.name, role="Supplier")
+		party = make_supplier(payable.name)
 		item = make_item(income.name, received.name, tax=tax.name, track_item=1)
 		set_inventory_accounts(stock.name, received.name, expense.name)
 		frappe.db.set_single_value("Books Defaults", "purchase_receipt_location", "Stores")
@@ -64,7 +65,7 @@ class IntegrationTestIssueFixes(IntegrationTestCase):
 		income = make_account("Multiple Income", root_type="Income")
 		expense = make_account("Multiple Expense", root_type="Expense")
 		cash = make_account("Multiple Cash", account_type="Cash")
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		item = make_item(income.name, expense.name)
 		invoices = []
 		for amount in (157.5, 63):
@@ -75,6 +76,7 @@ class IntegrationTestIssueFixes(IntegrationTestCase):
 			frappe.get_doc(
 				{
 					"doctype": "Books Payment",
+					"party_type": party.doctype,
 					"party": party.name,
 					"date": frappe.utils.now_datetime(),
 					"payment_type": "Receive",

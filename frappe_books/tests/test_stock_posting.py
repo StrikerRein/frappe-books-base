@@ -16,8 +16,8 @@ from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry 
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_item,
-	make_party,
 	set_inventory_accounts,
 	unique_name,
 )
@@ -60,11 +60,11 @@ def _move_to(item, location, quantity, date):
 
 def _ship(item, location, quantity, date, return_against=None):
 	party = return_against.party if return_against else None
-	party = party or make_party(make_account("Receivable", account_type="Receivable").name).name
+	party = party or make_customer(make_account("Receivable", account_type="Receivable").name).name
 	shipment = frappe.get_doc(
 		{
 			"doctype": "Books Delivery Note",
-			"party": party,
+			"customer": party,
 			"date": date,
 			"return_against": return_against and return_against.name,
 			"items": [{"item": item, "location": location, "quantity": quantity, "rate": 25}],

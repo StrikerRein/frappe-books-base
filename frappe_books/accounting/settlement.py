@@ -44,26 +44,20 @@ def signed(invoice, amount):
 	return -amount if invoice.get("return_against") else amount
 
 
-def refresh_party(party_name):
-	"""Store what the party owes, net of what is owed to it when it both buys and sells."""
-	role = party_name and frappe.db.get_value("Books Party", party_name, "role")
-	if not role:
+PARTY_INVOICES = {
+	"Books Customer": ("Books Sales Invoice", "customer"),
+	"Books Supplier": ("Books Purchase Invoice", "supplier"),
+}
+
+
+def refresh_party(party_type, party):
+	"""Store what the customer or supplier owes on its invoices."""
+	if not party:
 		return
-	if role == "Customer":
-		total = _invoice_total("Books Sales Invoice", party_name)
-	elif role == "Supplier":
-		total = _invoice_total("Books Purchase Invoice", party_name)
-	else:
-		total = _invoice_total("Books Sales Invoice", party_name) - _invoice_total(
-			"Books Purchase Invoice", party_name
-		)
-	frappe.db.set_value("Books Party", party_name, "outstanding_amount", rounded(total))
-
-
-def _invoice_total(doctype, party_name):
+	doctype, party_field = PARTY_INVOICES[party_type]
 	rows = frappe.get_all(
 		doctype,
-		filters={"party": party_name, "docstatus": 1},
+		filters={party_field: party, "docstatus": 1},
 		fields=[{"SUM": "outstanding_amount", "as": "total"}],
 	)
-	return as_decimal(rows[0].total)
+	frappe.db.set_value(party_type, party, "outstanding_amount", rounded(as_decimal(rows[0].total)))

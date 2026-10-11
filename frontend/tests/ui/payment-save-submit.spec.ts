@@ -195,7 +195,7 @@ async function installPaymentFixture(page: Page) {
     // The invoice exists only in this fixture; it is paid once the payment is submitted.
     const invoice = {
       name: 'PAYMENT-FLOW-INVOICE',
-      party: 'Flow Supplier',
+      supplier: 'Flow Supplier',
       account: 'Flow Creditors',
       date: '2026-09-30 10:00:00',
       docstatus: 1,
@@ -217,7 +217,8 @@ async function installPaymentFixture(page: Page) {
         answer({
           message: {
             doctype: 'Books Payment',
-            party: invoice.party,
+            party_type: 'Books Supplier',
+            party: invoice.supplier,
             date: '2026-09-30 10:00:00',
             payment_type: 'Pay',
             payment_method: 'Cash',

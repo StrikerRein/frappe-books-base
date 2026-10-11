@@ -1,6 +1,7 @@
 """Factories used by accounting integration tests."""
 
 import frappe
+from frappe.model.base_document import get_controller
 from frappe.tests import change_settings
 from frappe.utils import flt, now_datetime
 
@@ -51,12 +52,19 @@ def root_group(root_type):
 	return name
 
 
-def make_party(default_account, role="Customer", **values):
+def make_customer(default_account, **values):
+	return _make_party("Books Customer", default_account, **values)
+
+
+def make_supplier(default_account, **values):
+	return _make_party("Books Supplier", default_account, **values)
+
+
+def _make_party(party_type, default_account, **values):
 	return frappe.get_doc(
 		{
-			"doctype": "Books Party",
+			"doctype": party_type,
 			"name": unique_name("Test Party"),
-			"role": role,
 			"default_account": default_account,
 			**values,
 		}
@@ -97,7 +105,7 @@ def make_invoice(doctype, party, account, item, item_account, **values):
 	return frappe.get_doc(
 		{
 			"doctype": doctype,
-			"party": party,
+			get_controller(doctype).party_field: party,
 			"account": account,
 			"date": now_datetime(),
 			"items": [

@@ -26,9 +26,10 @@ from frappe_books.printing import (
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
+	make_supplier,
 	make_tax,
 	unique_name,
 )
@@ -47,7 +48,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		frappe.db.set_single_value(
 			"Books Accounting Settings", {"discount_account": self.expense.name, "enable_partial_payment": 1}
 		)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.tax_account = make_account("Print Tax", root_type="Liability", account_type="Tax")
 		self.item = make_item(self.income.name, self.expense.name, make_tax(self.tax_account.name).name)
 
@@ -91,18 +92,23 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		item = make_item(
 			self.income.name, self.expense.name, uom_conversions=[{"uom": box, "conversion_factor": 50}]
 		)
-		party = make_party(self.receivable.name, role="Both").name
+		customer = make_customer(self.receivable.name).name
 		payable = make_account("Print Payable", root_type="Liability", account_type="Payable").name
+		supplier = make_supplier(payable).name
 		row = {"item": item.name, "transfer_unit": box, "transfer_quantity": 6, "rate": 62}
 		for doctype, print_format, values in (
-			("Books Sales Invoice", "Business - Sales Invoice", {}),
-			("Books Sales Invoice", "Business-POS - Sales Invoice", {}),
-			("Books Quotation", "Business - Quotation", {}),
-			("Books Purchase Invoice", "Business - Purchase Invoice", {"account": payable}),
+			("Books Sales Invoice", "Business - Sales Invoice", {"customer": customer}),
+			("Books Sales Invoice", "Business-POS - Sales Invoice", {"customer": customer}),
+			("Books Quotation", "Business - Quotation", {"party_name": customer}),
+			(
+				"Books Purchase Invoice",
+				"Business - Purchase Invoice",
+				{"supplier": supplier, "account": payable},
+			),
 		):
 			with self.subTest(print_format=print_format):
 				doc = frappe.get_doc(
-					{"doctype": doctype, "party": party, "date": now_datetime(), "items": [row], **values}
+					{"doctype": doctype, "date": now_datetime(), "items": [row], **values}
 				).insert()
 				html = get_print(doctype, doc.name, print_format=print_format)
 
@@ -332,7 +338,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 	def test_print_hints_list_document_and_print_settings_fields(self):
 		hints = get_print_hints("Books Sales Invoice")
 
-		self.assertEqual(hints["doc"]["party"], "Customer")
+		self.assertEqual(hints["doc"]["customer"], "Customer")
 		self.assertEqual(hints["doc"]["items"][0]["rate"], "Rate")
 		self.assertNotIn("items_section_break_7", hints["doc"])
 		self.assertEqual(hints["print"]["company_name"], "Company Name")
@@ -410,6 +416,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		payment = frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": self.party.doctype,
 				"party": self.party.name,
 				"date": now_datetime(),
 				"payment_type": "Receive",

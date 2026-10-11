@@ -166,10 +166,11 @@ async function routeTo(page: Page, path: string) {
 
 /** A submitted payment from a new customer. */
 async function insertPayment(page: Page) {
-  const party = `Template Customer ${Date.now()}`;
-  await insertDocument(page, 'Books Party', { name: party, role: 'Customer' });
+  const customer = `Template Customer ${Date.now()}`;
+  await insertDocument(page, 'Books Customer', { name: customer });
   await insertDocument(page, 'Books Payment', {
-    party,
+    party_type: 'Books Customer',
+    party: customer,
     payment_type: 'Receive',
     payment_method: 'Cash',
     amount: 10,

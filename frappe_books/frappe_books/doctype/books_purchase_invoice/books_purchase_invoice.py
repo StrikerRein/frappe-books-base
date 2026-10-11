@@ -44,11 +44,11 @@ class BooksPurchaseInvoice(PostingInvoiceController):
 		net_total: DF.Currency
 		number_series: DF.Link
 		outstanding_amount: DF.Currency
-		party: DF.Link
 		price_list: DF.Link | None
 		return_against: DF.Link | None
 		status: DF.Literal["Saved", "Unpaid", "Partly Paid", "Paid", "Return", "Return Issued", "Cancelled"]
 		stock_not_transferred: DF.Float
+		supplier: DF.Link
 		taxes: DF.Table[BooksTaxSummary]
 		terms: DF.Text | None
 		total_discount: DF.Currency
@@ -56,6 +56,8 @@ class BooksPurchaseInvoice(PostingInvoiceController):
 
 	transaction_type = "purchase"
 	is_purchase = True
+	party_type = "Books Supplier"
+	party_field = "supplier"
 	party_account_type = "Payable"
 	item_account_field = "expense_account"
 

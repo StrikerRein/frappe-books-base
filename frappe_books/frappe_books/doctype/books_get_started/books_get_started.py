@@ -55,11 +55,11 @@ class BooksGetStarted(Document):
 
 	@property
 	def customer_created(self):
-		return has_record("Books Party", role=["in", ["Customer", "Both"]])
+		return has_record("Books Customer")
 
 	@property
 	def supplier_created(self):
-		return has_record("Books Party", role=["in", ["Supplier", "Both"]])
+		return has_record("Books Supplier")
 
 	@property
 	def invoice_created(self):

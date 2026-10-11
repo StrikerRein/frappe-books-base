@@ -2,9 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 import { updateSingle } from './helpers/records';
 import { useBooksSession, waitForBooks } from './helpers/session';
 
-// Frappe serves parties, addresses, leads and pricing rules directly; their
+// Frappe serves customers, addresses, leads and pricing rules directly; their
 // screens still look and behave as before.
-useBooksSession('/books/list/Party');
+useBooksSession('/books/list/Customer');
 
 test('a new customer saves with an address made from its link', async ({
   page,
@@ -12,7 +12,7 @@ test('a new customer saves with an address made from its link', async ({
   const name = `Form Customer ${Date.now()}`;
   const addressName = `${name} Office`;
   await page.getByRole('button', { name: 'New', exact: true }).click();
-  await expect(page).toHaveURL(/\/books\/edit\/Party\//);
+  await expect(page).toHaveURL(/\/books\/edit\/Customer\//);
   await page
     .getByRole('textbox', { name: 'Name (required)', exact: true })
     .fill(name);
@@ -36,15 +36,15 @@ test('a new customer saves with an address made from its link', async ({
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
   await expect(page).toHaveURL(
-    new RegExp(`/books/edit/Party/${encodeURIComponent(name)}$`)
+    new RegExp(`/books/edit/Customer/${encodeURIComponent(name)}$`)
   );
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
-  expect(await getValue(page, 'Books Party', name, 'address')).toBe(
+  expect(await getValue(page, 'Books Customer', name, 'address')).toBe(
     addressName
   );
 });
 
-test('a party email is checked as Frappe checks it, with the Books message', async ({
+test('a customer email is checked as Frappe checks it, with the Books message', async ({
   page,
 }) => {
   await page.getByRole('button', { name: 'New', exact: true }).click();
@@ -67,10 +67,7 @@ test('a lead makes its customer through the server mapper', async ({
   await page.getByRole('button', { name: 'Create', exact: true }).click();
   await page.getByRole('menuitem', { name: 'Customer', exact: true }).click();
   await expect(page).toHaveURL(
-    new RegExp(`/books/edit/Party/${encodeURIComponent(lead)}$`)
-  );
-  await expect(page.getByRole('combobox', { name: 'Role' })).toHaveText(
-    /Customer/
+    new RegExp(`/books/edit/Customer/${encodeURIComponent(lead)}$`)
   );
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
@@ -127,8 +124,8 @@ test.describe('on a phone', () => {
 
   test('a customer saves a new phone number', async ({ page }) => {
     const name = `Phone Customer ${Date.now()}`;
-    await insert(page, 'Books Party', { name, role: 'Customer' });
-    await page.goto(`/books/edit/Party/${encodeURIComponent(name)}`);
+    await insert(page, 'Books Customer', { name });
+    await page.goto(`/books/edit/Customer/${encodeURIComponent(name)}`);
     await waitForBooks(page);
 
     // Phones collapse sections that hold no value.
@@ -137,7 +134,7 @@ test.describe('on a phone', () => {
     await page.keyboard.press('Tab');
     await page.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(page.getByText(`${name} saved`)).toBeVisible();
-    expect(await getValue(page, 'Books Party', name, 'phone')).toBe(
+    expect(await getValue(page, 'Books Customer', name, 'phone')).toBe(
       '+91 98200 00000'
     );
   });

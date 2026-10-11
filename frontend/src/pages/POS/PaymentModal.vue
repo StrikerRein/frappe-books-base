@@ -174,7 +174,7 @@ export default defineComponent({
     },
     paymentSubtitle(): string {
       const name = this.sinvDoc.inserted ? this.sinvDoc.name : '';
-      return [name, this.sinvDoc.party].filter(Boolean).join(' · ');
+      return [name, this.sinvDoc.customer].filter(Boolean).join(' · ');
     },
   },
   watch: {

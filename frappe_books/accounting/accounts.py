@@ -1,11 +1,7 @@
 import frappe
 from frappe import _
 
-PARTY_ACCOUNT_TYPES = {
-	"Customer": ("Receivable",),
-	"Supplier": ("Payable",),
-	"Both": ("Receivable", "Payable"),
-}
+PARTY_ACCOUNT_TYPES = {"Books Customer": "Receivable", "Books Supplier": "Payable"}
 PAYMENT_ACCOUNT_TYPES = ("Cash", "Bank")
 
 
@@ -34,9 +30,9 @@ def validate_payment_account(doc, fieldname, method_type):
 	validate_account(doc, fieldname, ("Cash",) if method_type == "Cash" else PAYMENT_ACCOUNT_TYPES)
 
 
-def validate_party_account(doc, fieldname, role):
+def validate_party_account(doc, fieldname, party_type):
 	"""A customer's ledger account is receivable, a supplier's payable."""
-	validate_account(doc, fieldname, PARTY_ACCOUNT_TYPES.get(role, ()))
+	validate_account(doc, fieldname, (PARTY_ACCOUNT_TYPES[party_type],))
 
 
 def validate_changed_accounts(doc, rules):
@@ -51,15 +47,3 @@ def latest_ledger_account(account_type):
 	return frappe.db.get_value(
 		"Books Account", {"account_type": account_type, "is_group": 0}, "name", order_by="creation desc"
 	)
-
-
-def validate_party_role(doc, is_purchase):
-	"""Sales go to customers and purchases come from suppliers; a party with both roles does either."""
-	role = doc.party and frappe.db.get_value("Books Party", doc.party, "role")
-	expected = "Supplier" if is_purchase else "Customer"
-	if role and role not in (expected, "Both"):
-		frappe.throw(
-			_("{0} must be a {1}, but {2} is a {3}.").format(
-				_(doc.meta.get_label("party")), _(expected), doc.party, _(role)
-			)
-		)

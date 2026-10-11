@@ -8,11 +8,11 @@
  "field_order": [
   "default_section_break_1",
   "number_series",
-  "party",
+  "party_name",
   "date",
   "status",
   "price_list",
-  "reference_type",
+  "quotation_to",
   "items_section_break_6",
   "items",
   "net_total",
@@ -49,11 +49,11 @@
    "set_only_once": 1
   },
   {
-   "fieldname": "party",
+   "fieldname": "party_name",
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Customer",
-   "options": "reference_type",
+   "options": "quotation_to",
    "reqd": 1
   },
   {
@@ -85,11 +85,12 @@
    "options": "Books Price List"
   },
   {
-   "default": "Books Party",
-   "fieldname": "reference_type",
+   "default": "Books Customer",
+   "fieldname": "quotation_to",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Type",
+   "link_filters": "[[\"DocType\",\"name\",\"in\",[\"Books Customer\",\"Books Lead\"]]]",
    "options": "DocType",
    "placeholder": "Type",
    "reqd": 1
@@ -292,7 +293,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "search_fields": "party",
+ "search_fields": "party_name",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [

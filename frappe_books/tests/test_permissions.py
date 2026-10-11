@@ -19,9 +19,9 @@ from frappe_books.reports.financial_statements import get_account_balances
 from frappe_books.search import BooksSearch, build_search_index, search
 from frappe_books.tests.accounting import (
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	make_tax,
 	unique_name,
 )
@@ -42,7 +42,8 @@ ROLE_MATRIX = {
 	"Books Payment": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Stock Entry": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Journal Entry": (FULL_SUBMIT, FULL_SUBMIT, NONE),
-	"Books Party": (FULL, FULL, FULL),
+	"Books Customer": (FULL, FULL, FULL),
+	"Books Supplier": (FULL, FULL, FULL),
 	"Books Item": (FULL, FULL, FULL),
 	"Books Account": (FULL, FULL, NONE),
 	"Books Tax": (FULL, FULL, READ),
@@ -144,7 +145,7 @@ class IntegrationTestPermissions(IntegrationTestCase):
 		receivable = make_account("Rights Receivable", account_type="Receivable")
 		other_receivable = make_account("Rights Other Receivable", account_type="Receivable")
 		item = make_item(income.name, expense.name)
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		row = {"item": item.name, "account": other_income.name, "rate": 100, "quantity": 1}
 
 		with self.set_user(BOOKS_USER):
@@ -220,11 +221,11 @@ class IntegrationTestPermissions(IntegrationTestCase):
 					self.assertRaises(frappe.PermissionError, client.insert, {"doctype": doctype})
 
 	def test_documents_hide_fields_above_the_users_permlevel(self):
-		party = make_party(make_account("Permlevel Receivable", account_type="Receivable").name)
+		party = make_customer(make_account("Permlevel Receivable", account_type="Receivable").name)
 		party.db_set("email", "hidden@example.com")
-		email = frappe.get_meta("Books Party").get_field("email")
+		email = frappe.get_meta("Books Customer").get_field("email")
 		with patch.object(email, "permlevel", 2), self.set_user(BOOKS_USER):
-			self.assertIsNone(read_doc("Books Party", party.name).get("email"))
+			self.assertIsNone(read_doc("Books Customer", party.name).get("email"))
 
 	def test_counts_skip_documents_the_user_cannot_read(self):
 		readable, hidden = _seed_delivery_note(), _seed_delivery_note()
@@ -268,7 +269,7 @@ class IntegrationTestPermissions(IntegrationTestCase):
 		receivable = make_account("Permission Receivable", account_type="Receivable")
 		income = make_account("Permission Income", root_type="Income", account_type="Income Account")
 		expense = make_account("Permission Expense", root_type="Expense", account_type="Expense Account")
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		item = make_item(income.name, expense.name)
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", expense.name)
 		row = {
@@ -297,7 +298,7 @@ def _role_rights(doctype, role):
 
 def _new_data_import():
 	return frappe.get_doc(
-		{"doctype": "Data Import", "reference_doctype": "Books Party", "import_type": "Insert New Records"}
+		{"doctype": "Data Import", "reference_doctype": "Books Customer", "import_type": "Insert New Records"}
 	)
 
 

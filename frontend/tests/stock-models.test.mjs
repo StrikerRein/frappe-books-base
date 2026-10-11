@@ -177,7 +177,7 @@ test('picking an invoice fills a shipment with the rows its mapper gives', async
   const requests = stubFrappe(() => ({
     message: {
       doctype: 'Books Delivery Note',
-      party: 'Customer',
+      customer: 'Asha',
       back_reference: 'SINV-1',
       return_against: null,
       items: [{ item: 'Pen', quantity: 2, serial_number: 'SN-7' }],
@@ -196,7 +196,7 @@ test('picking an invoice fills a shipment with the rows its mapper gives', async
       'frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice.make_delivery_note',
     source_name: 'SINV-1',
   });
-  assert.equal(shipment.party, 'Customer');
+  assert.equal(shipment.customer, 'Asha');
   assert.deepEqual(
     shipment.items.map(({ item, quantity, serial_number }) => [
       item,
@@ -211,20 +211,10 @@ test('links of stock documents filter by the vocabulary of their targets', async
   const requests = stubFrappe(() => ({
     data: [{ unit: 'Unit', uom_conversions: [{ uom: 'Box' }] }],
   }));
-  const shipment = newFrappeDoc('DeliveryNote');
-  const receipt = newFrappeDoc('PurchaseReceipt');
   const movementRow = newFrappeDoc('StockEntry')._getChildDoc(
     { item: 'Pen' },
     'items'
   );
-  const { DeliveryNote, PurchaseReceipt } = frappeModels;
-
-  assert.deepEqual(DeliveryNote.filters.party(shipment), [
-    ['role', 'in', ['Customer', 'Both']],
-  ]);
-  assert.deepEqual(PurchaseReceipt.createFilters.party(receipt), [
-    ['role', '=', 'Supplier'],
-  ]);
   assert.deepEqual(getModel('DeliveryNoteItem').filters.item(), [
     ['track_item', '=', 1],
   ]);

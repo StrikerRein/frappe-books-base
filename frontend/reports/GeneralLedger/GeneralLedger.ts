@@ -18,7 +18,7 @@ export class GeneralLedger extends Report {
     credit: 'credit',
     meta: ['reference_name', 'party'],
     balance: 'balance',
-    chips: ['fromDate', 'toDate', 'account', 'party'],
+    chips: ['fromDate', 'toDate', 'account', 'partyType', 'party'],
   };
   usePagination = true;
 
@@ -100,10 +100,21 @@ export class GeneralLedger extends Report {
         fieldname: 'account',
       },
       {
-        fieldtype: 'Link',
-        target: 'Party',
+        fieldtype: 'Select',
+        options: [
+          { label: t`Customer`, value: 'Books Customer' },
+          { label: t`Supplier`, value: 'Books Supplier' },
+        ],
+        label: t`Party Type`,
+        fieldname: 'partyType',
+        placeholder: t`Party Type`,
+      },
+      {
+        fieldtype: 'DynamicLink',
         label: t`Party`,
+        references: 'partyType',
         placeholder: t`Party`,
+        emptyMessage: t`Change Party Type`,
         fieldname: 'party',
       },
       {

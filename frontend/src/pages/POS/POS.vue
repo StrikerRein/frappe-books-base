@@ -90,8 +90,8 @@
             class="w-full"
             secondary-link="phone"
             :border="true"
-            :value="sinvDoc.party"
-            :df="sinvDoc.fieldMap.party"
+            :value="sinvDoc.customer"
+            :df="sinvDoc.fieldMap.customer"
             :show-clear-button="true"
             :read-only="sinvDoc.isSubmitted"
             @change="setCustomer"
@@ -168,7 +168,7 @@
     />
     <ItemEnquiryModal
       :open-modal="openItemEnquiryModal"
-      :customer="sinvDoc.party"
+      :customer="sinvDoc.customer"
       @toggle-modal="toggleModal('ItemEnquiry', false)"
     />
     <PaymentModal
@@ -413,7 +413,7 @@ export default defineComponent({
       return t`Shift opened ${time}`;
     },
     disablePayButton(): boolean {
-      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.customer) {
         return true;
       }
 
@@ -550,12 +550,12 @@ export default defineComponent({
     },
     async setCustomer(value: string) {
       if (!value) {
-        this.sinvDoc.party = '';
+        this.sinvDoc.customer = '';
         return;
       }
 
       // Set as the user's choice, which previews keep instead of the POS customer.
-      await this.sinvDoc.set('party', value);
+      await this.sinvDoc.set('customer', value);
     },
 
     async loadPOSProfile() {
@@ -622,7 +622,7 @@ export default defineComponent({
         if (
           !this.hasAnyOpenModal() &&
           !this.sinvDoc.isSubmitted &&
-          this.sinvDoc.party &&
+          this.sinvDoc.customer &&
           this.sinvDoc.items?.length
         ) {
           await this.saveOrder();
@@ -703,7 +703,7 @@ export default defineComponent({
         is_pos: true,
       }) as SalesInvoice;
       await this.previewInvoice();
-      this.defaultCustomer = this.sinvDoc.party ?? '';
+      this.defaultCustomer = this.sinvDoc.customer ?? '';
     },
     async setItemQtyMap() {
       this.itemQtyMap = await getItemQtyMap();
@@ -711,7 +711,7 @@ export default defineComponent({
     /** A new POS sale; the server bills it to the POS account. */
     setSinvDoc() {
       this.sinvDoc = newFrappeDoc(ModelNameEnum.SalesInvoice, {
-        party: this.sinvDoc.party ?? this.defaultCustomer,
+        customer: this.sinvDoc.customer ?? this.defaultCustomer,
         is_pos: true,
       }) as SalesInvoice;
     },
@@ -895,7 +895,7 @@ export default defineComponent({
       await this.setItems();
 
       if (!this.defaultCustomer) {
-        this.sinvDoc.party = '';
+        this.sinvDoc.customer = '';
       }
     },
     toggleModal(modal: ModalName, value?: boolean) {
@@ -990,7 +990,7 @@ export default defineComponent({
       await routeTo('/list/SalesInvoice');
     },
     async saveAndContinue() {
-      if (!this.sinvDoc.party) {
+      if (!this.sinvDoc.customer) {
         throw new Error(t`Please add a customer before saving`);
       }
 
@@ -1001,7 +1001,7 @@ export default defineComponent({
       let message = t`Customer has no loyalty points to redeem`;
       if (!this.sinvDoc.items?.length) {
         message = t`Please add items`;
-      } else if (!this.sinvDoc.party) {
+      } else if (!this.sinvDoc.customer) {
         message = t`Please select a customer`;
       }
 
@@ -1039,7 +1039,7 @@ export default defineComponent({
     },
 
     async saveInvoiceAction() {
-      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.customer) {
         this.showValidationToast('saving');
         return;
       }
@@ -1049,7 +1049,7 @@ export default defineComponent({
       (this.$refs.payment as InstanceType<typeof PaymentModal>).cancelTransaction();
     },
     handlePaymentAction() {
-      if (!this.sinvDoc.items?.length || !this.sinvDoc.party) {
+      if (!this.sinvDoc.items?.length || !this.sinvDoc.customer) {
         this.showValidationToast('payment');
         return;
       }

@@ -2,7 +2,7 @@ import type { ColumnConfig, RenderData } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import type { Field } from 'schemas/types';
-import { getFields } from 'src/frappe/registry';
+import { getFields, getModel } from 'src/frappe/registry';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
 import { formatColumnValue, type ListColumn } from './listColumns';
@@ -18,14 +18,16 @@ export interface MobileRowLayout {
 
 /** Line 2 fields where the phone design differs from the list columns. */
 const metaFieldnames: Record<string, string[]> = {
-  [ModelNameEnum.Party]: ['role', 'phone'],
+  [ModelNameEnum.Customer]: ['phone'],
+  [ModelNameEnum.Supplier]: ['phone'],
   [ModelNameEnum.Item]: ['item_type', 'tax'],
   [ModelNameEnum.Payment]: ['name', 'date', 'payment_type'],
 };
 
 /** Schemas whose rows start with an initials avatar. */
 const avatarShapes: Record<string, MobileRowLayout['avatar']> = {
-  [ModelNameEnum.Party]: 'circle',
+  [ModelNameEnum.Customer]: 'circle',
+  [ModelNameEnum.Supplier]: 'circle',
   [ModelNameEnum.Item]: 'square',
 };
 
@@ -42,7 +44,7 @@ export function getMobileRowLayout(
     (column) => column !== badge && !isNumeric(column.fieldtype)
   );
   const title =
-    text.find((column) => column.fieldname === 'party') ??
+    text.find((column) => column.fieldname === getModel(schemaName)?.partyField) ??
     text[0] ??
     columns[0];
 

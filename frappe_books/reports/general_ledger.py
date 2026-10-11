@@ -15,6 +15,7 @@ ENTRY_FIELDS = [
 	"credit",
 	"voucher_type",
 	"voucher_no",
+	"party_type",
 	"party",
 	"reverted",
 ]
@@ -34,7 +35,14 @@ def get_columns(filters) -> list[dict]:
 		{"fieldname": "debit", "label": _("Debit"), "fieldtype": "Currency", "width": 150},
 		{"fieldname": "credit", "label": _("Credit"), "fieldtype": "Currency", "width": 150},
 		{"fieldname": "balance", "label": _("Balance"), "fieldtype": "Currency", "width": 150},
-		{"fieldname": "party", "label": _("Party"), "fieldtype": "Link", "options": "Books Party"},
+		{
+			"fieldname": "party_type",
+			"label": _("Party Type"),
+			"fieldtype": "Link",
+			"options": "DocType",
+			"hidden": 1,
+		},
+		{"fieldname": "party", "label": _("Party"), "fieldtype": "Dynamic Link", "options": "party_type"},
 		{"fieldname": "reference_name", "label": _("Ref Name"), "fieldtype": "Data"},
 		{"fieldname": "reference_type", "label": _("Ref Type"), "fieldtype": "Data"},
 	]
@@ -63,6 +71,7 @@ def _conditions(filters):
 	conditions = [
 		[fieldname, "=", filters[source]]
 		for source, fieldname in (
+			("party_type", "party_type"),
 			("party", "party"),
 			("reference_name", "voucher_no"),
 		)
@@ -135,6 +144,7 @@ def _entry_row(entry, index):
 		"date": entry.posting_date,
 		"debit": as_decimal(entry.debit),
 		"credit": as_decimal(entry.credit),
+		"party_type": entry.party_type,
 		"party": entry.party,
 		"reference_type": entry.voucher_type,
 		"reference_name": entry.voucher_no,

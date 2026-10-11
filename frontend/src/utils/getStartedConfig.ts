@@ -85,13 +85,7 @@ export function getGetStartedConfig(): GetStartedConfigItem[] {
           label: t`Add customers`,
           icon: 'lucide-user-round',
           description: t`Add a few customers to create your first sales invoice`,
-          action: () =>
-            routeTo({
-              path: `/list/Party/${t`Customers`}`,
-              query: {
-                filters: JSON.stringify({ role: 'Customer' }),
-              },
-            }),
+          action: () => routeTo('/list/Customer'),
           fieldname: 'customer_created',
           documentation:
             'https://docs.frappe.io/books/create-initial-entries#add-customers',
@@ -124,11 +118,7 @@ export function getGetStartedConfig(): GetStartedConfigItem[] {
           label: t`Add suppliers`,
           icon: 'lucide-truck',
           description: t`Add a few suppliers to create your first purchase invoice`,
-          action: () =>
-            routeTo({
-              path: `/list/Party/${t`Suppliers`}`,
-              query: { filters: JSON.stringify({ role: 'Supplier' }) },
-            }),
+          action: () => routeTo('/list/Supplier'),
           fieldname: 'supplier_created',
         },
         {

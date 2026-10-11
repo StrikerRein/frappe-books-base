@@ -3,7 +3,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import now_datetime
 
 from frappe_books.accounting.returns import map_return
-from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party
+from frappe_books.tests.accounting import make_account, make_customer, make_invoice, make_item
 
 STATUS_DOCTYPES = (
 	"Books Sales Invoice",
@@ -28,7 +28,7 @@ class IntegrationTestDocumentStatus(IntegrationTestCase):
 		frappe.db.set_single_value(
 			"Books Accounting Settings", {"discount_account": expense.name, "enable_partial_payment": 1}
 		)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		item = make_item(income.name, expense.name)
 		self.invoice = make_invoice(
 			"Books Sales Invoice", self.party.name, self.receivable.name, item.name, income.name
@@ -69,6 +69,7 @@ class IntegrationTestDocumentStatus(IntegrationTestCase):
 		payment = frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": self.party.doctype,
 				"party": self.party.name,
 				"date": now_datetime(),
 				"payment_type": "Receive",

@@ -36,8 +36,8 @@ test('Frappe’s Data Import saves the rows and lists what it imported', async (
   const names = [`Import Ann ${run}`, `Import Bob ${run}`];
   await selectImportFile(
     page,
-    'Party',
-    `Name,Role,Default Account\n${names[0]},Customer,Debtors\n${names[1]},Supplier,Creditors\n`
+    'Customer',
+    `Name,Default Account\n${names[0]},Debtors\n${names[1]},Debtors\n`
   );
 
   const results = page.getByRole('dialog', { name: 'Import complete' });
@@ -45,14 +45,16 @@ test('Frappe’s Data Import saves the rows and lists what it imported', async (
   for (const name of names) {
     await expect(results).toContainText(name);
   }
-  expect((await getDoc(page, 'Books Party', names[1])).role).toBe('Supplier');
+  expect(
+    (await getDoc(page, 'Books Customer', names[1])).default_account
+  ).toBe('Debtors');
 });
 
 test('links Frappe cannot find stop the import', async ({ page }) => {
   await selectImportFile(
     page,
-    'Party',
-    `Name,Role,Default Account\nImport Cid ${run},Customer,Missing ${run}\n`
+    'Customer',
+    `Name,Default Account\nImport Cid ${run},Missing ${run}\n`
   );
 
   const error = page.getByRole('dialog', { name: 'Cannot import' });
@@ -69,10 +71,7 @@ test('rows of one invoice become one submitted invoice', async ({ page }) => {
     income_account: 'Sales',
     expense_account: 'Cost of Goods Sold',
   });
-  await insertDocument(page, 'Books Party', {
-    name: `Import Dan ${run}`,
-    role: 'Customer',
-  });
+  await insertDocument(page, 'Books Customer', { name: `Import Dan ${run}` });
   await selectImportFile(
     page,
     'Sales Invoice',
@@ -98,14 +97,11 @@ test('Fix Failed keeps only the rows Frappe could not save', async ({
   page,
 }) => {
   const existing = `Import Eve ${run}`;
-  await insertDocument(page, 'Books Party', {
-    name: existing,
-    role: 'Customer',
-  });
+  await insertDocument(page, 'Books Customer', { name: existing });
   await selectImportFile(
     page,
-    'Party',
-    `Name,Role\n${existing},Customer\nImport Fay ${run},Customer\n`
+    'Customer',
+    `Name,Email\n${existing},eve@example.com\nImport Fay ${run},fay@example.com\n`
   );
 
   const results = page.getByRole('dialog', { name: 'Import complete' });

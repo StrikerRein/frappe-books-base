@@ -40,5 +40,5 @@ export function canRedeemLoyalty(sale: SalesInvoice): boolean {
 }
 
 function hasItemsAndCustomer(sale: SalesInvoice): boolean {
-  return !!sale.items?.length && !!sale.party;
+  return !!sale.items?.length && !!sale.customer;
 }

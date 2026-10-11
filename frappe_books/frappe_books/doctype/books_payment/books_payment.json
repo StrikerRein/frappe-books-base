@@ -9,6 +9,7 @@
  "field_order": [
   "default_section_break_1",
   "number_series",
+  "party_type",
   "party",
   "date",
   "status",
@@ -58,11 +59,19 @@
    "set_only_once": 1
   },
   {
-   "fieldname": "party",
+   "fieldname": "party_type",
    "fieldtype": "Link",
+   "label": "Party Type",
+   "link_filters": "[[\"DocType\",\"name\",\"in\",[\"Books Customer\",\"Books Supplier\"]]]",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Party",
-   "options": "Books Party",
+   "options": "party_type",
    "reqd": 1
   },
   {

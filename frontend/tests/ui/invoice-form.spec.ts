@@ -8,7 +8,7 @@ useBooksSession('/books/list/SalesInvoice');
 test('a new sales invoice takes its account, rows and totals from the server', async ({
   page,
 }) => {
-  const { party, item } = await insertParties(page);
+  const { customer, item } = await insertCustomerAndItem(page);
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await expect(page).toHaveURL(/\/books\/edit\/SalesInvoice\/New%20Sales%20Invoice/);
   // The server fills the number series of a new invoice.
@@ -16,7 +16,7 @@ test('a new sales invoice takes its account, rows and totals from the server', a
     'SINV-'
   );
 
-  await pickLink(page, 'Customer', party);
+  await pickLink(page, 'Customer', customer);
   await expect(page.getByRole('combobox', { name: 'Account' })).toHaveValue(
     'Debtors'
   );
@@ -58,10 +58,10 @@ test('a return takes back what its invoice sold', async ({ page }) => {
 });
 
 test('a submitted quote makes an invoice with its rows', async ({ page }) => {
-  const { party, item } = await insertParties(page);
+  const { customer, item } = await insertCustomerAndItem(page);
   const quote = await insertDocument(page, 'Books Quotation', {
-    reference_type: 'Books Party',
-    party,
+    quotation_to: 'Books Customer',
+    party_name: customer,
     items: [{ item, quantity: 4 }],
   });
   await runMethod(page, 'Books Quotation', quote, 'submit');
@@ -169,24 +169,23 @@ async function pickLink(page: Page, label: string, value: string) {
   await page.getByRole('option', { name: value }).click();
 }
 
-async function insertParties(page: Page) {
+async function insertCustomerAndItem(page: Page) {
   const stamp = Date.now();
-  const party = await insertDocument(page, 'Books Party', {
+  const customer = await insertDocument(page, 'Books Customer', {
     name: `Invoice Customer ${stamp}`,
-    role: 'Customer',
     default_account: 'Debtors',
   });
   const item = await insertDocument(page, 'Books Item', {
     name: `Invoice Item ${stamp}`,
     rate: 50,
   });
-  return { party, item };
+  return { customer, item };
 }
 
 async function insertSubmittedInvoice(page: Page): Promise<string> {
-  const { party, item } = await insertParties(page);
+  const { customer, item } = await insertCustomerAndItem(page);
   const name = await insertDocument(page, 'Books Sales Invoice', {
-    party,
+    customer,
     make_auto_payment: 0,
     make_auto_stock_transfer: 0,
     items: [{ item, quantity: 2 }],

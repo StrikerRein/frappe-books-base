@@ -10,6 +10,7 @@ export class AccountingLedgerEntry extends FrappeDoc {
     quickEditFields: [
       'posting_date',
       'account',
+      'party_type',
       'party',
       'debit',
       'credit',
@@ -19,6 +20,8 @@ export class AccountingLedgerEntry extends FrappeDoc {
       'reverts',
     ],
   };
+
+  static override partyField = 'party';
 
   static getListViewSettings(): ListViewSettings {
     return {

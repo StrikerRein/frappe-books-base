@@ -145,7 +145,7 @@ test("a link shows an address's display text and other records' names", async ()
 
   assert.equal(await getLinkDisplayValue('Address', 'Home'), '7 Hill Street');
   assert.equal(await getLinkDisplayValue('Address', undefined), '');
-  assert.equal(await getLinkDisplayValue('Party', 'Asha'), 'Asha');
+  assert.equal(await getLinkDisplayValue('Customer', 'Asha'), 'Asha');
   assert.deepEqual(
     requests.map(({ path }) => path),
     ['/api/v2/document/Books Address']
@@ -267,8 +267,8 @@ test('lead contacts are checked as Frappe checks them, with the Books messages',
   assert.equal(lead.mobile, '+91 (22) 555-0199');
 });
 
-test('a lead makes its customer with the server mapper, as an unsaved party', async () => {
-  const mapped = { doctype: 'Books Party', name: 'Asha', role: 'Customer' };
+test('a lead makes its customer with the server mapper, as an unsaved customer', async () => {
+  const mapped = { doctype: 'Books Customer', name: 'Asha' };
   respond = () => ({ message: { ...mapped, from_lead: 'Asha', __islocal: 1 } });
   const lead = newFrappeDoc('Lead', { name: 'Asha' });
   await loadSaved(lead);
@@ -283,28 +283,17 @@ test('a lead makes its customer with the server mapper, as an unsaved party', as
       'frappe_books.frappe_books.doctype.books_lead.books_lead.make_customer',
     source_name: 'Asha',
   });
-  assert.equal(route, '/edit/Party/Asha');
-  const party = await getFrappeDoc('Party', 'Asha');
+  assert.equal(route, '/edit/Customer/Asha');
+  const customer = await getFrappeDoc('Customer', 'Asha');
   assert.deepEqual(
-    [party.role, party.from_lead, party.notInserted],
-    ['Customer', 'Asha', true]
+    [customer.from_lead, customer.notInserted],
+    ['Asha', true]
   );
 });
 
-test('a party leaves its default account and currency to the server', async () => {
-  const party = newFrappeDoc('Party', {
-    name: 'Acme',
-    role: 'Customer',
-    default_account: 'Debtors',
-  });
-  await party.set('role', 'Supplier');
-  assert.ok(!party.default_account);
-  assert.ok(!party.currency);
-});
-
-test('saving or deleting a converted party refreshes its open lead only', async () => {
+test('saving or deleting a converted customer refreshes its open lead only', async () => {
   let leadStatus = 'Open';
-  const saved = { name: 'Ravi', role: 'Customer', from_lead: 'Ravi' };
+  const saved = { name: 'Ravi', from_lead: 'Ravi' };
   respond = ({ method, path }) => {
     if (path === '/api/v2/document/Books Lead/Ravi') {
       return { data: { name: 'Ravi', status: leadStatus, modified: 'x' } };
@@ -313,29 +302,40 @@ test('saving or deleting a converted party refreshes its open lead only', async 
   };
   requests.length = 0;
   const lead = await getFrappeDoc('Lead', 'Ravi');
-  const party = newFrappeDoc('Party', { ...saved, role: 'Customer' });
+  const customer = newFrappeDoc('Customer', saved);
   const writes = () =>
     requests
       .filter(({ method }) => method !== 'GET')
       .map(({ method, path }) => `${method} ${path}`);
 
   leadStatus = 'Converted';
-  await party.sync();
+  await customer.sync();
   assert.equal(lead.status, 'Converted');
   leadStatus = 'Interested';
-  await party.delete();
+  await customer.delete();
   assert.equal(lead.status, 'Interested');
   assert.deepEqual(writes(), [
-    'POST /api/v2/document/Books Party',
-    'DELETE /api/v2/document/Books Party/Ravi',
+    'POST /api/v2/document/Books Customer',
+    'DELETE /api/v2/document/Books Customer/Ravi',
   ]);
 });
 
-test('the party form and list show what they showed, without GST fields', () => {
-  assert.deepEqual(getLayout('Party'), [
+test('customer and supplier forms and lists show what they showed, without GST fields', () => {
+  const supplierFields = [
     'image | Image |  | Default',
     'name | Name | Full Name | Default',
-    'role | Role |  | Default',
+    'email | Email | john@doe.com | Contacts',
+    'phone | Phone | Phone | Contacts',
+    'address | Address |  | Contacts',
+    'default_account | Default Account |  | Billing',
+    'currency | Currency | INR | Billing',
+    'tax_id | Tax ID |  | Billing',
+    'outstanding_amount | Outstanding Amount |  | Billing',
+  ];
+  assert.deepEqual(getLayout('Supplier'), supplierFields);
+  assert.deepEqual(getLayout('Customer'), [
+    'image | Image |  | Default',
+    'name | Name | Full Name | Default',
     'email | Email | john@doe.com | Contacts',
     'phone | Phone | Phone | Contacts',
     'address | Address |  | Contacts',
@@ -347,50 +347,55 @@ test('the party form and list show what they showed, without GST fields', () => 
     'tax_id | Tax ID |  | Billing',
     'outstanding_amount | Outstanding Amount |  | Billing',
   ]);
-  const party = newFrappeDoc('Party');
-  assert.equal(hidden(party, 'outstanding_amount'), true);
-  assert.equal(hidden(party, 'tax_id'), false);
-  assert.deepEqual(getColumns('Party'), [
-    'name',
-    'email',
-    'phone',
-    'outstanding_amount',
-  ]);
+  for (const schemaName of ['Customer', 'Supplier']) {
+    const party = newFrappeDoc(schemaName);
+    assert.equal(hidden(party, 'outstanding_amount'), true);
+    assert.equal(hidden(party, 'tax_id'), false);
+    assert.deepEqual(getColumns(schemaName), [
+      'name',
+      'email',
+      'phone',
+      'outstanding_amount',
+    ]);
+  }
 });
 
 test('a customer shows loyalty fields only when the program is on', async () => {
   fyo.singles.AccountingSettings = {};
-  const party = newFrappeDoc('Party', { role: 'Customer' });
-  assert.equal(hidden(party, 'loyalty_program'), true);
-  assert.equal(hidden(party, 'loyalty_points'), true);
+  const customer = newFrappeDoc('Customer');
+  assert.equal(hidden(customer, 'loyalty_program'), true);
+  assert.equal(hidden(customer, 'loyalty_points'), true);
 
   fyo.singles.AccountingSettings = { enable_loyalty_program: true };
-  assert.equal(hidden(party, 'loyalty_program'), false);
-  assert.equal(hidden(party, 'loyalty_points'), true);
-  await party.set('loyalty_program', 'Gold');
-  assert.equal(hidden(party, 'loyalty_points'), false);
-  await party.set('role', 'Supplier');
-  assert.equal(hidden(party, 'loyalty_program'), true);
-  assert.equal(hidden(party, 'loyalty_points'), true);
+  assert.equal(hidden(customer, 'loyalty_program'), false);
+  assert.equal(hidden(customer, 'loyalty_points'), true);
+  await customer.set('loyalty_program', 'Gold');
+  assert.equal(hidden(customer, 'loyalty_points'), false);
+  assert.equal(newFrappeDoc('Supplier').fieldMap.loyalty_program, undefined);
   fyo.singles.AccountingSettings = {};
 });
 
-test('a party makes and lists the invoices its role allows', () => {
-  const actions = getModel('Party').getActions(fyo);
-  const labels = (role) =>
-    actions
-      .filter(({ condition }) => condition({ notInserted: false, role }))
+test('a customer makes and lists sales, a supplier purchases', () => {
+  const labels = (schemaName) =>
+    getModel(schemaName)
+      .getActions(fyo)
+      .filter(({ condition }) => condition({ notInserted: false }))
       .map(({ label }) => label);
   assert.deepEqual(labels('Customer'), ['Create sale', 'View sales']);
   assert.deepEqual(labels('Supplier'), ['Create purchase', 'View purchases']);
-  assert.equal(labels('Both').length, 4);
-  assert.deepEqual(
-    getModel('Party').filters.default_account({ role: 'Both' }),
-    [
-      ['is_group', '=', 0],
-      ['account_type', 'in', ['Payable', 'Receivable']],
-    ]
-  );
+});
+
+test('a customer defaults to a receivable account, a supplier to a payable one', () => {
+  const accountType = (schemaName) =>
+    getModel(schemaName).filters.default_account(newFrappeDoc(schemaName));
+  assert.deepEqual(accountType('Customer'), [
+    ['is_group', '=', 0],
+    ['account_type', '=', 'Receivable'],
+  ]);
+  assert.deepEqual(accountType('Supplier'), [
+    ['is_group', '=', 0],
+    ['account_type', '=', 'Payable'],
+  ]);
 });
 
 test('the price list form shows its item prices; the list shows its use', () => {

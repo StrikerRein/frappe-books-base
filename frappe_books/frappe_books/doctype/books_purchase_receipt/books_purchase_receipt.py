@@ -30,13 +30,15 @@ class BooksPurchaseReceipt(StockTransferController):
 		is_returned: DF.Check
 		items: DF.Table[BooksPurchaseReceiptItem]
 		number_series: DF.Link
-		party: DF.Link
 		return_against: DF.Link | None
 		status: DF.Literal["Saved", "Submitted", "Return", "Return Issued", "Cancelled"]
+		supplier: DF.Link
 		terms: DF.Text | None
 	# end: auto-generated types
 
 	transfer_type = "purchase"
+	party_type = "Books Supplier"
+	party_field = "supplier"
 
 
 @frappe.whitelist()

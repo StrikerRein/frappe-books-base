@@ -197,7 +197,7 @@ def _create_auto_transfer(invoice) -> str | None:
 	transfer = frappe.get_doc(
 		{
 			"doctype": linked_doctype(invoice.doctype),
-			"party": invoice.party,
+			invoice.party_field: invoice.party,
 			"date": invoice.date,
 			"back_reference": invoice.name,
 			"return_against": _returned_transfer(invoice),

@@ -119,6 +119,27 @@ test('the server fills an account again after the method or type it follows', as
   assert.equal('payment_account' in previews[1], false);
 });
 
+test('a new party type leaves the payment type and account to the server', async () => {
+  const previews = [];
+  stubFrappe(({ body }) => {
+    previews.push(body.document);
+    return { docs: [body.document] };
+  });
+  const payment = newFrappeDoc('Payment', {
+    payment_type: 'Receive',
+    account: 'Debtors',
+  });
+  assert.deepEqual(
+    payment.fieldMap.party_type.options.map(({ value }) => value),
+    ['Books Customer', 'Books Supplier']
+  );
+
+  await payment.set('party_type', 'Books Supplier');
+  await payment.whenFilled();
+  assert.equal('payment_type' in previews[0], false);
+  assert.equal('account' in previews[0], false);
+});
+
 test("a reference's amount is filled again for the invoice it now names", async () => {
   const previews = [];
   stubFrappe(({ body }) => {
@@ -148,12 +169,11 @@ test("a reference's amount is filled again for the invoice it now names", async 
 test('payment links filter as they did', async () => {
   const pay = newFrappeDoc('Payment', {
     payment_type: 'Pay',
-    party: 'Supplier',
+    party_type: 'Books Supplier',
+    party: 'Acme',
   });
   const { filters } = Payment;
-  assert.deepEqual(filters.party(pay), [
-    ['role', 'in', ['Supplier', 'Both']],
-  ]);
+  assert.equal(filters.party, undefined);
   assert.deepEqual(filters.account(pay), [
     ['account_type', '=', 'Payable'],
     ['is_group', '=', 0],
@@ -176,14 +196,16 @@ test('payment links filter as they did', async () => {
     limit: 1,
   });
 
-  await pay.append('payment_references', {});
+  await pay.append('payment_references', {
+    reference_type: 'Books Purchase Invoice',
+  });
   const PaymentFor = getModel('PaymentFor');
   const referenceFilters = PaymentFor.filters.reference_name(
     pay.payment_references[0]
   );
   assert.deepEqual(referenceFilters.slice(1), [
     ['docstatus', '=', 1],
-    ['party', '=', 'Supplier'],
+    ['supplier', '=', 'Acme'],
   ]);
 });
 
@@ -191,7 +213,8 @@ test("an invoice's payment is mapped by the server with Frappe fieldnames", asyn
   const requests = stubFrappe(() => ({
     message: {
       doctype: 'Books Payment',
-      party: 'Customer',
+      party_type: 'Books Customer',
+      party: 'Acme',
       payment_type: 'Receive',
       amount: 150,
       payment_references: [

@@ -1,4 +1,5 @@
 import frappe
+from frappe.model.base_document import get_controller
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, now_datetime
 
@@ -10,7 +11,13 @@ from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry 
 	movement_values,
 )
 from frappe_books.inventory.availability import get_sale_shortfalls, get_stock_location, get_stock_quantities
-from frappe_books.tests.accounting import ensure_user, make_account, make_item, make_party, unique_name
+from frappe_books.tests.accounting import (
+	ensure_user,
+	make_account,
+	make_customer,
+	make_item,
+	unique_name,
+)
 
 NO_ROLE_USER = "books-availability-no-role@example.com"
 
@@ -117,14 +124,13 @@ class IntegrationTestStockAvailability(IntegrationTestCase):
 		sale.items[0].quantity = 2
 		self.assertRaisesRegex(frappe.ValidationError, "only has 1 quantity available but 2 is", sale.save)
 
-	def _sale(self, item, batch, quantity, **values):
+	def _sale(self, item, batch, quantity, doctype="Books Sales Invoice"):
 		receivable = make_account("Receivable", account_type="Receivable").name
 		return frappe.get_doc(
 			{
-				"doctype": "Books Sales Invoice",
-				"party": make_party(receivable).name,
+				"doctype": doctype,
+				get_controller(doctype).party_field: make_customer(receivable).name,
 				"date": now_datetime(),
 				"items": [{"item": item, "batch": batch, "quantity": quantity, "rate": 10}],
-				**values,
 			}
 		)

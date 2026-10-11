@@ -9,7 +9,7 @@
  "field_order": [
   "default_section_break_1",
   "number_series",
-  "party",
+  "supplier",
   "account",
   "date",
   "status",
@@ -56,11 +56,11 @@
    "set_only_once": 1
   },
   {
-   "fieldname": "party",
+   "fieldname": "supplier",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Supplier",
-   "options": "Books Party",
+   "options": "Books Supplier",
    "reqd": 1,
    "search_index": 1
   },
@@ -346,7 +346,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "search_fields": "party",
+ "search_fields": "supplier",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [

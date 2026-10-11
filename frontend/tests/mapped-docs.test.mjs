@@ -46,13 +46,11 @@ test('a fully billed shipment does not offer an invoice', () => {
 // By source: each action that builds a document with a mapper of the source, the mapper, and what it builds.
 const mappedDocActions = {
   Lead: [
-    ['Customer', 'make_customer', 'Party'],
+    ['Customer', 'make_customer', 'Customer'],
     ['Quotation', 'make_quotation', 'Quotation'],
   ],
-  Party: [
-    ['Create sale', 'make_sales_invoice', 'SalesInvoice'],
-    ['Create purchase', 'make_purchase_invoice', 'PurchaseInvoice'],
-  ],
+  Customer: [['Create sale', 'make_sales_invoice', 'SalesInvoice']],
+  Supplier: [['Create purchase', 'make_purchase_invoice', 'PurchaseInvoice']],
   Item: [
     ['Sales Invoice', 'make_sales_invoice', 'SalesInvoice'],
     ['Purchase Invoice', 'make_purchase_invoice', 'PurchaseInvoice'],
@@ -132,6 +130,7 @@ test('a payment action opens the payment in a quick edit without the fields its 
     const { schemaName: opened, edit, hideFields } = pushed.at(-1).query;
     assert.deepEqual([opened, edit], ['Payment', 1]);
     assert.deepEqual(hideFields, [
+      'party_type',
       'party',
       'payment_references',
       'account',

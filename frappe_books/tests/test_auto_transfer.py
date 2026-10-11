@@ -29,10 +29,11 @@ from frappe_books.tests.accounting import (
 	foreign_currency,
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
 	make_number_series,
-	make_party,
+	make_supplier,
 	set_inventory_accounts,
 	stock_quantity,
 	unique_name,
@@ -119,7 +120,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		shipment = frappe.get_doc(
 			{
 				"doctype": "Books Delivery Note",
-				"party": invoice.party,
+				"customer": invoice.customer,
 				"date": invoice.date,
 				"items": [{"item": billed_item, "location": "Stores", "quantity": 2, "rate": 10}],
 			}
@@ -169,7 +170,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		return_invoice = frappe.get_doc(
 			{
 				"doctype": original.doctype,
-				"party": original.party,
+				"customer": original.customer,
 				"account": original.account,
 				"date": original.date,
 				"return_against": original.name,
@@ -188,7 +189,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		return_delivery_note = frappe.get_doc(
 			{
 				"doctype": shipment.doctype,
-				"party": shipment.party,
+				"customer": shipment.customer,
 				"date": shipment.date,
 				"return_against": shipment.name,
 				"items": [{**shipment.items[0].as_dict(no_default_fields=True), "quantity": -1}],
@@ -267,7 +268,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		item = make_item(make_account("Income", root_type="Income").name, received.name, track_item=1)
 		invoice = make_invoice(
 			"Books Purchase Invoice",
-			make_party(payable.name, role="Supplier").name,
+			make_supplier(payable.name).name,
 			payable.name,
 			item.name,
 			received.name,
@@ -293,7 +294,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		).submit()
 		invoice = make_invoice(
 			"Books Sales Invoice",
-			make_party(receivable.name, currency=currency).name,
+			make_customer(receivable.name, currency=currency).name,
 			receivable.name,
 			item.name,
 			income.name,
@@ -311,7 +312,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		item = make_item(make_account("Income", root_type="Income").name, received.name, track_item=1)
 		invoice = make_invoice(
 			"Books Purchase Invoice",
-			make_party(payable.name, role="Supplier", currency=foreign_currency()).name,
+			make_supplier(payable.name, currency=foreign_currency()).name,
 			payable.name,
 			item.name,
 			received.name,
@@ -337,7 +338,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		item = make_item(make_account("Income", root_type="Income").name, received.name, track_item=1)
 		invoice = make_invoice(
 			"Books Purchase Invoice",
-			make_party(payable.name, role="Supplier").name,
+			make_supplier(payable.name).name,
 			payable.name,
 			item.name,
 			received.name,
@@ -388,7 +389,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		frappe.db.set_single_value("Books Pos Settings", "pos_profile", profile.name if profile else "")
 		frappe.db.set_single_value("Books Pos Settings", {"can_change_rate": 1, "can_edit_discount": 1})
 		frappe.db.set_single_value("Books Pos Settings", "inventory", "Stores" if profile else location.name)
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		item = make_item(income.name, received.name, track_item=1, rate=10)
 		make_movement(
 			"MaterialReceipt",

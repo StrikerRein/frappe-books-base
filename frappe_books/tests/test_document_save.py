@@ -14,9 +14,8 @@ class IntegrationTestDocumentSave(IntegrationTestCase):
 		lead = frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Source Lead")}).insert()
 		party = frappe.get_doc(
 			{
-				"doctype": "Books Party",
+				"doctype": "Books Customer",
 				"name": unique_name("Customer"),
-				"role": "Customer",
 				"from_lead": lead.name,
 			}
 		).insert()
@@ -27,9 +26,8 @@ class IntegrationTestDocumentSave(IntegrationTestCase):
 		lead = frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Source Lead")}).insert()
 		party = frappe.get_doc(
 			{
-				"doctype": "Books Party",
+				"doctype": "Books Customer",
 				"name": unique_name("Customer"),
-				"role": "Customer",
 				"from_lead": lead.name,
 			}
 		).insert()
@@ -44,9 +42,8 @@ class IntegrationTestDocumentSave(IntegrationTestCase):
 			with self.assertRaises(frappe.ValidationError):
 				frappe.get_doc(
 					{
-						"doctype": "Books Party",
+						"doctype": "Books Customer",
 						"name": unique_name("Rejected Party"),
-						"role": "Customer",
 						"from_lead": lead.name,
 					}
 				).insert()

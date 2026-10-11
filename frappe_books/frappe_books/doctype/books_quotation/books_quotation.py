@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.mapper import get_mapped_doc
 
 from frappe_books.accounting.invoice import InvoiceController
@@ -37,9 +38,9 @@ class BooksQuotation(InvoiceController):
 		net_total: DF.Currency
 		number_series: DF.Link
 		outstanding_amount: DF.Currency
-		party: DF.DynamicLink
+		party_name: DF.DynamicLink
 		price_list: DF.Link | None
-		reference_type: DF.Link
+		quotation_to: DF.Link
 		status: DF.Literal["Saved", "Submitted", "Cancelled"]
 		taxes: DF.Table[BooksTaxSummary]
 		terms: DF.Text | None
@@ -48,16 +49,23 @@ class BooksQuotation(InvoiceController):
 
 	transaction_type = "quote"
 	is_purchase = False
+	party_field = "party_name"
 	party_account_type = None
 	item_account_field = "income_account"
 
 	def validate(self):
+		if self.quotation_to not in ("Books Customer", "Books Lead"):
+			frappe.throw(_("A quotation goes to a customer or a lead."))
 		super().validate()
 		validate_sale_batch_stock(self)
 
+	@property
+	def party_type(self):
+		return self.quotation_to
+
 	def on_submit(self):
-		if self.reference_type == "Books Lead":
-			lead = frappe.get_doc("Books Lead", self.party)
+		if self.quotation_to == "Books Lead":
+			lead = frappe.get_doc("Books Lead", self.party_name)
 			lead.status = "Quotation"
 			lead.save()
 
@@ -70,15 +78,11 @@ def make_sales_invoice(source_name: str):
 		{
 			"Books Quotation": {
 				"doctype": "Books Sales Invoice",
-				"validation": {"docstatus": ["=", 1], "reference_type": ["=", "Books Party"]},
+				"validation": {"docstatus": ["=", 1], "quotation_to": ["=", "Books Customer"]},
+				"field_map": {"party_name": "customer"},
 				"field_no_map": ["date", "number_series", "attachment"],
 			},
 			"Books Quotation Item": {"doctype": "Books Sales Invoice Item"},
 		},
-		postprocess=_set_invoice_details,
+		postprocess=lambda _quote, invoice: invoice.fill_mapped_values(),
 	)
-
-
-def _set_invoice_details(quote, invoice):
-	invoice.account = frappe.db.get_value("Books Party", quote.party, "default_account")
-	invoice.fill_mapped_values()

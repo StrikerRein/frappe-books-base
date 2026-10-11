@@ -21,9 +21,9 @@ from frappe_books.tests.accounting import (
 	ensure_user,
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	set_inventory_accounts,
 	stock_quantity,
 	unique_name,
@@ -39,7 +39,7 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 		cogs = make_account("COGS", root_type="Expense", account_type="Cost of Goods Sold")
 		income = make_account("Income", root_type="Income")
 		receivable = make_account("Receivable", account_type="Receivable")
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		item = make_item(income.name, received.name, track_item=1)
 		set_inventory_accounts(stock.name, received.name, cogs.name)
 		seed_stock(item.name, quantity=4, rate=25)
@@ -47,7 +47,7 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 		shipment = frappe.get_doc(
 			{
 				"doctype": "Books Delivery Note",
-				"party": party.name,
+				"customer": party.name,
 				"date": now_datetime(),
 				"items": [{"item": item.name, "location": "Stores", "quantity": 2, "rate": 25}],
 			}
@@ -219,7 +219,7 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 		shipment = frappe.get_doc(
 			{
 				"doctype": "Books Delivery Note",
-				"party": make_party(make_account("Receivable", account_type="Receivable").name).name,
+				"customer": make_customer(make_account("Receivable", account_type="Receivable").name).name,
 				"date": now_datetime(),
 				"items": [
 					{
@@ -550,7 +550,7 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", account.name)
 		invoice = make_invoice(
 			"Books Sales Invoice",
-			make_party(receivable.name).name,
+			make_customer(receivable.name).name,
 			receivable.name,
 			item.name,
 			item.income_account,
@@ -568,11 +568,11 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 
 	def _make_delivery_note(self, item, quantity, rate, **values):
 		receivable = make_account("Receivable", account_type="Receivable")
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		return frappe.get_doc(
 			{
 				"doctype": "Books Delivery Note",
-				"party": party.name,
+				"customer": party.name,
 				"date": now_datetime(),
 				"items": [{"item": item.name, "location": "Stores", "quantity": quantity, "rate": rate}],
 				**values,

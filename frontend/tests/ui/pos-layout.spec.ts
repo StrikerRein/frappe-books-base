@@ -582,6 +582,13 @@ test('the paid amount takes arithmetic, and text that is no number pays nothing'
   expect(errors).toEqual([]);
 });
 
+/** The link preview, which names the linked record's doctype. */
+function preview(page: Page) {
+  return page
+    .locator('[data-slot="content"]')
+    .getByText('Customer', { exact: true });
+}
+
 async function showModal(page: Page, name: string) {
   await page.evaluate((name) => {
     const fixture = (window as any).posFixture;
@@ -600,7 +607,7 @@ for (const dark of [false, true]) {
     const linked = page.getByRole('button', { name: 'Open linked entry', exact: true }).first();
     const options = clear.locator('..').getByRole('button', { name: 'Open options', exact: true });
     const preview = page.locator('[data-slot="content"]').filter({
-      has: page.getByText('Party', { exact: true }),
+      has: page.getByText('Customer', { exact: true }),
     });
 
     const normal = await actionStyle(clear);
@@ -631,9 +638,9 @@ for (const dark of [false, true]) {
     await expect(clear).toBeHidden();
     await page.getByRole('option', { name: 'Aarav Shah', exact: true }).click();
     await expect(clear).toBeVisible();
-    expect(await page.evaluate(() => (window as any).posFixture.state.invoice.party)).toBe('Aarav Shah');
+    expect(await page.evaluate(() => (window as any).posFixture.state.invoice.customer)).toBe('Aarav Shah');
     await linked.click();
-    await expect(page).toHaveURL(/\/edit\/Party\/Aarav%20Shah/);
+    await expect(page).toHaveURL(/\/edit\/Customer\/Aarav%20Shah/);
   });
 }
 
@@ -734,9 +741,7 @@ for (const size of ['large', 'small']) {
           expect(bottom).toBe(top);
           expect(end).toBe(top);
           if (!showLabel && !border) {
-            await expect(
-              page.getByText('Party', { exact: true })
-            ).toBeVisible();
+            await expect(preview(page)).toBeVisible();
             await page.screenshot({
               animations: 'disabled',
               path: test.info().outputPath(`${dir}-readonly-hover.png`),
@@ -746,17 +751,17 @@ for (const size of ['large', 'small']) {
       }
     }
     expect(
-      await page.evaluate(() => (window as any).posFixture.state.invoice.party)
+      await page.evaluate(() => (window as any).posFixture.state.invoice.customer)
     ).toBe('Aarav Shah');
     const linked = page.getByRole('button', {
       name: 'Open linked entry',
       exact: true,
     });
     await linked.focus();
-    await expect(page.getByText('Party', { exact: true })).toBeVisible();
+    await expect(preview(page)).toBeVisible();
     await linked.press('Enter');
-    await expect(page).toHaveURL(/\/edit\/Party\/Aarav%20Shah/);
-    await expect(page.getByText('Party', { exact: true })).toBeHidden();
+    await expect(page).toHaveURL(/\/edit\/Customer\/Aarav%20Shah/);
+    await expect(preview(page)).toBeHidden();
   });
 }
 
