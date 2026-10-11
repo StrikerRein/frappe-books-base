@@ -3,9 +3,10 @@
 from decimal import Decimal
 
 import frappe
+from bs4 import BeautifulSoup
 from frappe.tests import IntegrationTestCase
 from frappe.utils import money_in_words, now_datetime
-from frappe.utils.pdf import read_options_from_html
+from frappe.utils.pdf import get_print_format_styles
 from frappe.utils.print_utils import get_print
 
 from frappe_books.accounting.money import company_currency
@@ -80,7 +81,8 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		):
 			with self.subTest(print_format=print_format):
 				html = get_print(invoice.doctype, invoice.name, print_format=print_format)
-				_html, options = read_options_from_html(html)
+				styles = get_print_format_styles(BeautifulSoup(html, "html.parser"))
+				options = {style.name: style.value for style in styles}
 
 				self.assertEqual(options["page-width"], width)
 				self.assertEqual(options["page-height"], height)
