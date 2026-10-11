@@ -4,7 +4,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from frappe_books.accounting.accounts import validate_item_usage, validate_party_role
+from frappe_books.accounting.accounts import validate_party_role
 from frappe_books.accounting.returns import set_quantity_signs
 from frappe_books.inventory import invoice_transfer, stock_posting
 from frappe_books.inventory.returns import validate_transfer_return
@@ -104,7 +104,6 @@ class StockTransferController(StockTransactionController):
 		require_feature("enable_inventory")
 		require_features(self, {"return_against": "enable_invoice_returns"})
 		validate_party_role(self, self.transfer_type == "purchase")
-		validate_item_usage(self, self.transfer_type == "purchase")
 		if self.transfer_type == "purchase" and not self.return_against:
 			create_series_batches(self.items)
 			create_series_serial_numbers(self.items)

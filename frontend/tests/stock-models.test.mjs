@@ -226,7 +226,6 @@ test('links of stock documents filter by the vocabulary of their targets', async
     ['role', '=', 'Supplier'],
   ]);
   assert.deepEqual(getModel('DeliveryNoteItem').filters.item(), [
-    ['item_usage', 'not in', ['Purchases']],
     ['track_item', '=', 1],
   ]);
   assert.deepEqual(

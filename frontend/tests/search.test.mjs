@@ -181,7 +181,6 @@ test('lists, actions and reports come before documents', async () => {
       doctype: 'Books Item',
       name: 'Cloud Hosting - Shared Starter',
       item_type: 'Service',
-      item_usage: 'Sales',
     },
   ]);
   await search.fetchDocs('sales');

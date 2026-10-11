@@ -262,25 +262,6 @@ class IntegrationTestBooksSalesInvoice(IntegrationTestCase):
 		row = invoice.items[0]
 		self.assertEqual((row.quantity, row.transfer_quantity, row.qty), (2, 2, 2))
 
-	def test_items_follow_their_item_usage(self):
-		purchase_item = make_item(self.income.name, self.expense.name, item_usage="Purchases")
-		with self.assertRaisesRegex(frappe.ValidationError, "is not for Sales"):
-			make_invoice(
-				"Books Sales Invoice",
-				self.party.name,
-				self.receivable.name,
-				purchase_item.name,
-				self.income.name,
-			)
-
-		payable = make_account("Payable", root_type="Liability", account_type="Payable")
-		supplier = make_party(payable.name, role="Supplier")
-		sales_item = make_item(self.income.name, self.expense.name, item_usage="Sales")
-		with self.assertRaisesRegex(frappe.ValidationError, "is not for Purchases"):
-			make_invoice(
-				"Books Purchase Invoice", supplier.name, payable.name, sales_item.name, self.expense.name
-			)
-
 	def test_new_documents_start_with_the_default_terms(self):
 		frappe.db.set_single_value("Books Defaults", "sales_invoice_terms", "Pay within 30 days")
 		for doctype in ("Books Sales Invoice", "Books Quotation"):

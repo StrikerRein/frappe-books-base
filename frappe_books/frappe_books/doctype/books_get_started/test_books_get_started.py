@@ -11,7 +11,7 @@ class IntegrationTestBooksGetStarted(IntegrationTestCase):
 	def test_record_tasks_are_checked_when_read(self):
 		income = make_account("Get Started Sales", root_type="Income", account_type="Income Account")
 		expense = make_account("Get Started Expense", root_type="Expense", account_type="Expense Account")
-		make_item(income.name, expense.name, item_usage="Both")
+		make_item(income.name, expense.name)
 		make_party(make_account("Get Started Receivable", account_type="Receivable").name, role="Customer")
 
 		checks = frappe.get_single("Books Get Started").as_dict()
@@ -34,7 +34,7 @@ class IntegrationTestBooksGetStarted(IntegrationTestCase):
 		expense = make_account("Done Expense", root_type="Expense", account_type="Expense Account").name
 		receivable = make_account("Done Receivable", account_type="Receivable").name
 		payable = make_account("Done Payable", account_type="Payable").name
-		item = make_item(income, expense, item_usage="Both").name
+		item = make_item(income, expense).name
 		party = make_party(receivable, role="Both").name
 		make_invoice("Books Sales Invoice", party, receivable, item, income)
 		make_invoice("Books Purchase Invoice", party, payable, item, expense)

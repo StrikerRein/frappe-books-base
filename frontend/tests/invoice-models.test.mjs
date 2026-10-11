@@ -379,25 +379,19 @@ test('an invoice from selected items leaves their pricing to the server', async 
   assert.deepEqual(requests, []);
 });
 
-test('selected items offer only the documents their Item Usage allows', async () => {
-  const usages = { Pen: 'Sales', Ink: 'Both', Paper: 'Purchases' };
-  stubFrappe(({ params }) => ({
-    data: params.filters[0][2].map((name) => ({ name, item_usage: usages[name] })),
-  }));
-  const list = { schemaName: 'Item', t: fyo.t };
-  const offered = async (selected) => {
-    await ListView.methods.updateSelectedItems.call(list, selected);
-    return ListView.computed.createOptions.call(list).map(({ value }) => value);
-  };
+test('selected items offer every document made from items', () => {
+  const offered = (schemaName, selectedItems) =>
+    ListView.computed.createOptions
+      .call({ schemaName, selectedItems, t: fyo.t })
+      .map(({ value }) => value);
 
-  assert.deepEqual(await offered(['Ink']), [
+  assert.deepEqual(offered('Item', ['Pen', 'Ink']), [
     'Quotation',
     'SalesInvoice',
     'PurchaseInvoice',
   ]);
-  assert.deepEqual(await offered(['Pen', 'Ink']), ['Quotation', 'SalesInvoice']);
-  assert.deepEqual(await offered(['Paper']), ['PurchaseInvoice']);
-  assert.deepEqual(await offered(['Pen', 'Paper']), []);
+  assert.deepEqual(offered('Item', []), []);
+  assert.deepEqual(offered('Party', ['Acme']), []);
 });
 
 test('a new date fetches the exchange rate for it again', async () => {
@@ -501,16 +495,6 @@ test('links filter by the doctypes they point to', async () => {
   // Leads have no role.
   quote.reference_type = 'Books Lead';
   assert.deepEqual(quoteFilters.party(quote), []);
-
-  sale.push('items', { item: 'Pen' });
-  const row = sale.items[0];
-  const RowModel = row.constructor;
-  assert.deepEqual(await RowModel.filters.item(row), [
-    ['item_usage', 'not in', ['Purchases']],
-  ]);
-  assert.deepEqual(RowModel.createFilters.item(row), [
-    ['item_usage', '=', 'Sales'],
-  ]);
 });
 
 test('a new invoice from a filtered list takes the values users enter', async () => {

@@ -155,7 +155,6 @@ async function insertItem(page: Page, label: string, rate: number) {
     name,
     rate,
     item_type: 'Product',
-    item_usage: 'Both',
     track_item: 1,
   });
   return name;

@@ -50,7 +50,6 @@ class BooksItem(Document):
 		item_code: DF.Data | None
 		item_group: DF.Link | None
 		item_type: DF.Literal["Product", "Service"]
-		item_usage: DF.Literal["Purchases", "Sales", "Both"]
 		rate: DF.Currency
 		serial_number_series: DF.Data | None
 		tax: DF.Link | None

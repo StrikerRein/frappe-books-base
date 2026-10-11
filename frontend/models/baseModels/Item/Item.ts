@@ -13,7 +13,6 @@ import { isHsnCodeHidden } from 'models/regionalModels/in/hsnCode';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FrappeDoc } from 'src/frappe/document';
-import { getFrappeRows } from 'src/frappe/list';
 import { AccountRootTypeEnum } from '../Account/types';
 import { UOMConversionItem } from './UOMConversionItem';
 
@@ -30,7 +29,6 @@ export class Item extends FrappeDoc {
       'rate',
       'unit',
       'item_type',
-      'item_usage',
       'tax',
       'description',
       'income_account',
@@ -103,13 +101,13 @@ export class Item extends FrappeDoc {
       getMappedDocAction(fyo, {
         group: fyo.t`Create`,
         label: fyo.t`Sales Invoice`,
-        condition: (doc) => !doc.notInserted && doc.item_usage !== 'Purchases',
+        condition: (doc) => !doc.notInserted,
         target: () => [ModelNameEnum.SalesInvoice, 'make_sales_invoice'],
       }),
       getMappedDocAction(fyo, {
         group: fyo.t`Create`,
         label: fyo.t`Purchase Invoice`,
-        condition: (doc) => !doc.notInserted && doc.item_usage !== 'Sales',
+        condition: (doc) => !doc.notInserted,
         target: () => [ModelNameEnum.PurchaseInvoice, 'make_purchase_invoice'],
       }),
     ];
@@ -121,19 +119,4 @@ export class Item extends FrappeDoc {
     };
   }
 
-  /** The documents that take all the items; the server refuses one kept for the other side. */
-  static async getInvoiceSchemaNames(
-    fyo: Fyo,
-    names: string[]
-  ): Promise<string[]> {
-    const rows = await getFrappeRows(fyo, ModelNameEnum.Item, names, [
-      'item_usage',
-    ]);
-    const usages = rows.map(({ item_usage }) => item_usage);
-    const sales = [ModelNameEnum.Quotation, ModelNameEnum.SalesInvoice];
-    return [
-      ...(usages.includes('Purchases') ? [] : sales),
-      ...(usages.includes('Sales') ? [] : [ModelNameEnum.PurchaseInvoice]),
-    ];
-  }
 }

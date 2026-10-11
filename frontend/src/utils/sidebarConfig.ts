@@ -234,13 +234,6 @@ function getCompleteSidebar(): SidebarConfig {
           filters: routeFilters.Customers,
         },
         {
-          label: t`Sales Items`,
-          name: 'sales-items',
-          route: `/list/Item/${t`Sales Items`}`,
-          schemaName: 'Item',
-          filters: routeFilters.SalesItems,
-        },
-        {
           label: t`Loyalty Program`,
           name: 'loyalty-program',
           route: '/list/LoyaltyProgram',
@@ -296,13 +289,6 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'Party',
           filters: routeFilters.Suppliers,
         },
-        {
-          label: t`Purchase Items`,
-          name: 'purchase-items',
-          route: `/list/Item/${t`Purchase Items`}`,
-          schemaName: 'Item',
-          filters: routeFilters.PurchaseItems,
-        },
       ] as SidebarItem[],
     },
     {
@@ -324,11 +310,10 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'Party',
         },
         {
-          label: t`Items`,
-          name: 'common-items',
-          route: `/list/Item/${t`Items`}`,
+          label: t`Item`,
+          name: 'item',
+          route: '/list/Item',
           schemaName: 'Item',
-          filters: [['item_usage', '=', 'Both']],
         },
         {
           label: t`Price List`,

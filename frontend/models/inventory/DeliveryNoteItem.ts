@@ -16,9 +16,6 @@ export class DeliveryNoteItem extends StockTransferItem {
   // Items are Frappe-backed.
   static filters: FiltersMap = {
     ...transferRowFilters,
-    item: () => [
-      ['item_usage', 'not in', ['Purchases']],
-      ['track_item', '=', 1],
-    ],
+    item: () => [['track_item', '=', 1]],
   };
 }

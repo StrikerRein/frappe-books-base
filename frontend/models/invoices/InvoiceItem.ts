@@ -269,9 +269,6 @@ export class InvoiceItem extends FrappeDoc {
 
   // Items, batches and units are Frappe-backed and filter by Frappe fieldnames.
   static override filters: FiltersMap = {
-    item: (doc: FrappeDoc) => [
-      ['item_usage', 'not in', [doc.isSales ? 'Purchases' : 'Sales']],
-    ],
     batch: async (doc: FrappeDoc) => {
       const item = doc.item as string;
       if (!doc.isSales || doc.isReturn) {
@@ -289,9 +286,6 @@ export class InvoiceItem extends FrappeDoc {
   };
 
   static override createFilters: FiltersMap = {
-    item: (doc: FrappeDoc) => [
-      ['item_usage', '=', doc.isSales ? 'Sales' : 'Purchases'],
-    ],
     // A new batch is of the row's item, not one of the batches in stock.
     batch: (doc: FrappeDoc) => [['item', '=', doc.item]],
   };

@@ -286,8 +286,8 @@ test('files keep the keys Books renamed', async () => {
     await keys('Account', ['account_name', 'parent_books_account', 'owner']),
     ['Account.name', 'Account.parentAccount', 'Account.createdBy']
   );
-  assert.deepEqual(await keys('Item', ['item_usage', 'uom_conversions']), [
-    'Item.for',
+  assert.deepEqual(await keys('Item', ['item_type', 'uom_conversions']), [
+    'Item.itemType',
     'UOMConversionItem.uom',
   ]);
   assert.deepEqual(

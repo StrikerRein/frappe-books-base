@@ -27,7 +27,6 @@ const cases = [
       'Depreciation Entry',
     ],
   ],
-  ['Item', 'Purpose', 'item_usage', ['Purchases', 'Sales', 'Both']],
   ['Item', 'Type', 'item_type', ['Product', 'Service']],
   [
     'SalesInvoice',
@@ -126,26 +125,30 @@ for (const condition of ['Is', 'Contains']) {
 test('changing Select fields resets choices and supports keyboard selection', async ({
   page,
 }) => {
-  await openField(page, 'Item', 'Purpose');
-  await setValue(page, 'Both');
-  await choose(page, 'Field', 'Type');
+  await openField(page, 'JournalEntry', 'Entry Type');
+  await setValue(page, 'Bank Entry');
+  await choose(page, 'Field', 'Status');
   const value = page.getByRole('combobox', { name: 'Value', exact: true });
   await expect(value).toHaveText('Select a value');
   await value.press('Enter');
-  await expect(page.getByRole('option')).toHaveText(['Product', 'Service']);
+  await expect(page.getByRole('option')).toHaveText([
+    'Saved',
+    'Submitted',
+    'Cancelled',
+  ]);
   await page
-    .getByRole('option', { name: 'Product', exact: true })
+    .getByRole('option', { name: 'Saved', exact: true })
     .press('ArrowDown');
   await expect(
-    page.getByRole('option', { name: 'Service', exact: true })
+    page.getByRole('option', { name: 'Submitted', exact: true })
   ).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(value).toHaveText('Service');
+  await expect(value).toHaveText('Submitted');
   await expect(
     page.getByRole('region', { name: 'Filters', exact: true })
   ).toBeVisible();
   await page.getByRole('button', { name: 'Apply', exact: true }).click();
-  expect(await appliedFilters(page)).toEqual([['item_type', '=', 'Service']]);
+  expect(await appliedFilters(page)).toEqual([['status', '=', 'Submitted']]);
 });
 
 test('Link filters offer records, search by name, clear, and use text for Contains', async ({

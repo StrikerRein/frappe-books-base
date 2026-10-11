@@ -47,11 +47,11 @@ class BooksGetStarted(Document):
 
 	@property
 	def sales_item_created(self):
-		return has_record("Books Item", item_usage=["in", ["Sales", "Both"]])
+		return has_record("Books Item")
 
 	@property
 	def purchase_item_created(self):
-		return has_record("Books Item", item_usage=["in", ["Purchases", "Both"]])
+		return has_record("Books Item")
 
 	@property
 	def customer_created(self):

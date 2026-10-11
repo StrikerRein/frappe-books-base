@@ -9,7 +9,6 @@ from frappe_books.accounting import returns, settlement
 from frappe_books.accounting.accounts import (
 	latest_ledger_account,
 	validate_account,
-	validate_item_usage,
 	validate_party_role,
 )
 from frappe_books.accounting.ledger import LedgerPosting, delete_entries, reverse_entries
@@ -308,7 +307,6 @@ def validate_invoice(invoice):
 	for row in invoice.items:
 		_validate_row(invoice, row)
 	validate_hsn_codes(invoice.items)
-	validate_item_usage(invoice, invoice.is_purchase)
 	if invoice.get("return_against"):
 		returns.validate_return(invoice)
 

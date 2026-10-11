@@ -34,7 +34,6 @@ test('the Item form shows the fields, labels, placeholders and sections it showe
     'name | Item Name | Item Name | Default',
     'item_code | Item Code | Item Code | Default',
     'item_group | Item Group | Item Group | Default',
-    'item_usage | Purpose |  | Default',
     'item_type | Type | Type | Default',
     'unit | Unit Type | Unit Type | Details',
     'rate | Rate |  | Details',
@@ -121,16 +120,10 @@ test('HSN/SAC shows and is checked only for an Indian company', async () => {
 });
 
 test('item links filter and create items by Frappe fieldnames', async () => {
-  const sale = { isSales: true };
-  const purchase = { isSales: false };
   const SalesInvoiceItem = frappeModels.SalesInvoice.rowModels.items;
   const StockEntryItem = frappeModels.StockEntry.rowModels.items;
-  assert.deepEqual(await SalesInvoiceItem.filters.item(sale), [
-    ['item_usage', 'not in', ['Purchases']],
-  ]);
-  assert.deepEqual(await SalesInvoiceItem.createFilters.item(purchase), [
-    ['item_usage', '=', 'Purchases'],
-  ]);
+  assert.equal(SalesInvoiceItem.filters.item, undefined);
+  assert.equal(SalesInvoiceItem.createFilters.item, undefined);
   assert.deepEqual(StockEntryItem.filters.item(), [['track_item', '=', 1]]);
   assert.deepEqual(StockEntryItem.createFilters.item(), [
     ['track_item', '=', 1],
@@ -138,15 +131,11 @@ test('item links filter and create items by Frappe fieldnames', async () => {
   ]);
 });
 
-test('an item makes the invoices its usage allows', () => {
-  const actions = frappeModels.Item.getActions(fyo);
-  const labels = (usage) =>
-    actions
-      .filter(({ condition }) =>
-        condition({ notInserted: false, item_usage: usage })
-      )
+test('a saved item makes both sales and purchase invoices', () => {
+  const labels = (notInserted) =>
+    frappeModels.Item.getActions(fyo)
+      .filter(({ condition }) => condition({ notInserted }))
       .map(({ label }) => label);
-  assert.deepEqual(labels('Sales'), ['Sales Invoice']);
-  assert.deepEqual(labels('Purchases'), ['Purchase Invoice']);
-  assert.deepEqual(labels('Both'), ['Sales Invoice', 'Purchase Invoice']);
+  assert.deepEqual(labels(false), ['Sales Invoice', 'Purchase Invoice']);
+  assert.deepEqual(labels(true), []);
 });

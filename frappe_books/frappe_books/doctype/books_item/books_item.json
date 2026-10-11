@@ -13,7 +13,6 @@
   "image",
   "item_code",
   "item_group",
-  "item_usage",
   "item_type",
   "details_section_break_7",
   "unit",
@@ -57,15 +56,6 @@
    "label": "Item Group",
    "options": "Books Item Group",
    "placeholder": "Item Group"
-  },
-  {
-   "default": "Both",
-   "fieldname": "item_usage",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Purpose",
-   "options": "Purchases\nSales\nBoth",
-   "reqd": 1
   },
   {
    "default": "Product",
@@ -262,7 +252,7 @@
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "search_fields": "item_type, item_usage",
+ "search_fields": "item_type",
  "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],

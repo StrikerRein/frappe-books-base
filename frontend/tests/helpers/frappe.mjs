@@ -276,7 +276,7 @@ function parseParam(value) {
 export const itemMeta = {
   name: 'Books Item',
   autoname: 'Prompt',
-  search_fields: 'item_type, item_usage',
+  search_fields: 'item_type',
   permissions: [
     { role: 'Books Manager', permlevel: 0, read: 1, write: 1 },
     { role: 'Books Manager', permlevel: 1, read: 1 },

@@ -344,13 +344,6 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 		with self.set_user(ensure_user(READ_ONLY_USER)), self.assertRaises(frappe.PermissionError):
 			shipment.preview()
 
-	def test_delivery_notes_take_only_items_kept_for_sales(self):
-		item, _cogs, _stock = self._tracked_item(item_usage="Purchases")
-		seed_stock(item.name, quantity=1, rate=10)
-
-		with self.assertRaisesRegex(frappe.ValidationError, "is not for Sales"):
-			self._make_delivery_note(item, quantity=1, rate=25)
-
 	def test_rows_default_to_the_inventory_location(self):
 		item, _cogs, _stock = self._tracked_item()
 		frappe.db.set_single_value("Books Inventory Settings", "default_location", "Stores")

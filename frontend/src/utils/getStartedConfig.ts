@@ -75,12 +75,7 @@ export function getGetStartedConfig(): GetStartedConfigItem[] {
           icon: 'lucide-box',
           description: t`Add products or services that you sell to your customers`,
           action: () =>
-            routeTo({
-              path: `/list/Item/${t`Sales Items`}`,
-              query: {
-                filters: JSON.stringify({ item_usage: 'Sales' }),
-              },
-            }),
+            routeTo('/list/Item'),
           fieldname: 'sales_item_created',
           documentation:
             'https://docs.frappe.io/books/create-initial-entries#add-sales-items',
@@ -121,12 +116,7 @@ export function getGetStartedConfig(): GetStartedConfigItem[] {
           icon: 'lucide-box',
           description: t`Add products or services that you buy from your suppliers`,
           action: () =>
-            routeTo({
-              path: `/list/Item/${t`Purchase Items`}`,
-              query: {
-                filters: JSON.stringify({ item_usage: 'Purchases' }),
-              },
-            }),
+            routeTo('/list/Item'),
           fieldname: 'purchase_item_created',
         },
         {

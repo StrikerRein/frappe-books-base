@@ -114,21 +114,6 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       schemaName: ModelNameEnum.Party,
       create: createFilters.Party,
     },
-    {
-      label: t`Sales Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.SalesItems,
-    },
-    {
-      label: t`Purchase Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.PurchaseItems,
-    },
-    {
-      label: t`Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.Items,
-    },
   ].map(({ label, create, schemaName }) => {
     return {
       label,
@@ -239,24 +224,9 @@ function getListViewList(fyo: Fyo): SearchItem[] {
       filters: routeFilters.Suppliers,
     },
     {
-      label: t`Sales Items`,
-      route: `/list/Item/${t`Sales Items`}`,
-      filters: routeFilters.SalesItems,
-    },
-    {
       label: t`Sales Payments`,
       route: `/list/Payment/${t`Sales Payments`}`,
       filters: routeFilters.SalesPayments,
-    },
-    {
-      label: t`Purchase Items`,
-      route: `/list/Item/${t`Purchase Items`}`,
-      filters: routeFilters.PurchaseItems,
-    },
-    {
-      label: t`Items`,
-      route: `/list/Item/${t`Items`}`,
-      filters: routeFilters.Items,
     },
     {
       label: t`Purchase Payments`,
