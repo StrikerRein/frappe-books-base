@@ -59,19 +59,19 @@ test('a return takes back what its invoice sold', async ({ page }) => {
 
 test('a submitted quote makes an invoice with its rows', async ({ page }) => {
   const { party, item } = await insertParties(page);
-  const quote = await insertDocument(page, 'Books Sales Quote', {
+  const quote = await insertDocument(page, 'Books Quotation', {
     reference_type: 'Books Party',
     party,
     items: [{ item, quantity: 4 }],
   });
-  await runMethod(page, 'Books Sales Quote', quote, 'submit');
-  await page.goto(`/books/edit/SalesQuote/${quote}`);
+  await runMethod(page, 'Books Quotation', quote, 'submit');
+  await page.goto(`/books/edit/Quotation/${quote}`);
   await waitForBooks(page);
 
   await page.getByRole('button', { name: 'Create' }).click();
   await page.getByRole('menuitem', { name: 'Sales Invoice' }).click();
   await expect(page).toHaveURL(/\/books\/edit\/SalesInvoice\/New/);
-  await expect(page.getByRole('combobox', { name: 'Quote Reference' })).toHaveValue(
+  await expect(page.getByRole('combobox', { name: 'Quotation' })).toHaveValue(
     quote
   );
   const qty = page.getByRole('row').nth(1).getByRole('textbox').first();

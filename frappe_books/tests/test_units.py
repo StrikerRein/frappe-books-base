@@ -106,7 +106,7 @@ class IntegrationTestUnits(IntegrationTestCase):
 		row = {"item": self.item.name, "transfer_unit": self.box, "transfer_quantity": 2, "rate": 10}
 		for doctype, values in (
 			("Books Sales Invoice", {}),
-			("Books Sales Quote", {}),
+			("Books Quotation", {}),
 			("Books Purchase Invoice", {"account": payable}),
 		):
 			with self.subTest(doctype=doctype):

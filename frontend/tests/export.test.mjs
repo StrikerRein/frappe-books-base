@@ -70,7 +70,7 @@ test('the file fields of every model are fields of its schema', () => {
 
   assert.deepEqual(missing, []);
   assert.ok(getSchema('SalesInvoice').fileFields.length > 0);
-  assert.ok(getSchema('SalesQuoteItem').fileFields.length > 0);
+  assert.ok(getSchema('QuotationItem').fileFields.length > 0);
 });
 
 test('the wizard offers Books’ fields in Books’ order', () => {

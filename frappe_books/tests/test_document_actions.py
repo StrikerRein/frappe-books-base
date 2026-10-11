@@ -18,7 +18,7 @@ from frappe_books.frappe_books.doctype.books_pos_opening_shift.test_books_pos_op
 from frappe_books.frappe_books.doctype.books_purchase_receipt.test_books_purchase_receipt import (
 	set_inventory_accounts,
 )
-from frappe_books.frappe_books.doctype.books_sales_quote.books_sales_quote import make_sales_invoice
+from frappe_books.frappe_books.doctype.books_quotation.books_quotation import make_sales_invoice
 from frappe_books.frappe_books.doctype.books_shipment.books_shipment import (
 	make_sales_invoice as make_shipment_invoice,
 )
@@ -53,7 +53,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		# Paid by hand below, not by the automatic payment the defaults ask for.
 		invoice.make_auto_payment = 0
 		invoice.insert()
-		self.assertEqual(invoice.quote, quote.name)
+		self.assertEqual(invoice.quotation, quote.name)
 		self.assertEqual(invoice.account, self.receivable.name)
 		invoice.submit()
 
@@ -93,8 +93,8 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 	def test_frappe_mappers_make_the_documents_actions_open(self):
 		quote = self._submitted_quote()
 
-		invoice = make_mapped_doc(MAPPERS.format("books_sales_quote", "make_sales_invoice"), quote.name)
-		self.assertEqual((invoice.quote, invoice.party), (quote.name, self.party.name))
+		invoice = make_mapped_doc(MAPPERS.format("books_quotation", "make_sales_invoice"), quote.name)
+		self.assertEqual((invoice.quotation, invoice.party), (quote.name, self.party.name))
 		self.assertEqual(invoice.items[0].rate, 75)
 
 		mapped = make_sales_invoice(quote.name)
@@ -468,7 +468,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		return (
 			frappe.get_doc(
 				{
-					"doctype": "Books Sales Quote",
+					"doctype": "Books Quotation",
 					"reference_type": "Books Party",
 					"party": self.party.name,
 					"date": frappe.utils.now_datetime(),

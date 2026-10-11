@@ -82,7 +82,7 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 			frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Lead")}).insert()
 		with self.assertRaisesRegex(frappe.ValidationError, f"Lead {OFF}"):
 			make_invoice(
-				"Books Sales Quote",
+				"Books Quotation",
 				lead.name,
 				None,
 				self.item.name,

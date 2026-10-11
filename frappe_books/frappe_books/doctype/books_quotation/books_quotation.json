@@ -103,7 +103,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Books Sales Quote Item",
+   "options": "Books Quotation Item",
    "reqd": 1
   },
   {
@@ -206,7 +206,7 @@
    "hidden": 1,
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Books Sales Quote",
+   "options": "Books Quotation",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -230,7 +230,7 @@
  "modified": "2026-10-05 16:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Books",
- "name": "Books Sales Quote",
+ "name": "Books Quotation",
  "naming_rule": "By script",
  "owner": "Administrator",
  "permissions": [

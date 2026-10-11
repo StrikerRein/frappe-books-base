@@ -449,7 +449,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 			({"is_enabled": 0}, "Books Sales Invoice", self.party, self.receivable, "is disabled"),
 			(
 				{"is_sales": 0, "is_purchase": 1},
-				"Books Sales Quote",
+				"Books Quotation",
 				self.party,
 				self.receivable,
 				"not for Sales",

@@ -10,7 +10,7 @@ STATUS_DOCTYPES = (
 	"Books Purchase Invoice",
 	"Books Shipment",
 	"Books Purchase Receipt",
-	"Books Sales Quote",
+	"Books Quotation",
 	"Books Journal Entry",
 	"Books Payment",
 	"Books Stock Movement",

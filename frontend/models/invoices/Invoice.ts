@@ -34,7 +34,7 @@ export const INVOICE_FIELDS = {
     'currency',
     'back_reference',
     'return_against',
-    'quote',
+    'quotation',
     'loyalty_program',
   ]),
   items: { edit: true },
@@ -89,7 +89,7 @@ export abstract class Invoice extends FrappeDoc {
   }
 
   get isSales(): boolean {
-    return [ModelNameEnum.SalesInvoice, ModelNameEnum.SalesQuote].includes(
+    return [ModelNameEnum.SalesInvoice, ModelNameEnum.Quotation].includes(
       this.schemaName as ModelNameEnum
     );
   }

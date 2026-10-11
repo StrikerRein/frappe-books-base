@@ -4,14 +4,14 @@ import { Action, FiltersMap, ListViewSettings } from 'fyo/model/types';
 import { getDocStatusListColumn, getQuoteActions } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { INVOICE_FIELDS, Invoice } from './Invoice';
-import { SalesQuoteItem } from './InvoiceItem';
+import { QuotationItem } from './InvoiceItem';
 import { TaxSummary } from './TaxSummary';
 
 /** A quote to a customer or a lead; its Type names the doctype of its party. */
-export class SalesQuote extends Invoice {
-  static override doctype = 'Books Sales Quote';
+export class Quotation extends Invoice {
+  static override doctype = 'Books Quotation';
   static override presentation = {
-    label: 'Quote',
+    label: 'Quotation',
     nameField: { label: 'Invoice No', hidden: true },
     fields: {
       ...INVOICE_FIELDS,
@@ -44,7 +44,7 @@ export class SalesQuote extends Invoice {
       'reference_type',
     ],
   };
-  static override rowModels = { items: SalesQuoteItem, taxes: TaxSummary };
+  static override rowModels = { items: QuotationItem, taxes: TaxSummary };
 
   static override filters: FiltersMap = {
     // Leads have no role.
@@ -72,6 +72,6 @@ export class SalesQuote extends Invoice {
   }
 
   static getActions(fyo: Fyo): Action[] {
-    return getQuoteActions(fyo, ModelNameEnum.SalesQuote);
+    return getQuoteActions(fyo, ModelNameEnum.Quotation);
   }
 }

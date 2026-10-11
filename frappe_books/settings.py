@@ -23,7 +23,7 @@ FEATURES = {
 
 # The Books Defaults terms each new document starts with.
 DEFAULT_TERMS = {
-	"Books Sales Quote": "sales_invoice_terms",
+	"Books Quotation": "sales_invoice_terms",
 	"Books Sales Invoice": "sales_invoice_terms",
 	"Books Purchase Invoice": "purchase_invoice_terms",
 	"Books Shipment": "shipment_terms",

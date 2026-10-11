@@ -15,7 +15,7 @@
   {"label":"Purchase Invoices","link_to":"Books Purchase Invoice","link_type":"DocType","type":"Link"},
   {"label":"Payments","link_to":"Books Payment","link_type":"DocType","type":"Link"},
   {"label":"Journal Entries","link_to":"Books Journal Entry","link_type":"DocType","type":"Link"},
-  {"label":"Sales Quotes","link_to":"Books Sales Quote","link_type":"DocType","type":"Link"},
+  {"label":"Quotation","link_to":"Books Quotation","link_type":"DocType","type":"Link"},
   {"label":"Masters","link_count":6,"type":"Card Break"},
   {"label":"Parties","link_to":"Books Party","link_type":"DocType","type":"Link"},
   {"label":"Items","link_to":"Books Item","link_type":"DocType","type":"Link"},

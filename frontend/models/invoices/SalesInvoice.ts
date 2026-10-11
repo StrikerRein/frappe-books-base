@@ -44,7 +44,7 @@ export class SalesInvoice extends Invoice {
       'return_against',
       'status',
       'coupons',
-      'quote',
+      'quotation',
       'loyalty_program',
       'available_loyalty_points',
       'redeem_loyalty_points',

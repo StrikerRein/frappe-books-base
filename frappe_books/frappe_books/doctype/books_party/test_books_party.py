@@ -5,7 +5,7 @@ import frappe
 from frappe.tests import IntegrationTestCase
 
 from frappe_books.accounting.money import company_currency
-from frappe_books.frappe_books.doctype.books_lead.books_lead import make_customer, make_sales_quote
+from frappe_books.frappe_books.doctype.books_lead.books_lead import make_customer, make_quotation
 from frappe_books.frappe_books.doctype.books_party.books_party import make_sales_invoice
 from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party, unique_name
 
@@ -125,7 +125,7 @@ class IntegrationTestBooksParty(IntegrationTestCase):
 		).insert()
 
 		customer = make_customer(lead.name)
-		quote = make_sales_quote(lead.name)
+		quote = make_quotation(lead.name)
 
 		self.assertEqual(
 			(customer.name, customer.role, customer.email, customer.phone, customer.from_lead),

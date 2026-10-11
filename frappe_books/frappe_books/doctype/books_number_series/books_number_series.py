@@ -21,7 +21,7 @@ class BooksNumberSeries(Document):
 		reference_type: DF.Literal[
 			"",
 			"SalesInvoice",
-			"SalesQuote",
+			"Quotation",
 			"PurchaseInvoice",
 			"Payment",
 			"JournalEntry",

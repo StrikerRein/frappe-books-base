@@ -89,7 +89,7 @@ export const frappeModels: Record<string, FrappeModel> = {
   POSClosingShift,
   SalesInvoice: invoices.SalesInvoice,
   PurchaseInvoice: invoices.PurchaseInvoice,
-  SalesQuote: invoices.SalesQuote,
+  Quotation: invoices.Quotation,
   Shipment,
   PurchaseReceipt,
   SystemSettings,

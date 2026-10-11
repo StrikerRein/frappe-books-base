@@ -210,7 +210,7 @@ export default defineComponent({
     /** Documents that can be made from the selected items. */
     createOptions(): { value: string; label: string }[] {
       return [
-        { value: ModelNameEnum.SalesQuote, label: this.t`Sales Quote` },
+        { value: ModelNameEnum.Quotation, label: this.t`Quotation` },
         { value: ModelNameEnum.SalesInvoice, label: this.t`Sales Invoice` },
         { value: ModelNameEnum.PurchaseInvoice, label: this.t`Purchase Invoice` },
       ].filter(
@@ -274,7 +274,7 @@ export default defineComponent({
     },
     async createInvoice(value: string) {
       if (
-        value === ModelNameEnum.SalesQuote ||
+        value === ModelNameEnum.Quotation ||
         value === ModelNameEnum.SalesInvoice ||
         value === ModelNameEnum.PurchaseInvoice
       ) {

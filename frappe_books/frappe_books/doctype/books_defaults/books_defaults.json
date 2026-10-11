@@ -20,14 +20,14 @@
   "stock_movement_number_series",
   "shipment_number_series",
   "purchase_receipt_number_series",
-  "sales_quote_number_series",
+  "quotation_number_series",
   "terms_section_break_16",
   "sales_invoice_terms",
   "purchase_invoice_terms",
   "shipment_terms",
   "purchase_receipt_terms",
   "print_templates_section_break_21",
-  "sales_quote_print_template",
+  "quotation_print_template",
   "sales_invoice_print_template",
   "purchase_invoice_print_template",
   "journal_entry_print_template",
@@ -130,9 +130,9 @@
    "options": "Books Number Series"
   },
   {
-   "fieldname": "sales_quote_number_series",
+   "fieldname": "quotation_number_series",
    "fieldtype": "Link",
-   "label": "Sales Quote Number Series",
+   "label": "Quotation Number Series",
    "options": "Books Number Series"
   },
   {
@@ -166,11 +166,11 @@
    "label": "Print Templates"
   },
   {
-   "fieldname": "sales_quote_print_template",
+   "fieldname": "quotation_print_template",
    "fieldtype": "Link",
    "is_virtual": 1,
-   "label": "Sales Quote Print Template",
-   "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Books Sales Quote\"]]",
+   "label": "Quotation Print Template",
+   "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Books Quotation\"]]",
    "options": "Print Format"
   },
   {

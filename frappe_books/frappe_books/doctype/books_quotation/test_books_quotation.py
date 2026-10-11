@@ -7,7 +7,7 @@ from frappe.tests import IntegrationTestCase
 from frappe_books.tests.accounting import make_account, make_item, make_party, unique_name
 
 
-class IntegrationTestBooksSalesQuote(IntegrationTestCase):
+class IntegrationTestBooksQuotation(IntegrationTestCase):
 	def test_quote_calculates_without_posting_ledger(self):
 		receivable = make_account("Receivable", account_type="Receivable")
 		income = make_account("Income", root_type="Income", account_type="Income Account")
@@ -16,7 +16,7 @@ class IntegrationTestBooksSalesQuote(IntegrationTestCase):
 		item = make_item(income.name, expense.name)
 		quote = frappe.get_doc(
 			{
-				"doctype": "Books Sales Quote",
+				"doctype": "Books Quotation",
 				"reference_type": "Books Party",
 				"party": party.name,
 				"date": frappe.utils.now_datetime(),
@@ -40,7 +40,7 @@ class IntegrationTestBooksSalesQuote(IntegrationTestCase):
 		lead = frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Lead")}).insert()
 		frappe.get_doc(
 			{
-				"doctype": "Books Sales Quote",
+				"doctype": "Books Quotation",
 				"reference_type": "Books Lead",
 				"party": lead.name,
 				"date": frappe.utils.now_datetime(),

@@ -206,7 +206,7 @@ test('Link field changes load the correct records and lookup errors are visible'
 test('Dynamic Link filters follow the selected type and clear stale selections', async ({
   page,
 }) => {
-  await openField(page, 'SalesQuote', 'Type');
+  await openField(page, 'Quotation', 'Type');
   await setValue(page, 'Party');
   await page.getByRole('button', { name: 'Add a filter', exact: true }).click();
   await choose(page, 'Field', 'Customer', 1);
@@ -229,7 +229,7 @@ test('Dynamic Link filters follow the selected type and clear stale selections',
 test('unresolved Dynamic Links allow text until their type is selected', async ({
   page,
 }) => {
-  await openField(page, 'SalesQuote', 'Customer');
+  await openField(page, 'Quotation', 'Customer');
   await expect(
     page.getByRole('combobox', { name: 'Value', exact: true })
   ).toHaveCount(0);
@@ -281,7 +281,7 @@ test('Autocomplete filters offer configured suggestions and still accept text', 
 test('changing a Dynamic Link type preserves implicit record restrictions', async ({
   page,
 }) => {
-  await openField(page, 'SalesQuote', 'Type');
+  await openField(page, 'Quotation', 'Type');
   await page.evaluate(() => {
     (window as any).filterFixture.filter.value.addFilter(
       'party',

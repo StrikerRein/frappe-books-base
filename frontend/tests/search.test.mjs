@@ -113,7 +113,7 @@ test('the palette lists only the lists of features that are on', () => {
       featureLists.filter((label) => on.includes(label)),
       featureLists
     );
-    assert.equal(off.includes('Quote'), true);
+    assert.equal(off.includes('Quotation'), true);
   } finally {
     fyo.singles.AccountingSettings = AccountingSettings;
     fyo.singles.InventorySettings = InventorySettings;

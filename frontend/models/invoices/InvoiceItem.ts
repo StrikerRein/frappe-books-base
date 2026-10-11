@@ -311,10 +311,10 @@ export class PurchaseInvoiceItem extends InvoiceItem {
   };
 }
 
-export class SalesQuoteItem extends InvoiceItem {
+export class QuotationItem extends InvoiceItem {
   static override presentation = {
     ...InvoiceItem.presentation,
-    label: 'Sales Quote Item',
+    label: 'Quotation Item',
     quickEditFields: InvoiceItem.presentation.quickEditFields.filter(
       (fieldname) => fieldname !== 'serial_number'
     ),

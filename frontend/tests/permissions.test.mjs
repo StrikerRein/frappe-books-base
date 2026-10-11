@@ -128,10 +128,10 @@ test('a new single document is writable with the write permission', () => {
 });
 
 test('the sidebar shows only the lists, reports and groups the user can open', () => {
-  const lists = ['SalesQuote', 'SalesInvoice', 'Party', 'Item', 'Account'];
+  const lists = ['Quotation', 'SalesInvoice', 'Party', 'Item', 'Account'];
   fyo.store.permissions = {
     doctypes: Object.fromEntries(lists.map((name) => [name, `Books ${name}`])),
-    user: { can_read: ['Books SalesQuote', 'Books Party'] },
+    user: { can_read: ['Books Quotation', 'Books Party'] },
   };
   window.frappe.boot.allowed_reports = { 'Books Trial Balance': {} };
 
@@ -146,8 +146,8 @@ test('the sidebar shows only the lists, reports and groups the user can open', (
     { label: 'Dashboard', route: '/', items: undefined },
     {
       label: 'Sales',
-      route: '/list/SalesQuote',
-      items: ['Sales Quotes', 'Customers'],
+      route: '/list/Quotation',
+      items: ['Quotation', 'Customers'],
     },
     {
       label: 'Purchases',
@@ -184,10 +184,10 @@ test('Setup lists Number Series for a user who can read them', () => {
 });
 
 test('the search palette offers only the lists and reports the user can open', () => {
-  const lists = ['SalesQuote', 'SalesInvoice', 'Party', 'Item', 'Account'];
+  const lists = ['Quotation', 'SalesInvoice', 'Party', 'Item', 'Account'];
   fyo.store.permissions = {
     doctypes: Object.fromEntries(lists.map((name) => [name, `Books ${name}`])),
-    user: { can_read: ['Books SalesQuote', 'Books Party'] },
+    user: { can_read: ['Books Quotation', 'Books Party'] },
   };
   window.frappe.boot.allowed_reports = { 'Books Trial Balance': {} };
 
@@ -196,7 +196,7 @@ test('the search palette offers only the lists and reports the user can open', (
     .map(({ route }) => decodeURI(route).split('?')[0]);
 
   delete window.frappe.boot.allowed_reports;
-  assert.ok(routes.includes('/list/SalesQuote'));
+  assert.ok(routes.includes('/list/Quotation'));
   assert.ok(routes.includes('/list/Party/Customers'));
   assert.ok(routes.includes('/report/TrialBalance'));
   assert.ok(!routes.includes('/list/SalesInvoice'));

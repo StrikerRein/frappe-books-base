@@ -71,7 +71,7 @@ class BooksSalesInvoice(PostingInvoiceController):
 		payments: DF.Table[BooksSalesInvoicePayment]
 		price_list: DF.Link | None
 		pricing_rule_detail: DF.Table[BooksPricingRuleDetail]
-		quote: DF.Link | None
+		quotation: DF.Link | None
 		redeem_loyalty_points: DF.Check
 		return_against: DF.Link | None
 		status: DF.Literal["Saved", "Unpaid", "Partly Paid", "Paid", "Return", "Return Issued", "Cancelled"]

@@ -38,7 +38,7 @@ class IntegrationTestStockLocation(IntegrationTestCase):
 		)
 
 	def test_quotes_use_the_sales_invoice_location(self):
-		self.assertEqual(get_stock_location("Books Sales Quote"), stock_location("SalesInvoice", False))
+		self.assertEqual(get_stock_location("Books Quotation"), stock_location("SalesInvoice", False))
 
 
 def stock_location(source_schema, is_pos):

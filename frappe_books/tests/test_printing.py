@@ -97,7 +97,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		for doctype, print_format, values in (
 			("Books Sales Invoice", "Business - Sales Invoice", {}),
 			("Books Sales Invoice", "Business-POS - Sales Invoice", {}),
-			("Books Sales Quote", "Business - Quote", {}),
+			("Books Quotation", "Business - Quotation", {}),
 			("Books Purchase Invoice", "Business - Purchase Invoice", {"account": payable}),
 		):
 			with self.subTest(print_format=print_format):
@@ -131,7 +131,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 		self.assertEqual(
 			formats,
 			{
-				"Business - Quote": "Books Sales Quote",
+				"Business - Quotation": "Books Quotation",
 				"Business - Sales Invoice": "Books Sales Invoice",
 				"Business - Purchase Invoice": "Books Purchase Invoice",
 				"Business - Payment": "Books Payment",

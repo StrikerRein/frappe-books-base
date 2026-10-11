@@ -8,7 +8,7 @@ from frappe_books.accounting.invoice import InvoiceController
 from frappe_books.inventory.availability import validate_sale_batch_stock
 
 
-class BooksSalesQuote(InvoiceController):
+class BooksQuotation(InvoiceController):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -17,8 +17,8 @@ class BooksSalesQuote(InvoiceController):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		from frappe_books.frappe_books.doctype.books_sales_quote_item.books_sales_quote_item import (
-			BooksSalesQuoteItem,
+		from frappe_books.frappe_books.doctype.books_quotation_item.books_quotation_item import (
+			BooksQuotationItem,
 		)
 		from frappe_books.frappe_books.doctype.books_tax_summary.books_tax_summary import (
 			BooksTaxSummary,
@@ -33,7 +33,7 @@ class BooksSalesQuote(InvoiceController):
 		exchange_rate: DF.Float
 		grand_total: DF.Currency
 		is_fully_returned: DF.Check
-		items: DF.Table[BooksSalesQuoteItem]
+		items: DF.Table[BooksQuotationItem]
 		net_total: DF.Currency
 		number_series: DF.Link
 		outstanding_amount: DF.Currency
@@ -65,15 +65,15 @@ class BooksSalesQuote(InvoiceController):
 @frappe.whitelist()
 def make_sales_invoice(source_name: str):
 	return get_mapped_doc(
-		"Books Sales Quote",
+		"Books Quotation",
 		source_name,
 		{
-			"Books Sales Quote": {
+			"Books Quotation": {
 				"doctype": "Books Sales Invoice",
 				"validation": {"docstatus": ["=", 1], "reference_type": ["=", "Books Party"]},
 				"field_no_map": ["date", "number_series", "attachment"],
 			},
-			"Books Sales Quote Item": {"doctype": "Books Sales Invoice Item"},
+			"Books Quotation Item": {"doctype": "Books Sales Invoice Item"},
 		},
 		postprocess=_set_invoice_details,
 	)

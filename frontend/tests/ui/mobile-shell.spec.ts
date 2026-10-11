@@ -113,15 +113,15 @@ test('back closes the nav sheet before leaving the page', async ({ page }) => {
   await navSheet(page)
     .getByRole('button', { name: 'Sales', exact: true })
     .click();
-  await navSheet(page).getByRole('link', { name: 'Sales Quotes' }).click();
-  await expect(page).toHaveURL(/\/books\/list\/SalesQuote$/);
+  await navSheet(page).getByRole('link', { name: 'Quotation' }).click();
+  await expect(page).toHaveURL(/\/books\/list\/Quotation$/);
 
   await page.getByRole('button', { name: 'Menu' }).click();
   await expect(navSheet(page)).toBeVisible();
   await page.evaluate(() => history.back());
 
   await expect(navSheet(page)).toBeHidden();
-  await expect(page).toHaveURL(/\/books\/list\/SalesQuote$/);
+  await expect(page).toHaveURL(/\/books\/list\/Quotation$/);
 });
 
 test('back closes an open menu before leaving the page', async ({ page }) => {

@@ -4,7 +4,7 @@
 from frappe_books.accounting.invoice import InvoiceItemController
 
 
-class BooksSalesQuoteItem(InvoiceItemController):
+class BooksQuotationItem(InvoiceItemController):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -41,4 +41,4 @@ class BooksSalesQuoteItem(InvoiceItemController):
 		unit_conversion_factor: DF.Float
 	# end: auto-generated types
 
-	_DOCTYPE_NAME = "Books Sales Quote Item"
+	_DOCTYPE_NAME = "Books Quotation Item"

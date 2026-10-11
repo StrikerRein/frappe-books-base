@@ -58,13 +58,13 @@ async function openForm(mapped: FrappeDoc, router: Router) {
 
 export function getQuoteActions(
   fyo: Fyo,
-  schemaName: ModelNameEnum.SalesQuote
+  schemaName: ModelNameEnum.Quotation
 ): Action[] {
   return [getMakeInvoiceAction(fyo, schemaName)];
 }
 
 export function getLeadActions(fyo: Fyo): Action[] {
-  return [getCreateCustomerAction(fyo), getSalesQuoteAction(fyo)];
+  return [getCreateCustomerAction(fyo), getQuotationAction(fyo)];
 }
 
 export function getInvoiceActions(
@@ -122,7 +122,7 @@ export function getMakeInvoiceAction(
   schemaName:
     | ModelNameEnum.Shipment
     | ModelNameEnum.PurchaseReceipt
-    | ModelNameEnum.SalesQuote
+    | ModelNameEnum.Quotation
 ): Action {
   const isPurchase = schemaName === ModelNameEnum.PurchaseReceipt;
   const [invoiceSchemaName, mapper] = isPurchase
@@ -133,7 +133,7 @@ export function getMakeInvoiceAction(
     group: fyo.t`Create`,
     condition: (doc: FrappeDoc) => {
       // Quotes to leads are not invoiced.
-      if (schemaName === ModelNameEnum.SalesQuote) {
+      if (schemaName === ModelNameEnum.Quotation) {
         return doc.isSubmitted && doc.reference_type === 'Books Party';
       }
 
@@ -158,12 +158,12 @@ export function getCreateCustomerAction(fyo: Fyo): Action {
   });
 }
 
-export function getSalesQuoteAction(fyo: Fyo): Action {
+export function getQuotationAction(fyo: Fyo): Action {
   return getMappedDocAction(fyo, {
     group: fyo.t`Create`,
-    label: fyo.t`Sales Quote`,
+    label: fyo.t`Quotation`,
     condition: (doc: FrappeDoc) => !doc.notInserted,
-    target: () => [ModelNameEnum.SalesQuote, 'make_sales_quote'],
+    target: () => [ModelNameEnum.Quotation, 'make_quotation'],
   });
 }
 

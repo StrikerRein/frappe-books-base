@@ -117,12 +117,12 @@ test('a submitted invoice hides what only a draft offers', () => {
 
 test('an invoice posts ledger entries and a quote does not', () => {
   assert.equal(newInvoice('SalesInvoice').isTransactional, true);
-  assert.equal(newInvoice('SalesQuote').isTransactional, false);
+  assert.equal(newInvoice('Quotation').isTransactional, false);
 });
 
 test('the quote asks for the Type of its party and hides invoice fields', () => {
   setSettings();
-  const quote = newInvoice('SalesQuote');
+  const quote = newInvoice('Quotation');
 
   assert.deepEqual(getLayout(quote).Main.Default, [
     'number_series',
@@ -141,19 +141,19 @@ test('the quote asks for the Type of its party and hides invoice fields', () => 
   );
   assert.equal(quote.reference_type, 'Books Party');
   assert.equal(quote.fieldMap.party.create, true);
-  assert.equal(getSchema('SalesQuote').label, 'Quote');
+  assert.equal(getSchema('Quotation').label, 'Quotation');
 });
 
 test('a quote posts nothing, so it offers no ledger or payment on submit', () => {
   setSettings({ defaults: { sales_payment_account: 'Cash' } });
-  const quote = newInvoice('SalesQuote');
+  const quote = newInvoice('Quotation');
 
   assert.equal(quote.isTransactional, false);
   assert.equal(getLayout(quote).Settings, undefined);
 });
 
 test('item tables keep their columns, row editor and Invoice No', () => {
-  for (const schemaName of ['SalesInvoice', 'PurchaseInvoice', 'SalesQuote']) {
+  for (const schemaName of ['SalesInvoice', 'PurchaseInvoice', 'Quotation']) {
     const schema = getSchema(schemaName);
     const items = schema.fields.find(({ fieldname }) => fieldname === 'items');
     assert.equal(items.edit, true, schemaName);
@@ -190,7 +190,7 @@ test('item tables keep their columns, row editor and Invoice No', () => {
     getSchema('SalesInvoiceItem').quickEditFields.includes('serial_number')
   );
   assert.ok(
-    !getSchema('SalesQuoteItem').quickEditFields.includes('serial_number')
+    !getSchema('QuotationItem').quickEditFields.includes('serial_number')
   );
   assert.equal(
     getSchema('SalesInvoiceItem').fields.find(
@@ -391,11 +391,11 @@ test('selected items offer only the documents their Item Usage allows', async ()
   };
 
   assert.deepEqual(await offered(['Ink']), [
-    'SalesQuote',
+    'Quotation',
     'SalesInvoice',
     'PurchaseInvoice',
   ]);
-  assert.deepEqual(await offered(['Pen', 'Ink']), ['SalesQuote', 'SalesInvoice']);
+  assert.deepEqual(await offered(['Pen', 'Ink']), ['Quotation', 'SalesInvoice']);
   assert.deepEqual(await offered(['Paper']), ['PurchaseInvoice']);
   assert.deepEqual(await offered(['Pen', 'Paper']), []);
 });
@@ -489,8 +489,8 @@ test('links filter by the doctypes they point to', async () => {
     ['is_purchase', '=', 1],
   ]);
   assert.deepEqual(createFilters.party(sale), [['role', '=', 'Customer']]);
-  const quote = newInvoice('SalesQuote');
-  const quoteFilters = frappeModels.SalesQuote.filters;
+  const quote = newInvoice('Quotation');
+  const quoteFilters = frappeModels.Quotation.filters;
   assert.deepEqual(quoteFilters.party(quote), [
     ['role', 'in', ['Customer', 'Both']],
   ]);
@@ -661,8 +661,8 @@ test('the payment step of a return names the refund', () => {
 
 test('a submitted quote makes a Frappe-backed sales invoice from its mapper', async () => {
   setSettings();
-  const quote = newInvoice('SalesQuote', { docstatus: 1, name: 'SQUOT-1001' });
-  const [makeInvoice] = frappeModels.SalesQuote.getActions(fyo);
+  const quote = newInvoice('Quotation', { docstatus: 1, name: 'SQUOT-1001' });
+  const [makeInvoice] = frappeModels.Quotation.getActions(fyo);
   const requests = stubFrappe(() => ({
     message: {
       name: null,
@@ -686,7 +686,7 @@ test('a submitted quote makes a Frappe-backed sales invoice from its mapper', as
     requests[0].path,
     '/api/method/frappe.model.mapper.make_mapped_doc'
   );
-  assert.match(requests[0].body.method, /books_sales_quote\.make_sales_invoice$/);
+  assert.match(requests[0].body.method, /books_quotation\.make_sales_invoice$/);
   assert.ok(invoice instanceof frappeModels.SalesInvoice);
   assert.equal(invoice.items[0].qty, 2);
   assert.ok(invoice.date instanceof Date);

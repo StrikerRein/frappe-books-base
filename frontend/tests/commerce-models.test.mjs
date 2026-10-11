@@ -247,7 +247,7 @@ test('a lead makes a customer or a quote once saved', () => {
   const actions = getModel('Lead').getActions(fyo);
   assert.deepEqual(
     actions.map(({ label }) => label),
-    ['Customer', 'Sales Quote']
+    ['Customer', 'Quotation']
   );
   assert.ok(
     actions.every(({ condition }) => !condition({ notInserted: true }))

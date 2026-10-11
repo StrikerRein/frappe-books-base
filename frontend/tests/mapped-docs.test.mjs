@@ -47,7 +47,7 @@ test('a fully billed shipment does not offer an invoice', () => {
 const mappedDocActions = {
   Lead: [
     ['Customer', 'make_customer', 'Party'],
-    ['Sales Quote', 'make_sales_quote', 'SalesQuote'],
+    ['Quotation', 'make_quotation', 'Quotation'],
   ],
   Party: [
     ['Create sale', 'make_sales_invoice', 'SalesInvoice'],
@@ -57,7 +57,7 @@ const mappedDocActions = {
     ['Sales Invoice', 'make_sales_invoice', 'SalesInvoice'],
     ['Purchase Invoice', 'make_purchase_invoice', 'PurchaseInvoice'],
   ],
-  SalesQuote: [['Sales Invoice', 'make_sales_invoice', 'SalesInvoice']],
+  Quotation: [['Sales Invoice', 'make_sales_invoice', 'SalesInvoice']],
   SalesInvoice: [
     ['Shipment', 'make_shipment', 'Shipment'],
     ['Return', 'make_return', 'SalesInvoice'],

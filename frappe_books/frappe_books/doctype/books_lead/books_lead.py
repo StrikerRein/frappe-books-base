@@ -48,12 +48,12 @@ def _set_customer(lead, party):
 
 
 @frappe.whitelist()
-def make_sales_quote(source_name: str):
+def make_quotation(source_name: str):
 	"""Return an unsaved sales quote to the lead."""
 	return get_mapped_doc(
 		"Books Lead",
 		source_name,
-		{"Books Lead": {"doctype": "Books Sales Quote", "field_map": {"name": "party"}}},
+		{"Books Lead": {"doctype": "Books Quotation", "field_map": {"name": "party"}}},
 		postprocess=_quote_the_lead,
 	)
 

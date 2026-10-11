@@ -15,7 +15,7 @@ INVOICE_DOCTYPES = ("Books Sales Invoice", "Books Purchase Invoice")
 def get_stock_location(doctype: str, is_pos: bool = False) -> str | None:
 	"""Return where an invoice of the doctype moves its stock, as its stock transfer would."""
 	# A quote ships like the sales invoice made from it.
-	invoice_doctype = "Books Sales Invoice" if doctype == "Books Sales Quote" else doctype
+	invoice_doctype = "Books Sales Invoice" if doctype == "Books Quotation" else doctype
 	if invoice_doctype not in INVOICE_DOCTYPES:
 		frappe.throw(_("Only invoices move stock from a default location."))
 	frappe.has_permission(doctype, "read", throw=True)

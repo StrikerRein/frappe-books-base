@@ -38,7 +38,7 @@
   "coupons_section_break_35",
   "coupons",
   "references_section_break_37",
-  "quote",
+  "quotation",
   "loyalty_points_redemption_section_break_39",
   "loyalty_program",
   "available_loyalty_points",
@@ -280,11 +280,11 @@
    "label": "References"
   },
   {
-   "depends_on": "quote",
-   "fieldname": "quote",
+   "depends_on": "quotation",
+   "fieldname": "quotation",
    "fieldtype": "Link",
-   "label": "Quote Reference",
-   "options": "Books Sales Quote"
+   "label": "Quotation",
+   "options": "Books Quotation"
   },
   {
    "fieldname": "loyalty_points_redemption_section_break_39",

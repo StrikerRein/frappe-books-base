@@ -26,7 +26,7 @@ def map_return(invoice_doctype, invoice_name):
 				"field_map": {"name": "return_against"},
 				"field_no_map": [
 					"date",
-					"quote",
+					"quotation",
 					"make_auto_payment",
 					"redeem_loyalty_points",
 					"loyalty_points",

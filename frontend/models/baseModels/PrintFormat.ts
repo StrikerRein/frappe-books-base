@@ -12,7 +12,7 @@ import {
 // The doctypes /books prints, as the Template Type offers them.
 const PRINTED_DOCTYPES = [
   { value: 'Books Sales Invoice', label: 'Sales Invoice' },
-  { value: 'Books Sales Quote', label: 'Quote' },
+  { value: 'Books Quotation', label: 'Quotation' },
   { value: 'Books Purchase Invoice', label: 'Purchase Invoice' },
   { value: 'Books Journal Entry', label: 'Journal Entry' },
   { value: 'Books Payment', label: 'Payment' },

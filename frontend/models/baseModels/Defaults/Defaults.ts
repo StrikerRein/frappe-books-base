@@ -13,7 +13,7 @@ const SET_PRINT_FORMATS =
 
 // The pickers offer the Print Formats their DocFields' link_filters name.
 const PRINT_TEMPLATE_FIELDS = [
-  'sales_quote_print_template',
+  'quotation_print_template',
   'sales_invoice_print_template',
   'purchase_invoice_print_template',
   'journal_entry_print_template',
@@ -58,8 +58,8 @@ export class Defaults extends FrappeDoc {
 
   // The payment accounts and print templates filter by their link_filters.
   static commonFilters: FiltersMap = {
-    sales_quote_number_series: () => [
-      ['reference_type', '=', ModelNameEnum.SalesQuote],
+    quotation_number_series: () => [
+      ['reference_type', '=', ModelNameEnum.Quotation],
     ],
     sales_invoice_number_series: () => [
       ['reference_type', '=', ModelNameEnum.SalesInvoice],

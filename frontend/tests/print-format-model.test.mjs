@@ -42,7 +42,7 @@ test("a print template shows Frappe's Print Format as the template it was", () =
   );
   assert.deepEqual(field('doc_type').options.slice(0, 2), [
     { value: 'Books Sales Invoice', label: 'Sales Invoice' },
-    { value: 'Books Sales Quote', label: 'Quote' },
+    { value: 'Books Quotation', label: 'Quotation' },
   ]);
   assert.equal(field('doc_type').options.length, 8);
   const { columns } = getDocType('PrintFormat').Model.getListViewSettings(fyo);

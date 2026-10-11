@@ -283,7 +283,7 @@ class IntegrationTestBooksSalesInvoice(IntegrationTestCase):
 
 	def test_new_documents_start_with_the_default_terms(self):
 		frappe.db.set_single_value("Books Defaults", "sales_invoice_terms", "Pay within 30 days")
-		for doctype in ("Books Sales Invoice", "Books Sales Quote"):
+		for doctype in ("Books Sales Invoice", "Books Quotation"):
 			with self.subTest(doctype=doctype):
 				invoice = make_invoice(
 					doctype, self.party.name, self.receivable.name, self.item.name, self.income.name

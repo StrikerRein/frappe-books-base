@@ -13,11 +13,11 @@ test('sidebar items are links that open their page', async ({ page }) => {
 
   await sales.click();
   await expect(page).toHaveURL(/\/books\/list\/SalesInvoice$/);
-  const quotes = sidebar(page).getByRole('link', { name: 'Sales Quotes' });
+  const quotes = sidebar(page).getByRole('link', { name: 'Quotation' });
   await expect(quotes).toBeVisible();
 
   await quotes.click();
-  await expect(page).toHaveURL(/\/books\/list\/SalesQuote$/);
+  await expect(page).toHaveURL(/\/books\/list\/Quotation$/);
   await expect(quotes).toHaveAttribute('aria-current', 'page');
 });
 

@@ -130,7 +130,7 @@ export class Item extends FrappeDoc {
       'item_usage',
     ]);
     const usages = rows.map(({ item_usage }) => item_usage);
-    const sales = [ModelNameEnum.SalesQuote, ModelNameEnum.SalesInvoice];
+    const sales = [ModelNameEnum.Quotation, ModelNameEnum.SalesInvoice];
     return [
       ...(usages.includes('Purchases') ? [] : sales),
       ...(usages.includes('Sales') ? [] : [ModelNameEnum.PurchaseInvoice]),

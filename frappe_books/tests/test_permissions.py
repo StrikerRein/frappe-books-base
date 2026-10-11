@@ -38,7 +38,7 @@ ROLES = ("System Manager", "Books Manager", "Books User")
 ROLE_MATRIX = {
 	"Books Sales Invoice": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Purchase Invoice": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
-	"Books Sales Quote": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
+	"Books Quotation": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Payment": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Stock Movement": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Journal Entry": (FULL_SUBMIT, FULL_SUBMIT, NONE),

@@ -9,7 +9,7 @@ from frappe_books.series import NUMBER_SERIES
 
 DEFAULT_SERIES_START = 1001
 DEFAULT_PRINT_FORMATS = {
-	"Books Sales Quote": "Business - Quote",
+	"Books Quotation": "Business - Quotation",
 	"Books Sales Invoice": "Business - Sales Invoice",
 	"Books Purchase Invoice": "Business - Purchase Invoice",
 	"Books Payment": "Business - Payment",

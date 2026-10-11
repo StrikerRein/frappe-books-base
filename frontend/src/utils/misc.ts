@@ -28,7 +28,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   GSTR2: 'books/gst-reports',
 
   // Transactions
-  [ModelNameEnum.SalesQuote]: 'books/sales-quotes',
+  [ModelNameEnum.Quotation]: 'books/sales-quotes',
   [ModelNameEnum.SalesInvoice]: 'books/sales-invoices',
   [ModelNameEnum.PurchaseInvoice]: 'books/purchase-invoices',
   [ModelNameEnum.Payment]: 'books/payments',
