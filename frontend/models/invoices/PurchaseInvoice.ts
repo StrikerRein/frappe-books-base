@@ -15,7 +15,7 @@ export class PurchaseInvoice extends Invoice {
     fileFields: [
       'name',
       'number_series',
-      'party',
+      'supplier',
       'account',
       'date',
       'price_list',
@@ -39,6 +39,7 @@ export class PurchaseInvoice extends Invoice {
       'status',
     ],
   };
+  static override partyField = 'supplier';
   static override rowModels = {
     items: PurchaseInvoiceItem,
     taxes: TaxSummary,
@@ -54,7 +55,7 @@ export class PurchaseInvoice extends Invoice {
       columns: [
         'name',
         getDocStatusListColumn(),
-        'party',
+        'supplier',
         'date',
         'base_grand_total',
         'outstanding_amount',

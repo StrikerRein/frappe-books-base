@@ -28,7 +28,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   GSTR2: 'books/gst-reports',
 
   // Transactions
-  [ModelNameEnum.SalesQuote]: 'books/sales-quotes',
+  [ModelNameEnum.Quotation]: 'books/sales-quotes',
   [ModelNameEnum.SalesInvoice]: 'books/sales-invoices',
   [ModelNameEnum.PurchaseInvoice]: 'books/purchase-invoices',
   [ModelNameEnum.Payment]: 'books/payments',
@@ -38,8 +38,8 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.CouponCode]: 'books/coupon-code',
 
   // Inventory
-  [ModelNameEnum.StockMovement]: 'books/stock-movement',
-  [ModelNameEnum.Shipment]: 'books/shipment',
+  [ModelNameEnum.StockEntry]: 'books/stock-movement',
+  [ModelNameEnum.DeliveryNote]: 'books/shipment',
   [ModelNameEnum.PurchaseReceipt]: 'books/purchase-receipt',
   StockLedger: 'books/stock-ledger',
   StockBalance: 'books/stock-balance',
@@ -48,7 +48,8 @@ export const docsPathMap: Record<string, string | undefined> = {
 
   // Entries
   Entries: 'books',
-  [ModelNameEnum.Party]: 'books/party',
+  [ModelNameEnum.Customer]: 'books/party',
+  [ModelNameEnum.Supplier]: 'books/party',
   [ModelNameEnum.Item]: 'books/items',
   [ModelNameEnum.Tax]: 'books/taxes',
   [ModelNameEnum.PriceList]: 'books/price-list',

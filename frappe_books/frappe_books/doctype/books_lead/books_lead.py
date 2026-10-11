@@ -37,26 +37,25 @@ def make_customer(source_name: str):
 	return get_mapped_doc(
 		"Books Lead",
 		source_name,
-		{"Books Lead": {"doctype": "Books Party", "field_map": {"name": "from_lead", "mobile": "phone"}}},
+		{"Books Lead": {"doctype": "Books Customer", "field_map": {"name": "from_lead", "mobile": "phone"}}},
 		postprocess=_set_customer,
 	)
 
 
-def _set_customer(lead, party):
-	party.name = lead.name
-	party.role = "Customer"
+def _set_customer(lead, customer):
+	customer.name = lead.name
 
 
 @frappe.whitelist()
-def make_sales_quote(source_name: str):
+def make_quotation(source_name: str):
 	"""Return an unsaved sales quote to the lead."""
 	return get_mapped_doc(
 		"Books Lead",
 		source_name,
-		{"Books Lead": {"doctype": "Books Sales Quote", "field_map": {"name": "party"}}},
+		{"Books Lead": {"doctype": "Books Quotation", "field_map": {"name": "party_name"}}},
 		postprocess=_quote_the_lead,
 	)
 
 
 def _quote_the_lead(_lead, quote):
-	quote.reference_type = "Books Lead"
+	quote.quotation_to = "Books Lead"

@@ -50,6 +50,7 @@ class BooksSalesInvoice(PostingInvoiceController):
 		base_grand_total: DF.Currency
 		coupons: DF.Table[BooksAppliedCouponCodes]
 		currency: DF.Link | None
+		customer: DF.Link
 		date: DF.Datetime
 		discount_after_tax: DF.Check
 		exchange_rate: DF.Float
@@ -67,11 +68,10 @@ class BooksSalesInvoice(PostingInvoiceController):
 		net_total: DF.Currency
 		number_series: DF.Link
 		outstanding_amount: DF.Currency
-		party: DF.Link
 		payments: DF.Table[BooksSalesInvoicePayment]
 		price_list: DF.Link | None
 		pricing_rule_detail: DF.Table[BooksPricingRuleDetail]
-		quote: DF.Link | None
+		quotation: DF.Link | None
 		redeem_loyalty_points: DF.Check
 		return_against: DF.Link | None
 		status: DF.Literal["Saved", "Unpaid", "Partly Paid", "Paid", "Return", "Return Issued", "Cancelled"]
@@ -83,7 +83,10 @@ class BooksSalesInvoice(PostingInvoiceController):
 
 	transaction_type = "sales"
 	is_purchase = False
+	party_type = "Books Customer"
+	party_field = "customer"
 	party_account_type = "Receivable"
+	party_default_fields = (*PostingInvoiceController.party_default_fields, "loyalty_program")
 	item_account_field = "income_account"
 
 	@property
@@ -92,7 +95,7 @@ class BooksSalesInvoice(PostingInvoiceController):
 		return loyalty.redemption_amount(self)
 
 	def calculate(self, drop_invalid_coupons=False):
-		"""Also show the points the party can redeem."""
+		"""Also show the points the customer can redeem."""
 		super().calculate(drop_invalid_coupons)
 		loyalty.set_available_points(self)
 
@@ -104,7 +107,7 @@ class BooksSalesInvoice(PostingInvoiceController):
 			pricing.price(self, drop_invalid_coupons)
 
 	def populate_party_defaults(self):
-		"""Also join the party's loyalty program; a return keeps its original's."""
+		"""Also join the customer's loyalty program; a return keeps its original's."""
 		party = super().populate_party_defaults()
 		if party and not self.return_against:
 			self.loyalty_program = party.loyalty_program
@@ -258,5 +261,5 @@ def make_return(source_name: str):
 
 
 @frappe.whitelist()
-def make_shipment(source_name: str):
+def make_delivery_note(source_name: str):
 	return map_invoice_transfer("Books Sales Invoice", source_name)

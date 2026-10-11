@@ -42,7 +42,6 @@ const RENAMED_KEYS: Record<string, Record<string, string>> = {
     currency_name: 'name',
     smallest_currency_fraction_value: 'smallestValue',
   },
-  Item: { item_usage: 'for' },
   JournalEntry: { posting_date: 'date' },
   Payment: { payment_references: 'for' },
   POSProfile: { pos_ui: 'posUI' },

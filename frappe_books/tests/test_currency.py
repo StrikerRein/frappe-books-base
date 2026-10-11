@@ -8,7 +8,12 @@ from frappe.tests import IntegrationTestCase, UnitTestCase
 
 from frappe_books.currency import currency_precision
 from frappe_books.setup_service import complete_site_setup, enable_currency
-from frappe_books.tests.accounting import ensure_user, make_account, make_party, restored_company_settings
+from frappe_books.tests.accounting import (
+	ensure_user,
+	make_account,
+	make_customer,
+	restored_company_settings,
+)
 
 CURRENCIES = (("JPY", 0), ("VUV", 0), ("USD", 2), ("BHD", 3), ("CLF", 4))
 BOOKS_USER = "books-currency-user@example.com"
@@ -63,7 +68,7 @@ class IntegrationTestCurrencyMetadata(IntegrationTestCase):
 
 	def test_parties_link_to_frappe_currencies(self):
 		receivable = make_account("Currency Debtors", account_type="Receivable")
-		party = make_party(receivable.name, currency="EUR")
+		party = make_customer(receivable.name, currency="EUR")
 
-		self.assertEqual(frappe.db.get_value("Books Party", party.name, "currency"), "EUR")
-		self.assertRaises(frappe.LinkValidationError, make_party, receivable.name, currency="XXX")
+		self.assertEqual(frappe.db.get_value("Books Customer", party.name, "currency"), "EUR")
+		self.assertRaises(frappe.LinkValidationError, make_customer, receivable.name, currency="XXX")

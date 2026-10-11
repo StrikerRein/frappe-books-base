@@ -58,13 +58,13 @@ test('a route belongs to the group whose entry has its exact path', () => {
       route: '/list/SalesInvoice',
       items: [
         { name: 'invoices', route: '/list/SalesInvoice' },
-        { name: 'payments', route: '/list/Payment/Sales Payments' },
+        { name: 'payments', route: '/list/Payment/Sales Payment' },
       ],
     },
     {
       name: 'purchases',
       route: '/list/PurchaseInvoice',
-      items: [{ name: 'payments', route: '/list/Payment/Purchase Payments' }],
+      items: [{ name: 'payments', route: '/list/Payment/Purchase Payment' }],
     },
   ];
   const ownerOf = (path, params = {}, meta = {}) => {
@@ -74,7 +74,7 @@ test('a route belongs to the group whose entry has its exact path', () => {
 
   assert.equal(ownerOf('/'), 'dashboard/dashboard');
   assert.equal(
-    ownerOf('/list/Payment/Purchase%20Payments'),
+    ownerOf('/list/Payment/Purchase%20Payment'),
     'purchases/payments'
   );
   assert.equal(ownerOf('/list/Payment'), 'sales/payments');

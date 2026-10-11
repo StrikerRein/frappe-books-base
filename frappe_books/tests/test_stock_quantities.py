@@ -1,8 +1,11 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import make_batch, seed_stock
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	make_batch,
+	seed_stock,
+)
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	make_movement,
 )
 from frappe_books.inventory.availability import get_stock_quantities

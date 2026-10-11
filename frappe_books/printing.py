@@ -21,7 +21,7 @@ from frappe_books.accounting import settlement
 from frappe_books.accounting.invoice import InvoiceController, PostingInvoiceController
 from frappe_books.accounting.money import as_decimal, company_currency, sum_decimal
 from frappe_books.accounting.payment import PaymentController, tax_share
-from frappe_books.inventory.transaction import StockMovementController, StockTransferController
+from frappe_books.inventory.transaction import StockEntryController, StockTransferController
 
 TAX_ID_FIELDS = ("gstin", "tax_id")
 
@@ -84,7 +84,7 @@ def get_print_totals(doc) -> dict[str, Any]:
 		return _payment_totals(doc)
 	if isinstance(doc, StockTransferController):
 		return _amount_totals(doc.grand_total, company_currency())
-	if isinstance(doc, StockMovementController):
+	if isinstance(doc, StockEntryController):
 		return _amount_totals(doc.amount, company_currency())
 	return {}
 

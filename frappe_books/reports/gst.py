@@ -3,6 +3,7 @@ from datetime import date
 
 import frappe
 from frappe import _
+from frappe.model.base_document import get_controller
 from frappe.utils import add_months, create_batch, getdate
 
 from frappe_books.accounting.money import as_decimal, rounded, sum_decimal
@@ -66,7 +67,8 @@ def get_data(doctype, filters) -> list[dict]:
 		return []
 	items = _items(doctype, [invoice.name for invoice in invoices])
 	details = _tax_details({item.tax for item in items if item.tax})
-	places = _party_places({invoice.party for invoice in invoices})
+	party_type = get_controller(doctype).party_type
+	places = _party_places(party_type, {invoice.party for invoice in invoices})
 	company_state = _gstin_state(frappe.db.get_single_value("Books Accounting Settings", "gstin"))
 	originals = _originals(
 		doctype, {invoice.return_against for invoice in invoices if invoice.return_against}
@@ -92,7 +94,7 @@ def _invoices(doctype, filters):
 		filters=conditions,
 		fields=[
 			"name",
-			"party",
+			f"{get_controller(doctype).party_field} as party",
 			"date",
 			"base_grand_total",
 			"currency",
@@ -136,9 +138,9 @@ def _tax_details(taxes):
 	return details
 
 
-def _party_places(parties):
-	"""Return each party's GSTIN and place of supply."""
-	rows = _get_list_in("Books Party", "name", parties, fields=["name", "gstin", "address"])
+def _party_places(party_type, parties):
+	"""Return each customer's or supplier's GSTIN and place of supply."""
+	rows = _get_list_in(party_type, "name", parties, fields=["name", "gstin", "address"])
 	addresses = {row.address for row in rows if row.address}
 	positions = dict(_get_list_in("Books Address", "name", addresses, fields=["name", "pos"], as_list=True))
 	return {row.name: (row.gstin or "", _place(row, positions)) for row in rows}

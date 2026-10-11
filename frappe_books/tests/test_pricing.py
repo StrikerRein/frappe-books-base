@@ -11,9 +11,10 @@ from frappe_books.tests.accounting import (
 	ensure_user,
 	foreign_currency,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
+	make_supplier,
 	unique_name,
 )
 
@@ -24,7 +25,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 		self.income = make_account("Commerce Sales", root_type="Income", account_type="Income Account")
 		self.expense = make_account("Commerce Expense", root_type="Expense", account_type="Expense Account")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", self.expense.name)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name)
 
 	def test_price_discount_and_coupon_usage(self):
@@ -404,7 +405,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 				self._pricing_rule(**values)
 				invoice = make_invoice(
 					"Books Sales Invoice",
-					make_party(self.receivable.name, currency=foreign_currency()).name,
+					make_customer(self.receivable.name, currency=foreign_currency()).name,
 					self.receivable.name,
 					self.item.name,
 					self.income.name,
@@ -431,7 +432,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 			with self.subTest(price_list=price_list_name):
 				invoice = make_invoice(
 					"Books Sales Invoice",
-					make_party(self.receivable.name, currency=foreign_currency()).name,
+					make_customer(self.receivable.name, currency=foreign_currency()).name,
 					self.receivable.name,
 					item.name,
 					self.income.name,
@@ -444,12 +445,12 @@ class IntegrationTestPricing(IntegrationTestCase):
 
 	def test_invoice_takes_only_an_enabled_price_list_for_its_side(self):
 		payable = make_account("Commerce Payable", root_type="Liability", account_type="Payable")
-		supplier = make_party(payable.name, role="Supplier")
+		supplier = make_supplier(payable.name)
 		for values, doctype, party, account, message in (
 			({"is_enabled": 0}, "Books Sales Invoice", self.party, self.receivable, "is disabled"),
 			(
 				{"is_sales": 0, "is_purchase": 1},
-				"Books Sales Quote",
+				"Books Quotation",
 				self.party,
 				self.receivable,
 				"not for Sales",
@@ -587,7 +588,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 				invoice = frappe.get_doc(
 					{
 						"doctype": "Books Sales Invoice",
-						"party": self.party.name,
+						"customer": self.party.name,
 						"account": self.receivable.name,
 						"is_pos": is_pos,
 						"items": [{"item": self.item.name, "rate": 100, "quantity": 1}],
@@ -607,7 +608,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 			return frappe.get_doc(
 				{
 					"doctype": "Books Sales Invoice",
-					"party": self.party.name,
+					"customer": self.party.name,
 					"account": self.receivable.name,
 					"is_pos": is_pos,
 					"items": [{"item": other_item.name, "rate": 100, "quantity": 1}],
@@ -640,7 +641,7 @@ class IntegrationTestPricing(IntegrationTestCase):
 				invoice = frappe.get_doc(
 					{
 						"doctype": "Books Sales Invoice",
-						"party": self.party.name,
+						"customer": self.party.name,
 						"account": self.receivable.name,
 						"is_pos": 1,
 						"items": [{"item": self.item.name, "quantity": 1}],

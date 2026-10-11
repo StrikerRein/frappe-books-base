@@ -9,6 +9,7 @@
  "field_order": [
   "default_section_break_1",
   "posting_date",
+  "party_type",
   "party",
   "account",
   "details_section_break_5",
@@ -85,10 +86,17 @@
    "label": "Default"
   },
   {
-   "fieldname": "party",
+   "fieldname": "party_type",
    "fieldtype": "Link",
+   "label": "Party Type",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
    "label": "Party",
-   "options": "Books Party",
+   "options": "party_type",
    "read_only": 1,
    "search_index": 1
   },

@@ -20,7 +20,7 @@ export class SalesInvoice extends Invoice {
     fileFields: [
       'name',
       'number_series',
-      'party',
+      'customer',
       'account',
       'date',
       'price_list',
@@ -44,7 +44,7 @@ export class SalesInvoice extends Invoice {
       'return_against',
       'status',
       'coupons',
-      'quote',
+      'quotation',
       'loyalty_program',
       'available_loyalty_points',
       'redeem_loyalty_points',
@@ -53,6 +53,7 @@ export class SalesInvoice extends Invoice {
       'pricing_rule_detail',
     ],
   };
+  static override partyField = 'customer';
   static override rowModels = {
     items: SalesInvoiceItem,
     taxes: TaxSummary,
@@ -61,6 +62,7 @@ export class SalesInvoice extends Invoice {
     pricing_rule_detail: PricingRuleDetail,
   };
 
+  customer?: string;
   coupons?: AppliedCouponCode[];
   /** The customer's program and its points, as the server's preview fills them. */
   loyalty_program?: string;
@@ -92,7 +94,7 @@ export class SalesInvoice extends Invoice {
       title: this.fyo.t`Insufficient quantity`,
       detail: [
         this.fyo
-          .t`The following items have insufficient quantity for Shipment: ${list}`,
+          .t`The following items have insufficient quantity for Delivery Note: ${list}`,
         this.fyo.t`Continue submitting Sales Invoice?`,
       ],
       accept: () => this.set('make_auto_stock_transfer', false),
@@ -104,7 +106,7 @@ export class SalesInvoice extends Invoice {
       columns: [
         'name',
         getDocStatusListColumn(),
-        'party',
+        'customer',
         'date',
         'base_grand_total',
         'outstanding_amount',

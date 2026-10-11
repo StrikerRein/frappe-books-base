@@ -9,11 +9,11 @@ from frappe_books.series import NUMBER_SERIES
 
 DEFAULT_SERIES_START = 1001
 DEFAULT_PRINT_FORMATS = {
-	"Books Sales Quote": "Business - Quote",
+	"Books Quotation": "Business - Quotation",
 	"Books Sales Invoice": "Business - Sales Invoice",
 	"Books Purchase Invoice": "Business - Purchase Invoice",
 	"Books Payment": "Business - Payment",
-	"Books Shipment": "Business - Shipment",
+	"Books Delivery Note": "Business - Delivery Note",
 }
 POS_PRINT_FORMAT = "Business-POS - Sales Invoice"
 DEFAULT_UOMS = {"Unit": 1, "Kg": 0, "Gram": 0, "Meter": 0, "Hour": 0, "Day": 0}

@@ -18,7 +18,7 @@ export class GeneralLedger extends Report {
     credit: 'credit',
     meta: ['reference_name', 'party'],
     balance: 'balance',
-    chips: ['fromDate', 'toDate', 'account', 'party'],
+    chips: ['fromDate', 'toDate', 'account', 'partyType', 'party'],
   };
   usePagination = true;
 
@@ -62,17 +62,17 @@ export class GeneralLedger extends Report {
   getFilters() {
     const refTypeOptions = [
       { label: t`All`, value: 'All' },
-      { label: t`Sales Invoices`, value: 'Books Sales Invoice' },
-      { label: t`Purchase Invoices`, value: 'Books Purchase Invoice' },
-      { label: t`Payments`, value: 'Books Payment' },
-      { label: t`Journal Entries`, value: 'Books Journal Entry' },
+      { label: t`Sales Invoice`, value: 'Books Sales Invoice' },
+      { label: t`Purchase Invoice`, value: 'Books Purchase Invoice' },
+      { label: t`Payment`, value: 'Books Payment' },
+      { label: t`Journal Entry`, value: 'Books Journal Entry' },
     ];
 
     if (this.fyo.singles.AccountingSettings?.enable_inventory) {
       refTypeOptions.push(
-        { label: t`Shipment`, value: 'Books Shipment' },
+        { label: t`Delivery Note`, value: 'Books Delivery Note' },
         { label: t`Purchase Receipt`, value: 'Books Purchase Receipt' },
-        { label: t`Stock Movements`, value: 'Books Stock Movement' }
+        { label: t`Stock Entry`, value: 'Books Stock Entry' }
       );
     }
 
@@ -100,10 +100,21 @@ export class GeneralLedger extends Report {
         fieldname: 'account',
       },
       {
-        fieldtype: 'Link',
-        target: 'Party',
+        fieldtype: 'Select',
+        options: [
+          { label: t`Customer`, value: 'Books Customer' },
+          { label: t`Supplier`, value: 'Books Supplier' },
+        ],
+        label: t`Party Type`,
+        fieldname: 'partyType',
+        placeholder: t`Party Type`,
+      },
+      {
+        fieldtype: 'DynamicLink',
         label: t`Party`,
+        references: 'partyType',
         placeholder: t`Party`,
+        emptyMessage: t`Change Party Type`,
         fieldname: 'party',
       },
       {

@@ -30,8 +30,8 @@ test('saving marks missing fields in place', async ({ page }) => {
 
 test('one header menu holds the document actions', async ({ page }) => {
   const name = `Phone Menu Customer ${Date.now()}`;
-  await insertDocument(page, 'Books Party', { name, role: 'Customer' });
-  await page.goto(`/books/edit/Party/${encodeURIComponent(name)}`);
+  await insertDocument(page, 'Books Customer', { name });
+  await page.goto(`/books/edit/Customer/${encodeURIComponent(name)}`);
   await waitForBooks(page);
 
   await page.getByRole('button', { name: 'More actions' }).click();
@@ -64,7 +64,7 @@ test('a link field searches full screen and creates a record in a sheet', async 
   await picker.getByPlaceholder('Search').fill(name);
   await picker.getByRole('option', { name: /Create/ }).click();
 
-  const sheet = page.getByRole('dialog', { name: 'New Party' });
+  const sheet = page.getByRole('dialog', { name: 'New Customer' });
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -125,9 +125,8 @@ test('a foreign-currency customer shows the exchange rate', async ({
     symbol: code,
     enabled: 1,
   });
-  await insertDocument(page, 'Books Party', {
+  await insertDocument(page, 'Books Customer', {
     name: customer,
-    role: 'Customer',
     currency: code,
   });
 

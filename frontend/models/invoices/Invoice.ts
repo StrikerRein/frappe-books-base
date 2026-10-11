@@ -17,14 +17,8 @@ import { withoutCreate } from 'src/frappe/schema';
 import type { InvoiceItem } from './InvoiceItem';
 import type { TaxSummary } from './TaxSummary';
 
-// A new rate for rows priced by the server follows these.
-const RATE_SOURCE_FIELDS = [
-  'party',
-  'date',
-  'price_list',
-  'currency',
-  'exchange_rate',
-];
+// A new rate for rows priced by the server follows these and the party.
+const RATE_SOURCE_FIELDS = ['date', 'price_list', 'currency', 'exchange_rate'];
 // The server fills these from the party.
 const PARTY_FIELDS = ['account', 'currency', 'exchange_rate'];
 /** Invoice and quote fields: links that offer no Create, and items edited in the row editor. */
@@ -34,7 +28,7 @@ export const INVOICE_FIELDS = {
     'currency',
     'back_reference',
     'return_against',
-    'quote',
+    'quotation',
     'loyalty_program',
   ]),
   items: { edit: true },
@@ -51,11 +45,11 @@ export abstract class Invoice extends FrappeDoc {
     'make_auto_stock_transfer',
   ];
   // The exchange rate is the one on the invoice date.
-  static override refills = { party: PARTY_FIELDS, date: ['exchange_rate'] };
+  static override refills = { date: ['exchange_rate'] };
+  static override partyField: string;
 
   items?: InvoiceItem[];
   date?: Date;
-  party?: string;
   account?: string;
   currency?: string;
   exchange_rate?: number;
@@ -89,7 +83,7 @@ export abstract class Invoice extends FrappeDoc {
   }
 
   get isSales(): boolean {
-    return [ModelNameEnum.SalesInvoice, ModelNameEnum.SalesQuote].includes(
+    return [ModelNameEnum.SalesInvoice, ModelNameEnum.Quotation].includes(
       this.schemaName as ModelNameEnum
     );
   }
@@ -143,19 +137,19 @@ export abstract class Invoice extends FrappeDoc {
 
   get autoStockTransferLocation(): string | undefined {
     const fieldname = this.isSales
-      ? 'shipment_location'
+      ? 'delivery_note_location'
       : 'purchase_receipt_location';
     return (this.fyo.singles.Defaults?.[fieldname] as string) || undefined;
   }
 
   get stockTransferSchemaName(): string {
     return this.isSales
-      ? ModelNameEnum.Shipment
+      ? ModelNameEnum.DeliveryNote
       : ModelNameEnum.PurchaseReceipt;
   }
 
   get stockTransferMapper(): string {
-    return this.isSales ? 'make_shipment' : 'make_purchase_receipt';
+    return this.isSales ? 'make_delivery_note' : 'make_purchase_receipt';
   }
 
   // Fields of features turned off in the settings. The DocType's depends_on hides the rest.
@@ -186,9 +180,6 @@ export abstract class Invoice extends FrappeDoc {
   };
 
   static override filters: FiltersMap = {
-    party: (doc: FrappeDoc) => [
-      ['role', 'in', [doc.isSales ? 'Customer' : 'Supplier', 'Both']],
-    ],
     account: (doc: FrappeDoc) => [
       ['is_group', '=', 0],
       ['account_type', '=', doc.isSales ? 'Receivable' : 'Payable'],
@@ -200,12 +191,14 @@ export abstract class Invoice extends FrappeDoc {
     ],
   };
 
-  static override createFilters: FiltersMap = {
-    party: (doc: FrappeDoc) => [['role', '=', doc.isSales ? 'Customer' : 'Supplier']],
-  };
-
   override async change(arg: ChangeArg) {
-    if (arg.changed && RATE_SOURCE_FIELDS.includes(arg.changed)) {
+    const { partyField } = this.constructor as typeof Invoice;
+    const isPartyChange = arg.changed === partyField;
+    if (isPartyChange) {
+      this.leaveToServer(PARTY_FIELDS);
+    }
+
+    if (isPartyChange || RATE_SOURCE_FIELDS.includes(arg.changed ?? '')) {
       this.repriceRows();
     }
 

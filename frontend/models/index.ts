@@ -17,7 +17,8 @@ import { LoyaltyPointEntry } from './baseModels/LoyaltyPointEntry/LoyaltyPointEn
 import { Lead } from './baseModels/Lead/Lead';
 import { CouponCode } from './baseModels/CouponCode/CouponCode';
 import { Payment } from './baseModels/Payment/Payment';
-import { Party } from './baseModels/Party/Party';
+import { Customer } from './baseModels/Customer/Customer';
+import { Supplier } from './baseModels/Supplier/Supplier';
 import { PaymentMethod } from './baseModels/PaymentMethod/PaymentMethod';
 import { PriceList } from './baseModels/PriceList/PriceList';
 import { PricingRule } from './baseModels/PricingRule/PricingRule';
@@ -33,9 +34,9 @@ import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
 import { PurchaseReceipt } from './inventory/PurchaseReceipt';
 import { SerialNumber } from './inventory/SerialNumber';
-import { Shipment } from './inventory/Shipment';
+import { DeliveryNote } from './inventory/DeliveryNote';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
-import { StockMovement } from './inventory/StockMovement';
+import { StockEntry } from './inventory/StockEntry';
 import { POSSettings } from './inventory/Point of Sale/POSSettings';
 import { POSProfile } from './baseModels/POSProfile/PosProfile';
 import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
@@ -60,7 +61,8 @@ export const frappeModels: Record<string, FrappeModel> = {
   Account,
   AccountingSettings,
   AccountingLedgerEntry,
-  Party,
+  Customer,
+  Supplier,
   Lead,
   Address,
   ItemGroup,
@@ -79,7 +81,7 @@ export const frappeModels: Record<string, FrappeModel> = {
   InventorySettings,
   Location,
   StockLedgerEntry,
-  StockMovement,
+  StockEntry,
   Batch,
   SerialNumber,
   CustomForm,
@@ -89,8 +91,8 @@ export const frappeModels: Record<string, FrappeModel> = {
   POSClosingShift,
   SalesInvoice: invoices.SalesInvoice,
   PurchaseInvoice: invoices.PurchaseInvoice,
-  SalesQuote: invoices.SalesQuote,
-  Shipment,
+  Quotation: invoices.Quotation,
+  DeliveryNote,
   PurchaseReceipt,
   SystemSettings,
 };
@@ -103,10 +105,10 @@ export async function getRegionalFrappeModels(
     return {};
   }
 
-  const [{ Account }, { Address }, { Party }] = await Promise.all([
+  const [{ Account }, { Address }, { Customer, Supplier }] = await Promise.all([
     import('./regionalModels/in/Account'),
     import('./regionalModels/in/Address'),
     import('./regionalModels/in/Party'),
   ]);
-  return { Account, Address, Party };
+  return { Account, Address, Customer, Supplier };
 }

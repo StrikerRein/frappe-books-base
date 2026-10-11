@@ -11,10 +11,10 @@ export class NumberSeries extends FrappeDoc {
       reference_type: {
         optionLabels: {
           SalesInvoice: 'Sales Invoice',
-          SalesQuote: 'Sales Quote',
+          Quotation: 'Quotation',
           PurchaseInvoice: 'Purchase Invoice',
           JournalEntry: 'Journal Entry',
-          StockMovement: 'Stock Movement',
+          StockEntry: 'Stock Entry',
           PurchaseReceipt: 'Purchase Receipt',
           PricingRule: 'Pricing Rule',
         },

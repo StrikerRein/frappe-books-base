@@ -35,14 +35,14 @@ async function mount() {
                     border: true,
                     df: {
                       fieldtype: 'Link',
-                      fieldname: 'party',
+                      fieldname: 'customer',
                       label: 'Customer',
-                      target: 'Party',
+                      target: 'Customer',
                     },
-                    value: state.invoice.party,
+                    value: state.invoice.customer,
                     ...state.linkControl,
                     onChange: (value: string) => {
-                      state.invoice.party = value;
+                      state.invoice.customer = value;
                     },
                   }),
                 ]),

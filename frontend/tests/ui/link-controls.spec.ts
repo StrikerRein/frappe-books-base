@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { holdOpenDoc } from './helpers/openDoc';
 import { useBooksSession } from './helpers/session';
 
-const partyName = 'Audit Saved Party';
+const customerName = 'Audit Saved Customer';
 const addressName = 'Audit Address A';
 const addressLabel = '103, Demo Commerce Street, Mumbai, India';
 
@@ -10,7 +10,7 @@ useBooksSession();
 
 test.beforeEach(async ({ page }) => {
   await installFixture(page);
-  await openFixture(page, 'Party', partyName);
+  await openFixture(page, 'Customer', customerName);
 });
 
 test('displaying and reopening a saved link does not edit the document', async ({
@@ -20,7 +20,7 @@ test('displaying and reopening a saved link does not edit the document', async (
   await expect(address).toHaveValue(addressLabel);
   await address.hover();
   await expect
-    .poll(() => getPartyState(page))
+    .poll(() => getCustomerState(page))
     .toEqual({
       dirty: false,
       address: addressName,
@@ -31,9 +31,9 @@ test('displaying and reopening a saved link does not edit the document', async (
     fullPage: true,
   });
   await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
-  await openFixture(page, 'Party', partyName);
+  await openFixture(page, 'Customer', customerName);
   await expect(address).toHaveValue(addressLabel);
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -48,13 +48,13 @@ test('searching and dismissing link options preserves the saved ID and label', a
   await expect(
     page.getByRole('option', { name: 'Audit Address B' })
   ).toBeVisible();
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
   await address.press('Escape');
   await expect(address).toHaveValue(addressLabel);
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -70,7 +70,7 @@ test('selecting another address commits its ID and shows an unsaved edit', async
     .getByRole('option', { name: 'Audit Address B', exact: true })
     .click();
   await expect(address).toHaveValue('204, Second Street, Delhi, India');
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: true,
     address: 'Audit Address B',
   });
@@ -82,7 +82,7 @@ test('clearing a link remains a real document edit', async ({ page }) => {
   await expect(address).toHaveValue(addressLabel);
   await address.fill('');
   await expect
-    .poll(() => getPartyState(page))
+    .poll(() => getCustomerState(page))
     .toEqual({ dirty: true, address: null });
 });
 
@@ -133,7 +133,7 @@ test('creating a linked entry uses the search text without changing the saved li
   await expect(
     page.getByRole('textbox', { name: 'Address Name', exact: true })
   ).toHaveValue('New Audit Address');
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -146,11 +146,11 @@ test('cancelling a new linked record returns to its parent quick edit', async ({
     const app = (document.querySelector('#app') as any).__vue_app__;
     return app.config.globalProperties.$router.push({
       path: '/chart-of-accounts',
-      query: { edit: '1', schemaName: 'Party', name: 'Audit Saved Party' },
+      query: { edit: '1', schemaName: 'Customer', name: 'Audit Saved Customer' },
     });
   });
   const title = page.getByRole('heading', {
-    name: partyName,
+    name: customerName,
     exact: true,
     level: 2,
   });
@@ -159,18 +159,18 @@ test('cancelling a new linked record returns to its parent quick edit', async ({
   const address = page.getByRole('combobox', { name: 'Address', exact: true });
   // A label that loads while typing replaces the selected text.
   await expect(address).toHaveValue(addressLabel);
-  await address.fill(partyName);
+  await address.fill(customerName);
   await page.getByRole('option', { name: /^Create/ }).click();
   await expect(
     page.getByRole('textbox', { name: 'Address Name', exact: true })
-  ).toHaveValue(partyName);
+  ).toHaveValue(customerName);
   await page
     .getByRole('button', { name: 'Close quick edit', exact: true })
     .click();
   await expect(title).toBeVisible();
   await expect(page).toHaveURL(parentUrl);
   await expect(address).toHaveValue(addressLabel);
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -183,11 +183,11 @@ test('Escape dismisses account menus and dialogs without closing quick edit', as
     const app = (document.querySelector('#app') as any).__vue_app__;
     return app.config.globalProperties.$router.push({
       path: '/chart-of-accounts',
-      query: { edit: '1', schemaName: 'Party', name: 'Audit Saved Party' },
+      query: { edit: '1', schemaName: 'Customer', name: 'Audit Saved Customer' },
     });
   });
   const title = page.getByRole('heading', {
-    name: partyName,
+    name: customerName,
     exact: true,
     level: 2,
   });
@@ -219,7 +219,7 @@ test('Escape dismisses account menus and dialogs without closing quick edit', as
     .focus();
   await page.keyboard.press('Escape');
   await expect(title).toBeHidden();
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -236,7 +236,7 @@ test('one action opens one dismissible confirmation', async ({ page }) => {
     .hover();
   await page.keyboard.press('Escape');
   await expect(confirmation).toHaveCount(0);
-  expect(await getPartyState(page)).toEqual({
+  expect(await getCustomerState(page)).toEqual({
     dirty: false,
     address: addressName,
   });
@@ -291,8 +291,8 @@ async function openFixture(page: Page, schemaName: string, name: string) {
   );
 }
 
-async function getPartyState(page: Page) {
-  await holdOpenDoc(page, 'Party');
+async function getCustomerState(page: Page) {
+  await holdOpenDoc(page, 'Customer');
   return page.evaluate(() => {
     const doc = (window as any).openDoc;
     return { dirty: doc.dirty, address: doc.address || null };
@@ -307,7 +307,7 @@ async function getAddressState(page: Page) {
   });
 }
 
-/** The saved party and addresses the tests open; Frappe serves them, so they are stored. */
+/** The saved customer and addresses the tests open; Frappe serves them, so they are stored. */
 async function installFixture(page: Page) {
   const addresses = [
     ['Audit Address A', '103, Demo Commerce Street', 'Mumbai'],
@@ -322,9 +322,8 @@ async function installFixture(page: Page) {
     });
   }
 
-  await upsert(page, 'Books Party', {
-    name: partyName,
-    role: 'Customer',
+  await upsert(page, 'Books Customer', {
+    name: customerName,
     address: addressName,
   });
 }

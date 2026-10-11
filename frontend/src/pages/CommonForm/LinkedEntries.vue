@@ -68,11 +68,11 @@
 
                   <!-- Party or EntryType or Account -->
                   <FrappeBadge
-                    v-if="e.party || e.entry_type || e.account"
+                    v-if="getBadge(item.value, e)"
                     theme="gray"
                     variant="subtle"
                   >
-                    {{ e.party || e.entry_type || e.account }}
+                    {{ getBadge(item.value, e) }}
                   </FrappeBadge>
 
                   <FrappeBadge v-if="e.item" theme="gray" variant="subtle">
@@ -191,7 +191,7 @@ import {
 import { Accordion as FrappeAccordion, type AccordionItem } from 'frappe-ui-accordion';
 import { ModelNameEnum } from 'models/types';
 import { getFrappeRows } from 'src/frappe/list';
-import { getSchema } from 'src/frappe/registry';
+import { getModel, getSchema } from 'src/frappe/registry';
 import { getLinkedEntries } from 'src/utils/doc';
 import { shortcutsKey } from 'src/utils/injectionKeys';
 import { getFormRoute, routeTo } from 'src/utils/ui';
@@ -262,6 +262,10 @@ export default defineComponent({
   },
   methods: {
     isPesa,
+    getBadge(schemaName: string, entry: Record<string, unknown>) {
+      const partyField = getModel(schemaName)?.partyField ?? '';
+      return entry[partyField] || entry.entry_type || entry.account;
+    },
     /** Ledger entries are dated by their posting date. */
     getDate(entry: Record<string, unknown>) {
       return entry.date ?? entry.posting_date;
@@ -309,14 +313,15 @@ const linkSequence = [
   ModelNameEnum.SalesInvoice,
   ModelNameEnum.PurchaseInvoice,
   // Stock Transfers
-  ModelNameEnum.Shipment,
+  ModelNameEnum.DeliveryNote,
   ModelNameEnum.PurchaseReceipt,
   // Other Transactional
   ModelNameEnum.Payment,
   ModelNameEnum.JournalEntry,
-  ModelNameEnum.StockMovement,
+  ModelNameEnum.StockEntry,
   // Non Transfers
-  ModelNameEnum.Party,
+  ModelNameEnum.Customer,
+  ModelNameEnum.Supplier,
   ModelNameEnum.Item,
   ModelNameEnum.Account,
   ModelNameEnum.Location,
@@ -330,7 +335,7 @@ const linkEntryDisplayFields: Record<string, string[]> = {
   [ModelNameEnum.SalesInvoice]: [
     'name',
     'date',
-    'party',
+    'customer',
     'grand_total',
     'outstanding_amount',
     'stock_not_transferred',
@@ -338,18 +343,18 @@ const linkEntryDisplayFields: Record<string, string[]> = {
   [ModelNameEnum.PurchaseInvoice]: [
     'name',
     'date',
-    'party',
+    'supplier',
     'grand_total',
     'outstanding_amount',
     'stock_not_transferred',
   ],
   // Stock Transfers
-  [ModelNameEnum.Shipment]: ['name', 'date', 'party', 'grand_total'],
-  [ModelNameEnum.PurchaseReceipt]: ['name', 'date', 'party', 'grand_total'],
+  [ModelNameEnum.DeliveryNote]: ['name', 'date', 'customer', 'grand_total'],
+  [ModelNameEnum.PurchaseReceipt]: ['name', 'date', 'supplier', 'grand_total'],
   // Other Transactional
   [ModelNameEnum.Payment]: ['name', 'date', 'party', 'amount'],
   [ModelNameEnum.JournalEntry]: ['name', 'date', 'entry_type'],
-  [ModelNameEnum.StockMovement]: ['name', 'date', 'amount'],
+  [ModelNameEnum.StockEntry]: ['name', 'date', 'amount'],
   // Ledgers
   [ModelNameEnum.AccountingLedgerEntry]: ['name', 'posting_date', 'account', 'credit', 'debit'],
   [ModelNameEnum.StockLedgerEntry]: ['name', 'date', 'item', 'location', 'quantity'],

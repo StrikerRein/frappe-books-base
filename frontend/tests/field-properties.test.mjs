@@ -14,7 +14,7 @@ function getField(docfield, presentation = {}) {
     meta,
     'Thing',
     { label: 'Thing', fields: { thing: presentation } },
-    { schemaNames: { 'Books Party': 'Party' }, roles: [], placements: {} }
+    { schemaNames: { 'Books Customer': 'Customer' }, roles: [], placements: {} }
   );
   return schema.fields.find(({ fieldname }) => fieldname === 'thing');
 }
@@ -32,9 +32,9 @@ test('the server decides required, default, read only and minimum value', () => 
   assert.equal(rate.minvalue, 0);
   assert.equal(rate.default, 5);
 
-  const role = getField({ fieldtype: 'Select', options: 'Both\nCustomer' });
-  assert.equal(role.required, undefined);
-  assert.equal(role.default, undefined);
+  const status = getField({ fieldtype: 'Select', options: 'Open\nClosed' });
+  assert.equal(status.required, undefined);
+  assert.equal(status.default, undefined);
 });
 
 test('a Select whose options hold an empty line can be left empty, as in Frappe desk', () => {
@@ -70,7 +70,7 @@ test('the server date defaults Now and Today give a new document the current dat
     ['SalesInvoice', 'date'],
     ['Payment', 'date'],
     ['JournalEntry', 'posting_date'],
-    ['Shipment', 'date'],
+    ['DeliveryNote', 'date'],
   ]) {
     const before = Date.now();
     const date = newFrappeDoc(schemaName)[fieldname];
@@ -94,8 +94,8 @@ test('Frappe field types and links become Books field types and targets', () => 
     assert.equal(getField({ fieldtype }).fieldtype, booksFieldtype);
   }
 
-  const party = getField({ fieldtype: 'Link', options: 'Books Party' });
-  assert.equal(party.target, 'Party');
+  const customer = getField({ fieldtype: 'Link', options: 'Books Customer' });
+  assert.equal(customer.target, 'Customer');
   const name = getField({ fieldtype: 'Dynamic Link', options: 'party_type' });
   assert.deepEqual(
     [name.fieldtype, name.references],

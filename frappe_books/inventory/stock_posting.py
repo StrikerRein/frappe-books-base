@@ -10,9 +10,9 @@ from frappe_books.inventory.stock import parse_serial_numbers
 
 # The Books Inventory Settings account each stock document moves its stock value against.
 STOCK_COUNTER_ACCOUNTS = {
-	"Books Shipment": "cost_of_goods_sold",
+	"Books Delivery Note": "cost_of_goods_sold",
 	"Books Purchase Receipt": "stock_received_but_not_billed",
-	"Books Stock Movement": "stock_adjustment",
+	"Books Stock Entry": "stock_adjustment",
 }
 
 
@@ -41,7 +41,7 @@ def delete(transaction):
 def _valued_rows(transaction):
 	"""Return the transaction's rows, with a sales return valued at the cost its shipment took out."""
 	rows = transaction.transfer_rows()
-	if transaction.doctype == "Books Shipment" and transaction.return_against:
+	if transaction.doctype == "Books Delivery Note" and transaction.return_against:
 		rates = valuation.outgoing_rates(transaction.doctype, [transaction.return_against])
 		for row in rows:
 			row["rate"] = rates[transaction.return_against, row["item"], row["batch"] or ""]
@@ -125,7 +125,7 @@ def _serial_status(transaction, row, cancel):
 		return "Active"
 	# Stock leaves: shipped or issued, or taken back out by cancelling a return or receipt.
 	if cancel or (row.get("from_location") and not row.get("to_location")):
-		return "Delivered" if transaction.doctype == "Books Shipment" else "Inactive"
+		return "Delivered" if transaction.doctype == "Books Delivery Note" else "Inactive"
 	return "Active"
 
 
@@ -148,10 +148,10 @@ def _post_stock_value(transaction):
 
 
 def _validate_value_direction(transaction, value):
-	if transaction.doctype == "Books Stock Movement":
+	if transaction.doctype == "Books Stock Entry":
 		# A manufacture can add or remove value; an issue or a receipt moves it one way only.
 		return
-	takes_stock_out = (transaction.doctype == "Books Shipment") != bool(transaction.return_against)
+	takes_stock_out = (transaction.doctype == "Books Delivery Note") != bool(transaction.return_against)
 	if (value < 0) != takes_stock_out:
 		frappe.throw(
 			_("{0} would move stock value the wrong way by {1}. Check its items for negative stock.").format(
@@ -184,15 +184,15 @@ def _revalue_dependents(restated):
 
 def _revalue_transfers(references):
 	"""Bring in the stock of restated material transfers at the cost it now leaves with."""
-	names = [name for doctype, name in references if doctype == "Books Stock Movement"]
+	names = [name for doctype, name in references if doctype == "Books Stock Entry"]
 	if not names:
 		return set()
 	transfers = frappe.get_all(
-		"Books Stock Movement",
+		"Books Stock Entry",
 		filters={"name": ["in", names], "movement_type": "MaterialTransfer"},
 		pluck="name",
 	)
-	entries = valuation.transaction_entries("Books Stock Movement", transfers)
+	entries = valuation.transaction_entries("Books Stock Entry", transfers)
 	rates = {}
 	for entry in entries:
 		# Each incoming entry follows the outgoing entry it takes its cost from.
@@ -205,19 +205,19 @@ def _revalue_transfers(references):
 
 def _revalue_returns(references):
 	"""Take back the stock of sales returns at the cost their restated shipments now take out."""
-	shipments = [name for doctype, name in references if doctype == "Books Shipment"]
+	shipments = [name for doctype, name in references if doctype == "Books Delivery Note"]
 	if not shipments:
 		return set()
 	returns = dict(
 		frappe.get_all(
-			"Books Shipment",
+			"Books Delivery Note",
 			filters={"return_against": ["in", shipments], "docstatus": 1},
 			fields=["name", "return_against"],
 			as_list=True,
 		)
 	)
-	costs = valuation.outgoing_rates("Books Shipment", list(set(returns.values())))
-	entries = valuation.transaction_entries("Books Shipment", list(returns))
+	costs = valuation.outgoing_rates("Books Delivery Note", list(set(returns.values())))
+	entries = valuation.transaction_entries("Books Delivery Note", list(returns))
 	rates = {
 		entry.name: rounded(costs[returns[entry.reference_name], entry.item, entry.batch or ""])
 		for entry in entries

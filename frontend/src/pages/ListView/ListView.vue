@@ -70,7 +70,7 @@
       @updated-data="updatedData"
       @make-new-doc="makeNewDoc"
       @clear-filters="mobileToolbar?.clear()"
-      @selected-items-changed="updateSelectedItems"
+      @selected-items-changed="selectedItems = $event"
     />
     <MobileFooter v-if="isMobile && isSelectionMode" class="items-center">
       <span class="min-w-0 flex-1 text-base text-ink-gray-7">
@@ -127,7 +127,6 @@ import MobileOptionsSheet from 'src/mobile/MobileOptionsSheet.vue';
 import MobileListToolbar from './MobileListToolbar.vue';
 import { getMobileRowLayout } from './mobileRowLayout';
 import type { Invoice } from 'models/invoices/Invoice';
-import { Item } from 'models/baseModels/Item/Item';
 import { ModelNameEnum } from 'models/types';
 
 export default defineComponent({
@@ -165,7 +164,6 @@ export default defineComponent({
       listFilters: [],
       isSelectionMode: false,
       selectedItems: [] as string[],
-      invoiceSchemaNames: [] as string[],
       isCreateSheetOpen: false,
     } as {
       listConfig: undefined | ReturnType<typeof getListConfig>;
@@ -173,7 +171,6 @@ export default defineComponent({
       listFilters: Filter[];
       isSelectionMode: boolean;
       selectedItems: string[];
-      invoiceSchemaNames: string[];
       isCreateSheetOpen: boolean;
     };
   },
@@ -209,15 +206,15 @@ export default defineComponent({
     },
     /** Documents that can be made from the selected items. */
     createOptions(): { value: string; label: string }[] {
+      if (this.schemaName !== ModelNameEnum.Item || !this.selectedItems.length) {
+        return [];
+      }
+
       return [
-        { value: ModelNameEnum.SalesQuote, label: this.t`Sales Quote` },
+        { value: ModelNameEnum.Quotation, label: this.t`Quotation` },
         { value: ModelNameEnum.SalesInvoice, label: this.t`Sales Invoice` },
         { value: ModelNameEnum.PurchaseInvoice, label: this.t`Purchase Invoice` },
-      ].filter(
-        (option) =>
-          this.invoiceSchemaNames.includes(option.value) &&
-          fyo.can(option.value, 'create')
-      );
+      ].filter((option) => fyo.can(option.value, 'create'));
     },
     actionOptions(): DropdownOptions {
       return this.createOptions.map((option) => ({
@@ -274,7 +271,7 @@ export default defineComponent({
     },
     async createInvoice(value: string) {
       if (
-        value === ModelNameEnum.SalesQuote ||
+        value === ModelNameEnum.Quotation ||
         value === ModelNameEnum.SalesInvoice ||
         value === ModelNameEnum.PurchaseInvoice
       ) {
@@ -288,20 +285,6 @@ export default defineComponent({
         await routeTo(route);
         this.selectedItems = [];
         this.isSelectionMode = false;
-      }
-    },
-
-    async updateSelectedItems(selected: string[]) {
-      this.selectedItems = selected;
-      this.invoiceSchemaNames = [];
-      if (this.schemaName !== ModelNameEnum.Item || !selected.length) {
-        return;
-      }
-
-      const schemaNames = await Item.getInvoiceSchemaNames(fyo, selected);
-      // A later selection may have been answered first.
-      if (this.selectedItems === selected) {
-        this.invoiceSchemaNames = schemaNames;
       }
     },
   },

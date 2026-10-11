@@ -28,7 +28,8 @@ export function getImportableSchemaNames(fyo: Fyo): ModelNameEnum[] {
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.Payment,
-    ModelNameEnum.Party,
+    ModelNameEnum.Customer,
+    ModelNameEnum.Supplier,
     ModelNameEnum.Item,
     ModelNameEnum.JournalEntry,
     ModelNameEnum.Tax,
@@ -39,8 +40,8 @@ export function getImportableSchemaNames(fyo: Fyo): ModelNameEnum[] {
 
   if (fyo.singles.AccountingSettings?.enable_inventory) {
     importables.push(
-      ModelNameEnum.StockMovement,
-      ModelNameEnum.Shipment,
+      ModelNameEnum.StockEntry,
+      ModelNameEnum.DeliveryNote,
       ModelNameEnum.PurchaseReceipt,
       ModelNameEnum.Location
     );

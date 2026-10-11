@@ -35,7 +35,7 @@ async function getSaved(schemaName, name) {
 }
 
 test('a fully billed shipment does not offer an invoice', () => {
-  const [makeInvoice] = getStockTransferActions(fyo, 'Shipment');
+  const [makeInvoice] = getStockTransferActions(fyo, 'DeliveryNote');
   const shipment = { isSubmitted: true, is_fully_billed: 0 };
 
   assert.equal(makeInvoice.condition(shipment), true);
@@ -46,29 +46,27 @@ test('a fully billed shipment does not offer an invoice', () => {
 // By source: each action that builds a document with a mapper of the source, the mapper, and what it builds.
 const mappedDocActions = {
   Lead: [
-    ['Customer', 'make_customer', 'Party'],
-    ['Sales Quote', 'make_sales_quote', 'SalesQuote'],
+    ['Customer', 'make_customer', 'Customer'],
+    ['Quotation', 'make_quotation', 'Quotation'],
   ],
-  Party: [
-    ['Create sale', 'make_sales_invoice', 'SalesInvoice'],
-    ['Create purchase', 'make_purchase_invoice', 'PurchaseInvoice'],
-  ],
+  Customer: [['Create sale', 'make_sales_invoice', 'SalesInvoice']],
+  Supplier: [['Create purchase', 'make_purchase_invoice', 'PurchaseInvoice']],
   Item: [
     ['Sales Invoice', 'make_sales_invoice', 'SalesInvoice'],
     ['Purchase Invoice', 'make_purchase_invoice', 'PurchaseInvoice'],
   ],
-  SalesQuote: [['Sales Invoice', 'make_sales_invoice', 'SalesInvoice']],
+  Quotation: [['Sales Invoice', 'make_sales_invoice', 'SalesInvoice']],
   SalesInvoice: [
-    ['Shipment', 'make_shipment', 'Shipment'],
+    ['Delivery Note', 'make_delivery_note', 'DeliveryNote'],
     ['Return', 'make_return', 'SalesInvoice'],
   ],
   PurchaseInvoice: [
     ['Purchase Receipt', 'make_purchase_receipt', 'PurchaseReceipt'],
     ['Return', 'make_return', 'PurchaseInvoice'],
   ],
-  Shipment: [
+  DeliveryNote: [
     ['Sales Invoice', 'make_sales_invoice', 'SalesInvoice'],
-    ['Return', 'make_return', 'Shipment'],
+    ['Return', 'make_return', 'DeliveryNote'],
   ],
   PurchaseReceipt: [
     ['Purchase Invoice', 'make_purchase_invoice', 'PurchaseInvoice'],
@@ -132,6 +130,7 @@ test('a payment action opens the payment in a quick edit without the fields its 
     const { schemaName: opened, edit, hideFields } = pushed.at(-1).query;
     assert.deepEqual([opened, edit], ['Payment', 1]);
     assert.deepEqual(hideFields, [
+      'party_type',
       'party',
       'payment_references',
       'account',

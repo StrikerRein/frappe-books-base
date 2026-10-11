@@ -1,13 +1,23 @@
 import frappe
+from frappe.model.base_document import get_controller
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, now_datetime
 
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import make_batch, seed_stock
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	make_batch,
+	seed_stock,
+)
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	movement_values,
 )
 from frappe_books.inventory.availability import get_sale_shortfalls, get_stock_location, get_stock_quantities
-from frappe_books.tests.accounting import ensure_user, make_account, make_item, make_party, unique_name
+from frappe_books.tests.accounting import (
+	ensure_user,
+	make_account,
+	make_customer,
+	make_item,
+	unique_name,
+)
 
 NO_ROLE_USER = "books-availability-no-role@example.com"
 
@@ -17,7 +27,7 @@ class IntegrationTestStockAvailability(IntegrationTestCase):
 		self.income = make_account("Income", root_type="Income").name
 		received = make_account("Received", root_type="Liability")
 		self.make_item = lambda **values: make_item(self.income, received.name, **values).name
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 
 	def test_sales_lack_what_tracked_items_and_batches_miss_where_they_ship_from(self):
 		pen, ink = self.make_item(track_item=1), self.make_item(track_item=1, has_batch=1)
@@ -92,9 +102,9 @@ class IntegrationTestStockAvailability(IntegrationTestCase):
 		batch = make_batch(ink)
 		seed_stock(ink, quantity=2, rate=10, batch=batch)
 
-		quote = self._sale(ink, batch, quantity=3, doctype="Books Sales Quote")
+		quote = self._sale(ink, batch, quantity=3, doctype="Books Quotation")
 		self.assertRaisesRegex(frappe.ValidationError, "only has 2 quantity available but 3 is", quote.insert)
-		self._sale(ink, batch, quantity=2, doctype="Books Sales Quote").insert()
+		self._sale(ink, batch, quantity=2, doctype="Books Quotation").insert()
 
 	def test_a_saved_sale_row_is_checked_again_only_when_edited(self):
 		ink = self.make_item(track_item=1, has_batch=1)
@@ -114,14 +124,13 @@ class IntegrationTestStockAvailability(IntegrationTestCase):
 		sale.items[0].quantity = 2
 		self.assertRaisesRegex(frappe.ValidationError, "only has 1 quantity available but 2 is", sale.save)
 
-	def _sale(self, item, batch, quantity, **values):
+	def _sale(self, item, batch, quantity, doctype="Books Sales Invoice"):
 		receivable = make_account("Receivable", account_type="Receivable").name
 		return frappe.get_doc(
 			{
-				"doctype": "Books Sales Invoice",
-				"party": make_party(receivable).name,
+				"doctype": doctype,
+				get_controller(doctype).party_field: make_customer(receivable).name,
 				"date": now_datetime(),
 				"items": [{"item": item, "batch": batch, "quantity": quantity, "rate": 10}],
-				**values,
 			}
 		)

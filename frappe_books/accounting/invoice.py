@@ -6,14 +6,10 @@ from frappe.desk.form import linked_with
 from frappe.model.document import Document
 
 from frappe_books.accounting import returns, settlement
-from frappe_books.accounting.accounts import (
-	latest_ledger_account,
-	validate_account,
-	validate_item_usage,
-	validate_party_role,
-)
+from frappe_books.accounting.accounts import latest_ledger_account, validate_account
 from frappe_books.accounting.ledger import LedgerPosting, delete_entries, reverse_entries
 from frappe_books.accounting.money import as_decimal, company_currency, rounded, sum_decimal
+from frappe_books.accounting.party import PartyDocumentMixin
 from frappe_books.accounting.payment import default_payment_account, map_invoice_payment
 from frappe_books.commerce import pricing
 from frappe_books.commerce.pos import pos_customer
@@ -29,19 +25,21 @@ from frappe_books.settings import require_feature, require_features, set_default
 from frappe_books.status import StatusMixin
 
 
-class InvoiceController(StatusMixin, SeriesNamingMixin, Document):
+class InvoiceController(PartyDocumentMixin, StatusMixin, SeriesNamingMixin, Document):
 	"""Totals and validation shared by quotes and invoices.
 
 	Each kind of invoice sets the attributes below, and overrides the hooks its own rules need.
 	"""
 
 	transaction_type: str
-	# Purchases buy purchase items from suppliers on purchase price lists, and credit the party.
+	# Purchases buy from suppliers on purchase price lists, and credit the party.
 	is_purchase: bool
 	# The party's ledger account type, or None for a quote, which posts nothing.
 	party_account_type: str | None
 	# The item field that holds a row's income or expense account.
 	item_account_field: str
+	# The party fields that fill an invoice's defaults.
+	party_default_fields = ("currency", "default_account")
 
 	def before_validate(self):
 		set_default_terms(self)
@@ -168,7 +166,7 @@ class PostingInvoiceController(InvoiceController):
 
 	def on_submit(self):
 		self.get_ledger_posting().post()
-		settlement.refresh_party(self.party)
+		settlement.refresh_party(self.party_type, self.party)
 		invoice_transfer.on_invoice_submit(self)
 		if self.return_against:
 			returns.update_return_status(self, include_current=True)
@@ -199,7 +197,7 @@ class PostingInvoiceController(InvoiceController):
 
 	def on_cancel(self):
 		reverse_entries(self)
-		settlement.refresh_party(self.party)
+		settlement.refresh_party(self.party_type, self.party)
 		invoice_transfer.on_invoice_cancel(self)
 		if self.return_against:
 			returns.update_return_status(self, include_current=False)
@@ -299,7 +297,8 @@ def validate_invoice(invoice):
 	if not invoice.items:
 		frappe.throw(_("At least one invoice item is required."))
 	_validate_features(invoice)
-	_validate_party_and_account(invoice)
+	if invoice.party_account_type:
+		validate_account(invoice, "account", (invoice.party_account_type,))
 	pricing.validate_price_list(invoice)
 	if as_decimal(invoice.exchange_rate) <= 0:
 		frappe.throw(
@@ -308,7 +307,6 @@ def validate_invoice(invoice):
 	for row in invoice.items:
 		_validate_row(invoice, row)
 	validate_hsn_codes(invoice.items)
-	validate_item_usage(invoice, invoice.is_purchase)
 	if invoice.get("return_against"):
 		returns.validate_return(invoice)
 
@@ -316,7 +314,7 @@ def validate_invoice(invoice):
 def _validate_features(invoice):
 	"""Reject what the Books app offers only while its feature is on."""
 	require_features(invoice, INVOICE_FEATURES)
-	if invoice.get("reference_type") == "Books Lead":
+	if invoice.party_type == "Books Lead":
 		require_feature("enable_lead")
 	if _has_manual_discount(invoice):
 		require_feature("enable_discounting")
@@ -329,14 +327,6 @@ def _has_manual_discount(invoice):
 		for row in invoice.items
 		if not row.get("pricing_rule")
 	)
-
-
-def _validate_party_and_account(invoice):
-	"""Sales go to customers and receivables, purchases to suppliers and payables."""
-	if _has_books_party(invoice):
-		validate_party_role(invoice, invoice.is_purchase)
-	if invoice.party_account_type:
-		validate_account(invoice, "account", (invoice.party_account_type,))
 
 
 def _validate_row(invoice, row):
@@ -393,17 +383,14 @@ def _populate_pos_defaults(invoice):
 	"""A POS sale bills the POS customer to the POS Settings account, unless told otherwise."""
 	if not invoice.get("is_pos"):
 		return
-	invoice.party = invoice.party or pos_customer()
+	invoice.set(invoice.party_field, invoice.party or pos_customer())
 	invoice.account = invoice.get("account") or frappe.db.get_single_value(
 		"Books Pos Settings", "default_account"
 	)
 
 
 def _party_account(invoice, account):
-	"""The party's ledger if it suits the invoice, else the newest that does.
-
-	A party with both roles has one ledger, receivable or payable, for either invoice.
-	"""
+	"""The party's ledger if it suits the invoice, else the newest that does."""
 	account_type = invoice.party_account_type
 	if account and frappe.db.get_value("Books Account", account, "account_type") == account_type:
 		return account
@@ -412,15 +399,10 @@ def _party_account(invoice, account):
 
 def _party_defaults(invoice):
 	"""Return the party's invoice defaults; a quote to a lead has none."""
-	if not invoice.party or not _has_books_party(invoice):
+	if not invoice.party or invoice.party_type == "Books Lead":
 		return frappe._dict()
-	fields = ["currency", "default_account", "loyalty_program"]
-	return frappe.db.get_value("Books Party", invoice.party, fields, as_dict=True) or frappe._dict()
-
-
-def _has_books_party(invoice):
-	"""Quotes can go to a lead instead."""
-	return (invoice.get("reference_type") or "Books Party") == "Books Party"
+	fields = list(invoice.party_default_fields)
+	return frappe.db.get_value(invoice.party_type, invoice.party, fields, as_dict=True) or frappe._dict()
 
 
 def _populate_currency(invoice, party_currency):

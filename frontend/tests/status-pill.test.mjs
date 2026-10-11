@@ -31,7 +31,7 @@ test('a partly paid foreign-currency invoice shows the paid amount in the compan
 
 test('a submitted sales quote shows its status, as an invoice does', () => {
   const quote = {
-    schemaName: 'SalesQuote',
+    schemaName: 'Quotation',
     isSubmitted: true,
     status: 'Submitted',
   };

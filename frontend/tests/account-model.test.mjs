@@ -126,10 +126,11 @@ test('the parent picker offers groups of the account root type', () => {
 test('account links in other forms filter by Frappe fieldnames', async () => {
   const { PurchaseInvoice } = frappeModels;
   const JournalEntryAccount = frappeModels.JournalEntry.rowModels.accounts;
-  const { Party, AccountingSettings, InventorySettings, POSSettings } =
+  const { Customer, AccountingSettings, InventorySettings, POSSettings } =
     frappeModels;
   const ledger = ['is_group', '=', 0];
-  assert.deepEqual(await Party.filters.default_account({ role: 'Customer' }), [
+  const customer = newFrappeDoc('Customer');
+  assert.deepEqual(await Customer.filters.default_account(customer), [
     ledger,
     ['account_type', '=', 'Receivable'],
   ]);

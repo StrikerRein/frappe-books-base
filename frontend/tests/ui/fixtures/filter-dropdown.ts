@@ -53,7 +53,7 @@ async function mount() {
   });
   const invoices = Array.from({ length: 60 }, (_, index) => ({
     name: `INV-${index + 1}`,
-    party: 'Test customer',
+    customer: 'Test customer',
     date: '2024-01-01 00:00:00',
     docstatus: 1,
     grand_total: 100,

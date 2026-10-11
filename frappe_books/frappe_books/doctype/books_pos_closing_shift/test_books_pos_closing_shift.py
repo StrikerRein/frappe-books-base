@@ -18,9 +18,9 @@ from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice i
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	unique_name,
 )
 
@@ -30,7 +30,7 @@ class IntegrationTestBooksPosClosingShift(IntegrationTestCase):
 		self.counter = set_pos_accounts()
 		self.write_off = frappe.db.get_single_value("Books Pos Settings", "write_off_account")
 		self.receivable = make_account("POS Receivable", account_type="Receivable")
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 
 	def test_closing_reconciles_cash_and_closes_shift(self):
 		opening = open_shift(100)
@@ -259,6 +259,7 @@ class IntegrationTestBooksPosClosingShift(IntegrationTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": self.party.doctype,
 				"party": self.party.name,
 				"date": now_datetime(),
 				"payment_type": "Receive",

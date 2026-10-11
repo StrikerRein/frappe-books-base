@@ -10,7 +10,7 @@ class IntegrationTestStockLocation(IntegrationTestCase):
 		self.shelf = make_location("POS Shelf")
 		self.counter = make_location("Counter")
 		frappe.db.set_single_value(
-			"Books Defaults", {"shipment_location": "Stores", "purchase_receipt_location": self.counter}
+			"Books Defaults", {"delivery_note_location": "Stores", "purchase_receipt_location": self.counter}
 		)
 		frappe.db.set_single_value("Books Pos Settings", {"pos_profile": "", "inventory": self.shelf})
 
@@ -38,7 +38,7 @@ class IntegrationTestStockLocation(IntegrationTestCase):
 		)
 
 	def test_quotes_use_the_sales_invoice_location(self):
-		self.assertEqual(get_stock_location("Books Sales Quote"), stock_location("SalesInvoice", False))
+		self.assertEqual(get_stock_location("Books Quotation"), stock_location("SalesInvoice", False))
 
 
 def stock_location(source_schema, is_pos):

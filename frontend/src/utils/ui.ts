@@ -678,8 +678,8 @@ function showSubmitToast(doc: FrappeDoc) {
 
 // Documents that move stock; their submit toast opens their stock entries.
 const stockSchemas: string[] = [
-  ModelNameEnum.StockMovement,
-  ModelNameEnum.Shipment,
+  ModelNameEnum.StockEntry,
+  ModelNameEnum.DeliveryNote,
   ModelNameEnum.PurchaseReceipt,
 ];
 

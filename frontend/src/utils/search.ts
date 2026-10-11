@@ -73,9 +73,9 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.JournalEntry,
     ...(hasInventory
       ? [
-          ModelNameEnum.Shipment,
+          ModelNameEnum.DeliveryNote,
           ModelNameEnum.PurchaseReceipt,
-          ModelNameEnum.StockMovement,
+          ModelNameEnum.StockEntry,
         ]
       : []),
   ].map(
@@ -98,36 +98,6 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       label: t`Purchase Payment`,
       schemaName: ModelNameEnum.Payment,
       create: createFilters.PurchasePayments,
-    },
-    {
-      label: t`Customer`,
-      schemaName: ModelNameEnum.Party,
-      create: createFilters.Customers,
-    },
-    {
-      label: t`Supplier`,
-      schemaName: ModelNameEnum.Party,
-      create: createFilters.Suppliers,
-    },
-    {
-      label: t`Party`,
-      schemaName: ModelNameEnum.Party,
-      create: createFilters.Party,
-    },
-    {
-      label: t`Sales Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.SalesItems,
-    },
-    {
-      label: t`Purchase Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.PurchaseItems,
-    },
-    {
-      label: t`Item`,
-      schemaName: ModelNameEnum.Item,
-      create: createFilters.Items,
     },
   ].map(({ label, create, schemaName }) => {
     return {
@@ -179,8 +149,8 @@ function getSwitchedOffSchemaNames(fyo: Fyo): string[] {
     [
       accounting?.enable_inventory,
       [
-        ModelNameEnum.StockMovement,
-        ModelNameEnum.Shipment,
+        ModelNameEnum.StockEntry,
+        ModelNameEnum.DeliveryNote,
         ModelNameEnum.PurchaseReceipt,
         ModelNameEnum.Location,
         ModelNameEnum.StockLedgerEntry,
@@ -229,38 +199,13 @@ function getListViewList(fyo: Fyo): SearchItem[] {
 
   const filteredLists = [
     {
-      label: t`Customers`,
-      route: `/list/Party/${t`Customers`}`,
-      filters: routeFilters.Customers,
-    },
-    {
-      label: t`Suppliers`,
-      route: `/list/Party/${t`Suppliers`}`,
-      filters: routeFilters.Suppliers,
-    },
-    {
-      label: t`Sales Items`,
-      route: `/list/Item/${t`Sales Items`}`,
-      filters: routeFilters.SalesItems,
-    },
-    {
-      label: t`Sales Payments`,
-      route: `/list/Payment/${t`Sales Payments`}`,
+      label: t`Sales Payment`,
+      route: `/list/Payment/${t`Sales Payment`}`,
       filters: routeFilters.SalesPayments,
     },
     {
-      label: t`Purchase Items`,
-      route: `/list/Item/${t`Purchase Items`}`,
-      filters: routeFilters.PurchaseItems,
-    },
-    {
-      label: t`Items`,
-      route: `/list/Item/${t`Items`}`,
-      filters: routeFilters.Items,
-    },
-    {
-      label: t`Purchase Payments`,
-      route: `/list/Payment/${t`Purchase Payments`}`,
+      label: t`Purchase Payment`,
+      route: `/list/Payment/${t`Purchase Payment`}`,
       filters: routeFilters.PurchasePayments,
     },
   ].map((i) => {

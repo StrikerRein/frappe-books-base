@@ -79,8 +79,8 @@ export class StockLedger extends Report {
         fieldtype: 'Select',
         options: [
           { label: t`All`, value: 'All' },
-          { label: t`Stock Movements`, value: 'Books Stock Movement' },
-          { label: t`Shipment`, value: 'Books Shipment' },
+          { label: t`Stock Entry`, value: 'Books Stock Entry' },
+          { label: t`Delivery Note`, value: 'Books Delivery Note' },
           { label: t`Purchase Receipt`, value: 'Books Purchase Receipt' },
         ],
         label: t`Ref Type`,

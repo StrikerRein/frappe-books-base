@@ -203,7 +203,7 @@ export function getPOSInvoiceFields(): Field[] {
   return [
     { fieldname: 'name', label: t`Name`, fieldtype: 'Data', readOnly: true },
     {
-      fieldname: 'party',
+      fieldname: 'customer',
       label: t`Customer`,
       fieldtype: 'Data',
       readOnly: true,
@@ -230,7 +230,7 @@ export async function getPOSInvoices(
 ): Promise<DocValueMap[]> {
   const schema = getSchema(ModelNameEnum.SalesInvoice)!;
   const rows = await getList('Books Sales Invoice', {
-    fields: ['name', 'party', 'date', 'grand_total', 'docstatus'],
+    fields: ['name', 'customer', 'date', 'grand_total', 'docstatus'],
     filters: getPOSInvoiceFilters(filters, search),
     orderBy: 'creation desc',
     start,

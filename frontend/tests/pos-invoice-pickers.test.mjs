@@ -9,7 +9,7 @@ import {
 
 const invoice = {
   name: 'SINV-1001',
-  party: 'Aarav Shah',
+  customer: 'Aarav Shah',
   date: '2026-09-06 10:00:00',
   grand_total: 1250,
   docstatus: 1,

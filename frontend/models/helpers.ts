@@ -58,13 +58,13 @@ async function openForm(mapped: FrappeDoc, router: Router) {
 
 export function getQuoteActions(
   fyo: Fyo,
-  schemaName: ModelNameEnum.SalesQuote
+  schemaName: ModelNameEnum.Quotation
 ): Action[] {
   return [getMakeInvoiceAction(fyo, schemaName)];
 }
 
 export function getLeadActions(fyo: Fyo): Action[] {
-  return [getCreateCustomerAction(fyo), getSalesQuoteAction(fyo)];
+  return [getCreateCustomerAction(fyo), getQuotationAction(fyo)];
 }
 
 export function getInvoiceActions(
@@ -87,7 +87,7 @@ export function getInvoiceActions(
 
 export function getStockTransferActions(
   fyo: Fyo,
-  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+  schemaName: ModelNameEnum.DeliveryNote | ModelNameEnum.PurchaseReceipt
 ): Action[] {
   return [
     getMakeInvoiceAction(fyo, schemaName),
@@ -101,7 +101,7 @@ export function getMakeStockTransferAction(
   fyo: Fyo,
   schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
 ): Action {
-  let label = fyo.t`Shipment`;
+  let label = fyo.t`Delivery Note`;
   if (schemaName === ModelNameEnum.PurchaseInvoice) {
     label = fyo.t`Purchase Receipt`;
   }
@@ -120,9 +120,9 @@ export function getMakeStockTransferAction(
 export function getMakeInvoiceAction(
   fyo: Fyo,
   schemaName:
-    | ModelNameEnum.Shipment
+    | ModelNameEnum.DeliveryNote
     | ModelNameEnum.PurchaseReceipt
-    | ModelNameEnum.SalesQuote
+    | ModelNameEnum.Quotation
 ): Action {
   const isPurchase = schemaName === ModelNameEnum.PurchaseReceipt;
   const [invoiceSchemaName, mapper] = isPurchase
@@ -133,11 +133,11 @@ export function getMakeInvoiceAction(
     group: fyo.t`Create`,
     condition: (doc: FrappeDoc) => {
       // Quotes to leads are not invoiced.
-      if (schemaName === ModelNameEnum.SalesQuote) {
-        return doc.isSubmitted && doc.reference_type === 'Books Party';
+      if (schemaName === ModelNameEnum.Quotation) {
+        return doc.isSubmitted && doc.quotation_to === 'Books Customer';
       }
 
-      // Shipments and receipts are Frappe-backed.
+      // Delivery notes and receipts are Frappe-backed.
       return (
         doc.isSubmitted &&
         !doc.back_reference &&
@@ -154,16 +154,16 @@ export function getCreateCustomerAction(fyo: Fyo): Action {
     group: fyo.t`Create`,
     label: fyo.t`Customer`,
     condition: (doc: FrappeDoc) => !doc.notInserted,
-    target: () => [ModelNameEnum.Party, 'make_customer'],
+    target: () => [ModelNameEnum.Customer, 'make_customer'],
   });
 }
 
-export function getSalesQuoteAction(fyo: Fyo): Action {
+export function getQuotationAction(fyo: Fyo): Action {
   return getMappedDocAction(fyo, {
     group: fyo.t`Create`,
-    label: fyo.t`Sales Quote`,
+    label: fyo.t`Quotation`,
     condition: (doc: FrappeDoc) => !doc.notInserted,
-    target: () => [ModelNameEnum.SalesQuote, 'make_sales_quote'],
+    target: () => [ModelNameEnum.Quotation, 'make_quotation'],
   });
 }
 
@@ -190,8 +190,8 @@ async function openPayment(
     await router.push(currentRoute);
   });
 
-  // The party account comes from the invoice.
-  const hideFields = ['party', 'payment_references', 'account'];
+  // The party and its account come from the invoice.
+  const hideFields = ['party_type', 'party', 'payment_references', 'account'];
 
   if (!payment.fyo.singles.AccountingSettings?.enable_invoice_returns) {
     hideFields.push('payment_type');

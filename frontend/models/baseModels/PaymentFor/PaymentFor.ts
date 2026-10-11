@@ -1,6 +1,7 @@
 import { FiltersMap } from 'fyo/model/types';
 import type { Filter } from 'src/frappe/api';
 import { FrappeDoc } from 'src/frappe/document';
+import { getModel, toSchemaName } from 'src/frappe/registry';
 
 /** A Books Payment For row: an invoice the payment settles. */
 export class PaymentFor extends FrappeDoc {
@@ -28,7 +29,11 @@ export class PaymentFor extends FrappeDoc {
         ['docstatus', '=', 1],
       ];
       const party = doc.parentdoc?.party as string | undefined;
-      return party ? [...filters, ['party', '=', party]] : filters;
+      const invoice = toSchemaName(String(doc.reference_type ?? ''));
+      const partyField = invoice && getModel(invoice)?.partyField;
+      return party && partyField
+        ? [...filters, [partyField, '=', party]]
+        : filters;
     },
   };
 }

@@ -16,7 +16,7 @@ import {
 await loadFrappeModels(frappeModels);
 
 test('import columns report duplicates and missing required fields', async () => {
-  const importer = new Importer('Party', fyo);
+  const importer = new Importer('Customer', fyo);
   const required = [...importer.templateFieldsMap.values()].filter(
     (field) => field.required
   );
@@ -25,8 +25,8 @@ test('import columns report duplicates and missing required fields', async () =>
   importer.assignedTemplateFields = [
     required[0].fieldKey,
     required[0].fieldKey,
-    'Party.unknown',
-    'Party.unknown',
+    'Customer.unknown',
+    'Customer.unknown',
   ];
 
   assert.deepEqual(importer.getDuplicateColumns(), [required[0].label]);
@@ -61,10 +61,10 @@ test('a template starts with the name that groups each document’s rows', () =>
   assert.ok(!accountKeys.includes('Account.name'));
 });
 
-test('a party template holds a tax ID, not Indian GST fields', () => {
-  const labels = [...new Importer('Party', fyo).templateFieldsMap.values()].map(
-    ({ label }) => label
-  );
+test('a customer template holds a tax ID, not Indian GST fields', () => {
+  const labels = [
+    ...new Importer('Customer', fyo).templateFieldsMap.values(),
+  ].map(({ label }) => label);
 
   assert.ok(labels.includes('Tax ID'));
   assert.ok(!labels.includes('GST Registration'));
@@ -84,7 +84,7 @@ test('an invoice template keeps Books’ column order, without the quantity the 
     'Price List',
     'Apply Discount After Tax',
     'Make Payment On Submit',
-    'Make Shipment On Submit',
+    'Make Delivery Note On Submit',
     'Notes',
     'Back Reference',
     'Return Against',
@@ -156,7 +156,7 @@ test('a list export’s CSV maps onto the template by its keys', async () => {
 });
 
 test('a file with fewer columns than the template has only its own columns', () => {
-  const importer = new Importer('Party', fyo);
+  const importer = new Importer('Customer', fyo);
   const [first, , third] = importer.assignedTemplateFields;
 
   importer.selectFile([`${third},${first}`, 'a,b'].join('\n'));
@@ -164,13 +164,13 @@ test('a file with fewer columns than the template has only its own columns', () 
   assert.deepEqual(importer.assignedTemplateFields, [third, first]);
   assert.deepEqual(importer.getDuplicateColumns(), []);
 
-  const headless = new Importer('Party', fyo);
+  const headless = new Importer('Customer', fyo);
   headless.selectFile('a,b');
   assert.deepEqual(headless.assignedTemplateFields, [null, null]);
 });
 
 test('leaving a column out moves the later picked columns up', async () => {
-  const importer = new Importer('Party', fyo);
+  const importer = new Importer('Customer', fyo);
   const [first, second, third] = importer.assignedTemplateFields;
 
   importer.pickColumn(first, false);
@@ -191,7 +191,7 @@ test('the import file puts each document’s rows together, its values on the fi
   const importer = new Importer('SalesInvoice', fyo);
   importer.assignedTemplateFields = [
     'SalesInvoice.name',
-    'SalesInvoice.party',
+    'SalesInvoice.customer',
     'SalesInvoiceItem.item',
     'SalesInvoiceItem.quantity',
   ];
@@ -205,7 +205,7 @@ test('the import file puts each document’s rows together, its values on the fi
   const file = importer.getImportFile();
   // Frappe names numbered documents, so their name only groups the rows.
   assert.deepEqual(parseCSV(file.csv), [
-    ['docstatus', 'party', 'items.item', 'items.quantity'],
+    ['docstatus', 'customer', 'items.item', 'items.quantity'],
     ['0', 'Amy', 'Pen', '2'],
     ['', '', 'Pad', '3'],
     ['0', 'Bob', 'Ink', '1'],
@@ -216,10 +216,13 @@ test('the import file puts each document’s rows together, its values on the fi
 });
 
 test('named documents import their name under the DocType’s fieldname', async () => {
-  const party = new Importer('Party', fyo);
-  party.assignedTemplateFields = ['Party.name', 'Party.default_account'];
-  party.valueMatrix = [[{ value: 'Ann' }, { value: 'Debtors' }]];
-  assert.deepEqual(importRows(party), [
+  const customer = new Importer('Customer', fyo);
+  customer.assignedTemplateFields = [
+    'Customer.name',
+    'Customer.default_account',
+  ];
+  customer.valueMatrix = [[{ value: 'Ann' }, { value: 'Debtors' }]];
+  assert.deepEqual(importRows(customer), [
     ['docstatus', 'name', 'default_account'],
     ['0', 'Ann', 'Debtors'],
   ]);
@@ -294,12 +297,12 @@ test('import datetimes are read as system time, whatever the browser’s time zo
 });
 
 test('fix failed keeps the failed rows and the file columns', async () => {
-  const importer = new Importer('Party', fyo);
-  importer.assignedTemplateFields = ['Party.role', 'Party.name'];
+  const importer = new Importer('Customer', fyo);
+  importer.assignedTemplateFields = ['Customer.email', 'Customer.name'];
   importer.valueMatrix = [
-    [{ value: 'Customer' }, { value: 'A' }],
-    [{ value: 'Customer' }, { value: 'B' }],
-    [{ value: 'Customer' }, { value: 'C' }],
+    [{ value: 'a@example.com' }, { value: 'A' }],
+    [{ value: 'b@example.com' }, { value: 'B' }],
+    [{ value: 'c@example.com' }, { value: 'C' }],
   ];
 
   importer.keepRows([1, 2]);
@@ -309,7 +312,7 @@ test('fix failed keeps the failed rows and the file columns', async () => {
     ['B', 'C']
   );
   assert.deepEqual(importer.assignedTemplateFields, [
-    'Party.role',
-    'Party.name',
+    'Customer.email',
+    'Customer.name',
   ]);
 });

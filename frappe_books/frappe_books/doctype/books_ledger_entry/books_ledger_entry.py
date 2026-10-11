@@ -18,7 +18,8 @@ class BooksLedgerEntry(Document):
 		credit: DF.Currency
 		debit: DF.Currency
 		name: DF.Int | None
-		party: DF.Link | None
+		party: DF.DynamicLink | None
+		party_type: DF.Link | None
 		posting_date: DF.Date | None
 		reverted: DF.Check
 		reverts: DF.Link | None

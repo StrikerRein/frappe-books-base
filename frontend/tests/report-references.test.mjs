@@ -56,7 +56,7 @@ async function getLinkedDates(link) {
 test("a document's ledger opens filtered by its doctype, on its posting date", async () => {
   // Half past midnight in the system time zone, the evening before in UTC.
   const date = new Date('2020-05-01T00:30:00+05:30');
-  const shipment = newFrappeDoc('Shipment', { name: 'SHPM-1001', date });
+  const shipment = newFrappeDoc('DeliveryNote', { name: 'SHPM-1001', date });
   const link = getLedgerLink(shipment, 'StockLedger');
 
   const { referenceType, referenceName } = JSON.parse(
@@ -64,7 +64,7 @@ test("a document's ledger opens filtered by its doctype, on its posting date", a
   );
   assert.deepEqual(
     [referenceType, referenceName],
-    ['Books Shipment', 'SHPM-1001']
+    ['Books Delivery Note', 'SHPM-1001']
   );
   assert.deepEqual(await getLinkedDates(link), ['2020-05-01', '2020-05-01']);
 });

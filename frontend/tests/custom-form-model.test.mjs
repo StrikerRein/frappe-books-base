@@ -131,7 +131,7 @@ test('a row links to other forms and references select fields of the form', asyn
   });
   const [row] = form.custom_fields;
   const targets = CustomField.lists.target(row).map(({ value }) => value);
-  assert.ok(targets.includes('Books Party'));
+  assert.ok(targets.includes('Books Customer'));
   assert.equal(targets.includes('Books System Settings'), false);
 
   // References name Frappe fieldnames: a row's Custom Field, or a field of the form.
@@ -156,8 +156,8 @@ test('a Table field targets only child tables', async () => {
     return CustomField.lists.target(row).map(({ value }) => value);
   };
   assert.ok(targets('Table').includes('Books Sales Invoice Item'));
-  assert.equal(targets('Table').includes('Books Party'), false);
-  assert.ok(targets('Link').includes('Books Party'));
+  assert.equal(targets('Table').includes('Books Customer'), false);
+  assert.ok(targets('Link').includes('Books Customer'));
 });
 
 test('editing a row previews its name from the server', async () => {

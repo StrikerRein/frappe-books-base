@@ -37,7 +37,7 @@ test('permissions come from the boot lists of frappe.boot.user', () => {
   assert.equal(hasPermission(permissions, 'SalesInvoice', 'submit'), true);
   assert.equal(hasPermission(permissions, 'SalesInvoice', 'cancel'), false);
   assert.equal(hasPermission(permissions, 'Tax', 'write'), false);
-  assert.equal(hasPermission(permissions, 'Party', 'read'), false);
+  assert.equal(hasPermission(permissions, 'Customer', 'read'), false);
 });
 
 test('a System Manager can export every doctype, as in Frappe', () => {
@@ -101,10 +101,10 @@ test('printing a document needs the print permission', async () => {
 
 test('the import wizard offers only the schemas the user may import', () => {
   fyo.store.permissions = {
-    doctypes: { Party: 'Books Party', Tax: 'Books Tax' },
-    user: { can_import: ['Books Party'] },
+    doctypes: { Customer: 'Books Customer', Tax: 'Books Tax' },
+    user: { can_import: ['Books Customer'] },
   };
-  assert.deepEqual(getImportableSchemaNames(fyo), ['Party']);
+  assert.deepEqual(getImportableSchemaNames(fyo), ['Customer']);
 });
 
 test('export granted only to owners exports only the user’s documents', () => {
@@ -128,10 +128,19 @@ test('a new single document is writable with the write permission', () => {
 });
 
 test('the sidebar shows only the lists, reports and groups the user can open', () => {
-  const lists = ['SalesQuote', 'SalesInvoice', 'Party', 'Item', 'Account'];
+  const lists = [
+    'Quotation',
+    'SalesInvoice',
+    'Customer',
+    'Supplier',
+    'Item',
+    'Account',
+  ];
   fyo.store.permissions = {
     doctypes: Object.fromEntries(lists.map((name) => [name, `Books ${name}`])),
-    user: { can_read: ['Books SalesQuote', 'Books Party'] },
+    user: {
+      can_read: ['Books Quotation', 'Books Customer', 'Books Supplier'],
+    },
   };
   window.frappe.boot.allowed_reports = { 'Books Trial Balance': {} };
 
@@ -146,15 +155,10 @@ test('the sidebar shows only the lists, reports and groups the user can open', (
     { label: 'Dashboard', route: '/', items: undefined },
     {
       label: 'Sales',
-      route: '/list/SalesQuote',
-      items: ['Sales Quotes', 'Customers'],
+      route: '/list/Quotation',
+      items: ['Quotation', 'Customer'],
     },
-    {
-      label: 'Purchases',
-      route: '/list/Party/Suppliers',
-      items: ['Suppliers'],
-    },
-    { label: 'Common', route: '/list/Party', items: ['Party'] },
+    { label: 'Purchases', route: '/list/Supplier', items: ['Supplier'] },
     {
       label: 'Reports',
       route: '/report/TrialBalance',
@@ -184,10 +188,10 @@ test('Setup lists Number Series for a user who can read them', () => {
 });
 
 test('the search palette offers only the lists and reports the user can open', () => {
-  const lists = ['SalesQuote', 'SalesInvoice', 'Party', 'Item', 'Account'];
+  const lists = ['Quotation', 'SalesInvoice', 'Customer', 'Item', 'Account'];
   fyo.store.permissions = {
     doctypes: Object.fromEntries(lists.map((name) => [name, `Books ${name}`])),
-    user: { can_read: ['Books SalesQuote', 'Books Party'] },
+    user: { can_read: ['Books Quotation', 'Books Customer'] },
   };
   window.frappe.boot.allowed_reports = { 'Books Trial Balance': {} };
 
@@ -196,8 +200,8 @@ test('the search palette offers only the lists and reports the user can open', (
     .map(({ route }) => decodeURI(route).split('?')[0]);
 
   delete window.frappe.boot.allowed_reports;
-  assert.ok(routes.includes('/list/SalesQuote'));
-  assert.ok(routes.includes('/list/Party/Customers'));
+  assert.ok(routes.includes('/list/Quotation'));
+  assert.ok(routes.includes('/list/Customer'));
   assert.ok(routes.includes('/report/TrialBalance'));
   assert.ok(!routes.includes('/list/SalesInvoice'));
   assert.ok(!routes.some((route) => route.startsWith('/list/Item')));
@@ -212,7 +216,7 @@ function shownActions(schemaName, doc) {
     .map(({ label }) => label);
 }
 
-test('a party offers only the invoices the user may make and read', () => {
+test('a customer or supplier offers only the invoices the user may make and read', () => {
   fyo.store.permissions = {
     doctypes: {
       SalesInvoice: 'Books Sales Invoice',
@@ -225,22 +229,20 @@ test('a party offers only the invoices the user may make and read', () => {
   };
   window.frappe.boot.allowed_reports = {};
 
-  const party = { inserted: true, notInserted: false, role: 'Both' };
-  const actions = shownActions('Party', party);
+  const party = { inserted: true, notInserted: false };
+  const customerActions = shownActions('Customer', party);
+  const supplierActions = shownActions('Supplier', party);
 
   delete window.frappe.boot.allowed_reports;
-  assert.ok(actions.includes('Create sale'));
-  assert.ok(actions.includes('View sales'));
-  assert.ok(!actions.includes('Create purchase'));
-  assert.ok(!actions.includes('View purchases'));
-  assert.ok(!actions.includes('General Ledger'));
+  assert.deepEqual(customerActions, ['Create sale', 'View sales']);
+  assert.deepEqual(supplierActions, []);
 });
 
 test('a submitted document links only to the ledgers the user may open', () => {
   fyo.store.permissions = null;
   window.frappe.boot.allowed_reports = { 'Books Stock Ledger': {} };
 
-  const actions = shownActions('StockMovement', { isSubmitted: true });
+  const actions = shownActions('StockEntry', { isSubmitted: true });
 
   delete window.frappe.boot.allowed_reports;
   assert.deepEqual(actions, ['Stock entries']);

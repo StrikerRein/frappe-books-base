@@ -15,10 +15,10 @@ NUMBER_SERIES = {
 	"Books Purchase Invoice": ("PINV-", "PurchaseInvoice", "purchase_invoice_number_series"),
 	"Books Pricing Rule": ("PRLE-", "PricingRule", None),
 	"Books Purchase Receipt": ("PREC-", "PurchaseReceipt", "purchase_receipt_number_series"),
-	"Books Shipment": ("SHPM-", "Shipment", "shipment_number_series"),
+	"Books Delivery Note": ("SHPM-", "DeliveryNote", "delivery_note_number_series"),
 	"Books Sales Invoice": ("SINV-", "SalesInvoice", "sales_invoice_number_series"),
-	"Books Stock Movement": ("SMOV-", "StockMovement", "stock_movement_number_series"),
-	"Books Sales Quote": ("SQUOT-", "SalesQuote", "sales_quote_number_series"),
+	"Books Stock Entry": ("SMOV-", "StockEntry", "stock_entry_number_series"),
+	"Books Quotation": ("SQUOT-", "Quotation", "quotation_number_series"),
 }
 # Named doctype: (item flag, item series field)
 ITEM_SERIES = {

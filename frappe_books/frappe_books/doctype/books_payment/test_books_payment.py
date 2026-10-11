@@ -13,10 +13,11 @@ from frappe_books.tests.accounting import (
 	ensure_user,
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
 	make_number_series,
-	make_party,
+	make_supplier,
 	unique_name,
 )
 
@@ -27,7 +28,7 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		cash = make_account("Cash", account_type="Cash")
 		income = make_account("Income", root_type="Income", account_type="Income Account")
 		expense = make_account("Expense", root_type="Expense", account_type="Expense Account")
-		party = make_party(receivable.name)
+		party = make_customer(receivable.name)
 		item = make_item(income.name, expense.name)
 		invoice = make_invoice(
 			"Books Sales Invoice",
@@ -43,6 +44,7 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		payment = frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": party.doctype,
 				"party": party.name,
 				"date": now_datetime(),
 				"payment_type": "Receive",
@@ -74,8 +76,8 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		cash = make_account("Cash", account_type="Cash")
 		income = make_account("Income", root_type="Income", account_type="Income Account")
 		expense = make_account("Expense", root_type="Expense", account_type="Expense Account")
-		party = make_party(receivable.name)
-		other_party = make_party(receivable.name)
+		party = make_customer(receivable.name)
+		other_party = make_customer(receivable.name)
 		item = make_item(income.name, expense.name)
 		invoice = make_invoice("Books Sales Invoice", party.name, receivable.name, item.name, income.name)
 		invoice.items[0].item_discount_percent = 0
@@ -93,6 +95,7 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": party.doctype,
 				"party": party.name,
 				"date": now_datetime(),
 				"payment_type": "Receive",
@@ -115,7 +118,7 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		cash = make_account("Cash", account_type="Cash")
 		income = make_account("Income", root_type="Income", account_type="Income Account")
 		expense = make_account("Expense", root_type="Expense", account_type="Expense Account")
-		party = make_party(payable.name, role="Supplier")
+		party = make_supplier(payable.name)
 		item = make_item(income.name, expense.name)
 		invoice = make_invoice(
 			"Books Purchase Invoice",
@@ -130,6 +133,7 @@ class IntegrationTestBooksPayment(IntegrationTestCase):
 		payment = frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": party.doctype,
 				"party": party.name,
 				"date": now_datetime(),
 				"payment_type": "Pay",
@@ -163,7 +167,7 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 		self.income = make_account("Rules Income", root_type="Income", account_type="Income Account")
 		self.expense = make_account("Rules Expense", root_type="Expense", account_type="Expense Account")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", self.expense.name)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name)
 		self.invoice = self._submitted_invoice()
 
@@ -193,8 +197,8 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 
 	def test_payment_needs_read_access_to_the_invoice(self):
 		user = ensure_user("books-payment-reader@example.com", "Books User")
-		own_party = make_party(self.receivable.name)
-		add_user_permission("Books Party", own_party.name, user)
+		own_party = make_customer(self.receivable.name)
+		add_user_permission("Books Customer", own_party.name, user)
 		payment = self._payment(self.invoice, party=own_party.name)
 		with self.set_user(user), self.assertRaises(frappe.PermissionError):
 			payment.insert()
@@ -246,14 +250,20 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 			("Receive", self.receivable.name, self.cash.name),
 		)
 
-		supplier = make_party(self.payable.name, role="Supplier")
+		supplier = make_supplier(self.payable.name)
 		cash = make_account("Rules Petty Cash", account_type="Cash")
 		# A payment out uses the method's account too, else the newest cash account.
 		for method_account, payment_account in ((self.cash.name, self.cash.name), (None, cash.name)):
 			with self.subTest(method_account=method_account):
 				frappe.db.set_value("Books Payment Method", "Cash", "account", method_account)
 				payment = frappe.get_doc(
-					{"doctype": "Books Payment", "party": supplier.name, "date": now_datetime(), "amount": 10}
+					{
+						"doctype": "Books Payment",
+						"party_type": supplier.doctype,
+						"party": supplier.name,
+						"date": now_datetime(),
+						"amount": 10,
+					}
 				).insert()
 				self.assertEqual(
 					(payment.payment_type, payment.account, payment.payment_account),
@@ -298,9 +308,15 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 		payment.preview()
 		self.assertEqual([row.amount for row in payment.payment_references], [100, 180])
 
+	def test_a_payment_party_is_a_customer_or_a_supplier(self):
+		lead = frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Lead")}).insert()
+		payment = self._payment(self.invoice, party_type="Books Lead", party=lead.name)
+
+		self.assertRaisesRegex(frappe.ValidationError, "must be Customer or Supplier", payment.insert)
+
 	def test_a_supplier_reference_is_a_purchase_invoice(self):
-		supplier = make_party(self.payable.name, role="Supplier")
-		payment = frappe.new_doc("Books Payment", party=supplier.name)
+		supplier = make_supplier(self.payable.name)
+		payment = frappe.new_doc("Books Payment", party_type=supplier.doctype, party=supplier.name)
 		payment.append("payment_references", {})
 		payment.set_missing_values()
 		self.assertEqual(payment.payment_references[0].reference_type, "Books Purchase Invoice")
@@ -308,7 +324,7 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 	def test_a_payment_lists_with_its_invoice_else_its_type(self):
 		bank = make_account("Rules Bank", account_type="Bank")
 		frappe.db.set_single_value("Books Defaults", "purchase_payment_account", bank.name)
-		supplier = make_party(self.payable.name, role="Supplier")
+		supplier = make_supplier(self.payable.name)
 		purchase = make_invoice(
 			"Books Purchase Invoice",
 			supplier.name,
@@ -434,6 +450,7 @@ class IntegrationTestPaymentRules(IntegrationTestCase):
 		return frappe.get_doc(
 			{
 				"doctype": "Books Payment",
+				"party_type": invoice.party_type,
 				"party": invoice.party,
 				"date": now_datetime(),
 				"payment_type": "Receive",

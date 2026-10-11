@@ -20,9 +20,9 @@ from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice i
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	unique_name,
 )
 
@@ -36,7 +36,7 @@ class IntegrationTestPosPayments(IntegrationTestCase):
 		expense = make_account("POS Expense", root_type="Expense", account_type="Expense Account")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", expense.name)
 		self.item = make_item(self.income.name, expense.name)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 
 	def test_payment_for_a_pos_invoice_defaults_to_the_counter(self):
 		invoice = self.make_pos_invoice()

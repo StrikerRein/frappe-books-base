@@ -31,6 +31,7 @@ test('report filters show their From and To dates as one range, first', async ()
     'field:referenceType',
     'field:referenceName',
     'field:account',
+    'field:partyType',
     'field:party',
     'field:groupBy',
     'field:reverted',

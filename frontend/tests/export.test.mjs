@@ -44,13 +44,15 @@ test('the wizard offers the fields of the DocType and of its tables', () => {
   assert.ok(!items.fields.some(({ fieldname }) => fieldname === 'name'));
 });
 
-test('party and address exports leave out Indian GST fields', () => {
+test('customer, supplier and address exports leave out Indian GST fields', () => {
   const exported = (schemaName) =>
     getExportFields(schemaName).map((f) => f.fieldname);
 
-  assert.ok(exported('Party').includes('tax_id'));
-  assert.ok(!exported('Party').includes('gst_type'));
-  assert.ok(!exported('Party').includes('gstin'));
+  for (const schemaName of ['Customer', 'Supplier']) {
+    assert.ok(exported(schemaName).includes('tax_id'));
+    assert.ok(!exported(schemaName).includes('gst_type'));
+    assert.ok(!exported(schemaName).includes('gstin'));
+  }
   assert.ok(!exported('Address').includes('pos'));
 });
 
@@ -70,7 +72,7 @@ test('the file fields of every model are fields of its schema', () => {
 
   assert.deepEqual(missing, []);
   assert.ok(getSchema('SalesInvoice').fileFields.length > 0);
-  assert.ok(getSchema('SalesQuoteItem').fileFields.length > 0);
+  assert.ok(getSchema('QuotationItem').fileFields.length > 0);
 });
 
 test('the wizard offers Books’ fields in Books’ order', () => {
@@ -115,7 +117,7 @@ test('the wizard offers Books’ fields in Books’ order', () => {
   assert.ok(!fieldnames('StockLedgerEntry').includes('stock_queue'));
   assert.equal(items.fieldname, 'items');
   assert.ok(!items.fields.some(({ fieldname }) => fieldname === 'qty'));
-  assert.deepEqual(fieldnames('Party').slice(0, 2), ['image', 'name']);
+  assert.deepEqual(fieldnames('Customer').slice(0, 2), ['image', 'name']);
   assert.deepEqual(
     account
       .map(({ label }) => label)
@@ -286,8 +288,8 @@ test('files keep the keys Books renamed', async () => {
     await keys('Account', ['account_name', 'parent_books_account', 'owner']),
     ['Account.name', 'Account.parentAccount', 'Account.createdBy']
   );
-  assert.deepEqual(await keys('Item', ['item_usage', 'uom_conversions']), [
-    'Item.for',
+  assert.deepEqual(await keys('Item', ['item_type', 'uom_conversions']), [
+    'Item.itemType',
     'UOMConversionItem.uom',
   ]);
   assert.deepEqual(
@@ -361,20 +363,20 @@ test("CSV repeats a document's values on each row of its tables", async () => {
     message: [
       {
         name: 'SINV-1',
-        party: 'Acme',
+        customer: 'Acme',
         items: [
           { item: 'Pen', rate: 10 },
           { item: 'Ink', rate: 5 },
         ],
       },
-      { name: 'SINV-2', party: 'Bolt', items: [] },
+      { name: 'SINV-2', customer: 'Bolt', items: [] },
     ],
   }));
   const csv = await getCsvExportData({
     schemaName: 'SalesInvoice',
     fields: [
       field('name', 'Invoice No'),
-      field('party', 'Customer'),
+      field('customer', 'Customer'),
       field('total_discount', 'Discount', 'Currency'),
       field('items', 'Items', 'Table'),
     ],
@@ -393,14 +395,14 @@ test("CSV repeats a document's values on each row of its tables", async () => {
   // A virtual field has no column to read.
   assert.deepEqual(requests[0].body.fields, [
     'name',
-    'party',
+    'customer',
     { items: ['item', 'rate'] },
   ]);
   assert.deepEqual(parseCSV(csv), [
     ['Invoice No', 'Customer', 'Discount', 'Item', 'Rate'],
     [
       'SalesInvoice.name',
-      'SalesInvoice.party',
+      'SalesInvoice.customer',
       'SalesInvoice.totalDiscount',
       'SalesInvoiceItem.item',
       'SalesInvoiceItem.rate',

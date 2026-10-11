@@ -1,3 +1,3 @@
 export { PurchaseInvoice } from './PurchaseInvoice';
 export { SalesInvoice } from './SalesInvoice';
-export { SalesQuote } from './SalesQuote';
+export { Quotation } from './Quotation';

@@ -2,26 +2,29 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_to_date, now_datetime
 
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	account_balance,
+	seed_stock,
+)
 from frappe_books.frappe_books.doctype.books_purchase_receipt.test_books_purchase_receipt import (
 	make_receipt,
 	stock_value_change,
 )
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import account_balance, seed_stock
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	movement_values,
 )
 from frappe_books.tests.accounting import (
 	ledger_entries,
 	make_account,
+	make_customer,
 	make_item,
-	make_party,
 	set_inventory_accounts,
 	unique_name,
 )
 
 
 class IntegrationTestStockPosting(IntegrationTestCase):
-	def test_backdated_receipt_restates_a_transfer_its_shipment_and_the_return(self):
+	def test_backdated_receipt_restates_a_transfer_its_delivery_note_and_the_return(self):
 		cogs = make_account("COGS", root_type="Expense", account_type="Cost of Goods Sold")
 		received = make_account("Received", root_type="Liability")
 		set_inventory_accounts(make_account("Stock", account_type="Stock").name, received.name, cogs.name)
@@ -57,11 +60,11 @@ def _move_to(item, location, quantity, date):
 
 def _ship(item, location, quantity, date, return_against=None):
 	party = return_against.party if return_against else None
-	party = party or make_party(make_account("Receivable", account_type="Receivable").name).name
+	party = party or make_customer(make_account("Receivable", account_type="Receivable").name).name
 	shipment = frappe.get_doc(
 		{
-			"doctype": "Books Shipment",
-			"party": party,
+			"doctype": "Books Delivery Note",
+			"customer": party,
 			"date": date,
 			"return_against": return_against and return_against.name,
 			"items": [{"item": item, "location": location, "quantity": quantity, "rate": 25}],

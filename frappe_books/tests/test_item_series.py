@@ -5,7 +5,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import now_datetime
 
 from frappe_books.series import new_item_names
-from frappe_books.tests.accounting import ensure_user, make_account, make_item, make_party
+from frappe_books.tests.accounting import ensure_user, make_account, make_item, make_supplier
 
 BOOKS_USER = "books-series-user@example.com"
 NO_ROLE_USER = "books-series-no-role@example.com"
@@ -79,7 +79,7 @@ class IntegrationTestSeriesBatches(IntegrationTestCase):
 		self.prefix = f"B{frappe.generate_hash(length=6)}-"
 		self.item = make_series_item(has_batch=1, batch_series=self.prefix)
 		payable = make_account("Series Payable", root_type="Liability", account_type="Payable")
-		self.supplier = make_party(payable.name, role="Supplier").name
+		self.supplier = make_supplier(payable.name).name
 
 	def test_receipts_create_empty_batches_from_the_item_series(self):
 		row = {"item": self.item, "quantity": 1, "rate": 10}
@@ -120,13 +120,13 @@ class IntegrationTestSeriesBatches(IntegrationTestCase):
 		self.assertRaisesRegex(frappe.ValidationError, "Please select a batch first", receipt.insert)
 
 	def _purchase(self, doctype, row):
-		return {"doctype": doctype, "party": self.supplier, "date": now_datetime(), "items": [row]}
+		return {"doctype": doctype, "supplier": self.supplier, "date": now_datetime(), "items": [row]}
 
 
 def movement_values(movement_type, row):
 	location = "to_location" if movement_type == "MaterialReceipt" else "from_location"
 	return {
-		"doctype": "Books Stock Movement",
+		"doctype": "Books Stock Entry",
 		"movement_type": movement_type,
 		"date": now_datetime(),
 		"items": [{location: "Stores", **row}],

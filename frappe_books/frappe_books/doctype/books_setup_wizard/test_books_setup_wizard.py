@@ -83,7 +83,7 @@ class IntegrationTestBooksSetupWizard(IntegrationTestCase):
 
 	def test_setup_leaves_auto_stock_transfer_to_the_user(self):
 		frappe.db.set_single_value(
-			"Books Defaults", {"shipment_location": None, "purchase_receipt_location": None}
+			"Books Defaults", {"delivery_note_location": None, "purchase_receipt_location": None}
 		)
 		wizard = self._wizard(chart_of_accounts=STANDARD_CHART)
 		wizard.save(ignore_permissions=True)
@@ -91,7 +91,7 @@ class IntegrationTestBooksSetupWizard(IntegrationTestCase):
 
 		# A transfer location makes every invoice move stock on submit once inventory is on.
 		defaults = frappe.get_single("Books Defaults")
-		self.assertFalse(defaults.shipment_location)
+		self.assertFalse(defaults.delivery_note_location)
 		self.assertFalse(defaults.purchase_receipt_location)
 
 	def test_setup_creates_the_selected_country_chart(self):

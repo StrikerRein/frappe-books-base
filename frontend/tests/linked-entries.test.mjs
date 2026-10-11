@@ -18,13 +18,13 @@ test('linked entries come from the server by doctype, grouped by schema in schem
       message: {
         'Books Ledger Entry': ['7', '3'],
         'Books Payment': ['PAY-1002'],
-        'Books Shipment': [],
+        'Books Delivery Note': [],
       },
     });
   };
   const doctypes = {
     SalesInvoice: 'Books Sales Invoice',
-    Shipment: 'Books Shipment',
+    DeliveryNote: 'Books Delivery Note',
     Payment: 'Books Payment',
     AccountingLedgerEntry: 'Books Ledger Entry',
   };

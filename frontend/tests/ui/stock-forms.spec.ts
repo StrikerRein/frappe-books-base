@@ -19,7 +19,7 @@ test('a stock movement takes its series, rate and locations from the server', as
   page,
 }) => {
   const item = await insertItem(page, 'Movement Item', 12);
-  await page.goto('/books/list/StockMovement');
+  await page.goto('/books/list/StockEntry');
   await waitForBooks(page);
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await expect(
@@ -48,7 +48,7 @@ test('a stock movement takes its series, rate and locations from the server', as
   await choose(page, 'Movement Type', 'Material Receipt');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
-  await expect(page).toHaveURL(/\/books\/edit\/StockMovement\/SMOV-/);
+  await expect(page).toHaveURL(/\/books\/edit\/StockEntry\/SMOV-/);
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
   await expect(page.getByText('View stock entries')).toBeVisible();
@@ -57,7 +57,7 @@ test('a stock movement takes its series, rate and locations from the server', as
 test('form table columns resize by dragging and keep their width', async ({
   page,
 }) => {
-  await page.goto('/books/edit/StockMovement/new');
+  await page.goto('/books/edit/StockEntry/new');
   await waitForBooks(page);
   const handle = page.getByRole('separator', { name: 'Resize Item column' });
   const start = (await handle.boundingBox())!;
@@ -155,7 +155,6 @@ async function insertItem(page: Page, label: string, rate: number) {
     name,
     rate,
     item_type: 'Product',
-    item_usage: 'Both',
     track_item: 1,
   });
   return name;
@@ -163,10 +162,10 @@ async function insertItem(page: Page, label: string, rate: number) {
 
 /** A submitted receipt of two of the item from a new supplier. */
 async function insertReceipt(page: Page, item: string) {
-  const party = `Stock Supplier ${Date.now()}`;
-  await api(page, 'POST', 'Books Party', { name: party, role: 'Supplier' });
+  const supplier = `Stock Supplier ${Date.now()}`;
+  await api(page, 'POST', 'Books Supplier', { name: supplier });
   const receipt = await api(page, 'POST', 'Books Purchase Receipt', {
-    party,
+    supplier,
     items: [{ item, quantity: 2, location: 'Stores' }],
   });
   await page.evaluate(async (document) => {

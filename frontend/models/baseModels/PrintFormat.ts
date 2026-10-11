@@ -12,13 +12,13 @@ import {
 // The doctypes /books prints, as the Template Type offers them.
 const PRINTED_DOCTYPES = [
   { value: 'Books Sales Invoice', label: 'Sales Invoice' },
-  { value: 'Books Sales Quote', label: 'Quote' },
+  { value: 'Books Quotation', label: 'Quotation' },
   { value: 'Books Purchase Invoice', label: 'Purchase Invoice' },
   { value: 'Books Journal Entry', label: 'Journal Entry' },
   { value: 'Books Payment', label: 'Payment' },
-  { value: 'Books Shipment', label: 'Shipment' },
+  { value: 'Books Delivery Note', label: 'Delivery Note' },
   { value: 'Books Purchase Receipt', label: 'Purchase Receipt' },
-  { value: 'Books Stock Movement', label: 'Stock Movement' },
+  { value: 'Books Stock Entry', label: 'Stock Entry' },
 ];
 
 /** Frappe's Print Format. /books edits the ones with custom HTML that no app ships. */

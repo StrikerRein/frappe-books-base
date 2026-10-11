@@ -31,10 +31,15 @@ test('a report opened with filters runs once on the server', async () => {
   );
   const runs = () =>
     calls.filter((c) => c.method === 'frappe.desk.query_report.run');
-  const filters = { referenceType: 'Books Payment', party: 'Acme' };
+  const filters = {
+    referenceType: 'Books Payment',
+    partyType: 'Books Customer',
+    party: 'Acme',
+  };
 
   const report = await showReport('GeneralLedger', filters);
   assert.equal(runs().length, 1);
+  assert.equal(runs()[0].args.filters.party_type, 'Books Customer');
   assert.equal(runs()[0].args.filters.party, 'Acme');
   assert.equal(runs()[0].args.filters.reference_type, 'Books Payment');
 

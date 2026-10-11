@@ -7,8 +7,8 @@ from frappe.utils import add_days, now_datetime, nowdate, set_request
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
+	make_customer,
 	make_item,
-	make_party,
 	make_tax,
 	unique_name,
 )
@@ -41,7 +41,7 @@ class IntegrationTestInvoicePreview(IntegrationTestCase):
 			"Books Accounting Settings",
 			{"discount_account": self.expense.name, "enable_pricing_rule": 1, "enable_price_list": 1},
 		)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name, make_tax(tax_account.name).name, rate=100)
 		self.values = self._invoice_values()
 
@@ -134,7 +134,7 @@ class IntegrationTestInvoicePreview(IntegrationTestCase):
 
 	def test_a_row_tax_left_out_follows_the_item_and_a_cleared_one_stays_cleared(self):
 		row = {"item": self.item.name, "quantity": 1}
-		values = {"party": self.party.name, "date": str(now_datetime()), "items": [row]}
+		values = {"customer": self.party.name, "date": str(now_datetime()), "items": [row]}
 		self.assertEqual(_preview(values)["items"][0]["tax"], self.item.tax)
 
 		cleared = {**values, "items": [{**row, "tax": ""}]}
@@ -181,7 +181,7 @@ class IntegrationTestInvoicePreview(IntegrationTestCase):
 			}
 		).insert()
 		return {
-			"party": self.party.name,
+			"customer": self.party.name,
 			"date": str(now_datetime()),
 			"price_list": price_list.name,
 			"coupons": [{"coupons": coupon.name}],

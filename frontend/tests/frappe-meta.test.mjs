@@ -103,7 +103,7 @@ test('standard columns are meta fields and a table lists its in_list_view fields
 });
 
 test('search fields come from the DocType', () => {
-  assert.deepEqual(getSearchFields('Item'), ['item_type', 'item_usage']);
+  assert.deepEqual(getSearchFields('Item'), ['item_type']);
 });
 
 test('conditions are evaluated as Frappe forms evaluate them', () => {

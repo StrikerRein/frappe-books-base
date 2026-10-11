@@ -8,9 +8,9 @@ from frappe_books.settings import FEATURES
 from frappe_books.tests.accounting import (
 	enable_features,
 	make_account,
+	make_customer,
 	make_invoice,
 	make_item,
-	make_party,
 	unique_name,
 )
 
@@ -26,7 +26,7 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 		self.income = make_account("Sales", root_type="Income")
 		self.expense = make_account("Expense", root_type="Expense")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", self.expense.name)
-		self.party = make_party(self.receivable.name)
+		self.party = make_customer(self.receivable.name)
 		self.item = make_item(self.income.name, self.expense.name)
 
 	def switch_off(self, feature):
@@ -58,7 +58,7 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 		with self.assertRaisesRegex(frappe.ValidationError, f"Invoice Returns {OFF}"):
 			credit_note.insert()
 		with self.assertRaisesRegex(frappe.ValidationError, f"Invoice Returns {OFF}"):
-			map_transfer_return("Books Shipment", "any shipment")
+			map_transfer_return("Books Delivery Note", "any shipment")
 
 	def test_coupons_need_coupon_codes(self):
 		coupon = self.coupon()
@@ -82,12 +82,12 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 			frappe.get_doc({"doctype": "Books Lead", "name": unique_name("Lead")}).insert()
 		with self.assertRaisesRegex(frappe.ValidationError, f"Lead {OFF}"):
 			make_invoice(
-				"Books Sales Quote",
+				"Books Quotation",
 				lead.name,
 				None,
 				self.item.name,
 				self.income.name,
-				reference_type="Books Lead",
+				quotation_to="Books Lead",
 			)
 
 	def test_loyalty_programs_need_the_loyalty_feature(self):
@@ -100,10 +100,10 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 		with self.assertRaisesRegex(frappe.ValidationError, f"Loyalty Program {OFF}"):
 			self.party.save()
 
-	def test_stock_movements_need_inventory(self):
+	def test_stock_entrys_need_inventory(self):
 		self.switch_off("enable_inventory")
 		movement = frappe.get_doc(
-			{"doctype": "Books Stock Movement", "movement_type": "MaterialReceipt", "date": now_datetime()}
+			{"doctype": "Books Stock Entry", "movement_type": "MaterialReceipt", "date": now_datetime()}
 		)
 		with self.assertRaisesRegex(frappe.ValidationError, f"Inventory {OFF}"):
 			movement.insert()
