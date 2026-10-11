@@ -189,7 +189,7 @@ def _default_payment_type(party_type, invoice):
 
 
 def _reference_type(invoice, payment_type):
-	"""The list a payment shows in: its invoice's, else Purchase Payments for Pay and Sales Payments for Receive."""
+	"""The list a payment shows in: its invoice's, else Purchase Payment for Pay and Sales Payment for Receive."""
 	if invoice:
 		return "PurchaseInvoice" if invoice.doctype == "Books Purchase Invoice" else "SalesInvoice"
 	if payment_type:

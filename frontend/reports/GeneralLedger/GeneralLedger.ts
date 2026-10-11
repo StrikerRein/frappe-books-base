@@ -62,10 +62,10 @@ export class GeneralLedger extends Report {
   getFilters() {
     const refTypeOptions = [
       { label: t`All`, value: 'All' },
-      { label: t`Sales Invoices`, value: 'Books Sales Invoice' },
-      { label: t`Purchase Invoices`, value: 'Books Purchase Invoice' },
-      { label: t`Payments`, value: 'Books Payment' },
-      { label: t`Journal Entries`, value: 'Books Journal Entry' },
+      { label: t`Sales Invoice`, value: 'Books Sales Invoice' },
+      { label: t`Purchase Invoice`, value: 'Books Purchase Invoice' },
+      { label: t`Payment`, value: 'Books Payment' },
+      { label: t`Journal Entry`, value: 'Books Journal Entry' },
     ];
 
     if (this.fyo.singles.AccountingSettings?.enable_inventory) {

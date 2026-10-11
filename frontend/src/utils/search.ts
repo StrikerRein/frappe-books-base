@@ -199,13 +199,13 @@ function getListViewList(fyo: Fyo): SearchItem[] {
 
   const filteredLists = [
     {
-      label: t`Sales Payments`,
-      route: `/list/Payment/${t`Sales Payments`}`,
+      label: t`Sales Payment`,
+      route: `/list/Payment/${t`Sales Payment`}`,
       filters: routeFilters.SalesPayments,
     },
     {
-      label: t`Purchase Payments`,
-      route: `/list/Payment/${t`Purchase Payments`}`,
+      label: t`Purchase Payment`,
+      route: `/list/Payment/${t`Purchase Payment`}`,
       filters: routeFilters.PurchasePayments,
     },
   ].map((i) => {

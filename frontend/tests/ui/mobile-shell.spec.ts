@@ -49,7 +49,7 @@ test('the menu opens a nav sheet that works as an accordion', async ({
   await navSheet(page).getByRole('button', { name: 'Purchases' }).click();
   await expect(sales).toHaveAttribute('aria-expanded', 'false');
 
-  await navSheet(page).getByRole('link', { name: 'Purchase Invoices' }).click();
+  await navSheet(page).getByRole('link', { name: 'Purchase Invoice' }).click();
   await expect(navSheet(page)).toBeHidden();
   await expect(page).toHaveURL(/\/books\/list\/PurchaseInvoice$/);
 });
@@ -63,7 +63,7 @@ test('desktop-only pages are left out and redirect home', async ({ page }) => {
   for (const name of [
     'Chart of Accounts',
     'Import Wizard',
-    'Print Templates',
+    'Print Template',
   ]) {
     await expect(navSheet(page).getByRole('link', { name })).toHaveCount(0);
   }

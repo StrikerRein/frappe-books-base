@@ -214,15 +214,15 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'Quotation',
         },
         {
-          label: t`Sales Invoices`,
+          label: t`Sales Invoice`,
           name: 'sales-invoices',
           route: '/list/SalesInvoice',
           schemaName: 'SalesInvoice',
         },
         {
-          label: t`Sales Payments`,
+          label: t`Sales Payment`,
           name: 'payments',
-          route: `/list/Payment/${t`Sales Payments`}`,
+          route: `/list/Payment/${t`Sales Payment`}`,
           schemaName: 'Payment',
           filters: routeFilters.SalesPayments,
         },
@@ -269,15 +269,15 @@ function getCompleteSidebar(): SidebarConfig {
       route: '/list/PurchaseInvoice',
       items: [
         {
-          label: t`Purchase Invoices`,
+          label: t`Purchase Invoice`,
           name: 'purchase-invoices',
           route: '/list/PurchaseInvoice',
           schemaName: 'PurchaseInvoice',
         },
         {
-          label: t`Purchase Payments`,
+          label: t`Purchase Payment`,
           name: 'payments',
-          route: `/list/Payment/${t`Purchase Payments`}`,
+          route: `/list/Payment/${t`Purchase Payment`}`,
           schemaName: 'Payment',
           filters: routeFilters.PurchasePayments,
         },
@@ -333,7 +333,7 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/chart-of-accounts',
         },
         {
-          label: t`Tax Templates`,
+          label: t`Tax Template`,
           name: 'taxes',
           route: '/list/Tax',
           schemaName: 'Tax',
@@ -351,9 +351,9 @@ function getCompleteSidebar(): SidebarConfig {
           hidden: () => !getImportableSchemaNames(fyo).length,
         },
         {
-          label: t`Print Templates`,
+          label: t`Print Template`,
           name: 'print-template',
-          route: `/list/PrintFormat/${t`Print Templates`}`,
+          route: `/list/PrintFormat/${t`Print Template`}`,
         },
         {
           label: t`Customize Form`,
