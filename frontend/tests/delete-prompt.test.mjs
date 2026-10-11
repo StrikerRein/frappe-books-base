@@ -75,7 +75,7 @@ test('deleting a cancelled entry says its ledger entries go too', () => {
   assert.match(message({ isCancelled: true }), /ledger entries/);
   assert.match(
     message({
-      schemaName: 'Shipment',
+      schemaName: 'DeliveryNote',
       isTransactional: false,
       isCancelled: true,
     }),

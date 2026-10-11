@@ -25,7 +25,7 @@
   {"label":"Payment Methods","link_to":"Books Payment Method","link_type":"DocType","type":"Link"},
   {"label":"Inventory","link_count":5,"type":"Card Break"},
   {"label":"Stock Movements","link_to":"Books Stock Movement","link_type":"DocType","type":"Link"},
-  {"label":"Shipments","link_to":"Books Shipment","link_type":"DocType","type":"Link"},
+  {"label":"Delivery Note","link_to":"Books Delivery Note","link_type":"DocType","type":"Link"},
   {"label":"Purchase Receipts","link_to":"Books Purchase Receipt","link_type":"DocType","type":"Link"},
   {"label":"Locations","link_to":"Books Location","link_type":"DocType","type":"Link"},
   {"label":"Batches","link_to":"Books Batch","link_type":"DocType","type":"Link"},

@@ -12,6 +12,10 @@ from frappe.utils import set_request
 from frappe_books.accounting.invoice import get_payments_to_cancel
 from frappe_books.accounting.payment import map_invoice_payment
 from frappe_books.accounting.returns import map_return
+from frappe_books.frappe_books.doctype.books_delivery_note.books_delivery_note import (
+	make_sales_invoice as make_delivery_note_invoice,
+)
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import seed_stock
 from frappe_books.frappe_books.doctype.books_pos_opening_shift.test_books_pos_opening_shift import (
 	start_pos_shift,
 )
@@ -19,10 +23,6 @@ from frappe_books.frappe_books.doctype.books_purchase_receipt.test_books_purchas
 	set_inventory_accounts,
 )
 from frappe_books.frappe_books.doctype.books_quotation.books_quotation import make_sales_invoice
-from frappe_books.frappe_books.doctype.books_shipment.books_shipment import (
-	make_sales_invoice as make_shipment_invoice,
-)
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import seed_stock
 from frappe_books.tests.accounting import (
 	ensure_user,
 	make_account,
@@ -62,7 +62,7 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		self.assertEqual(Decimal(str(payment.amount)), Decimal("150"))
 		self.assertEqual(payment.payment_references[0].reference_name, invoice.name)
 
-	def test_invoice_mapped_from_a_shipment_pays_automatically(self):
+	def test_invoice_mapped_from_a_delivery_note_pays_automatically(self):
 		received = make_account("Mapped Received", root_type="Liability")
 		set_inventory_accounts(
 			make_account("Mapped Stock", account_type="Stock").name, received.name, self.expense.name
@@ -70,12 +70,14 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		item = make_item(self.income.name, received.name, track_item=1)
 		seed_stock(item.name, quantity=1, rate=10)
 		row = {"item": item.name, "location": "Stores", "quantity": 1, "rate": 25}
-		shipment = frappe.get_doc({"doctype": "Books Shipment", "party": self.party.name, "items": [row]})
+		shipment = frappe.get_doc(
+			{"doctype": "Books Delivery Note", "party": self.party.name, "items": [row]}
+		)
 		shipment.insert().submit()
 
-		self.assertEqual(make_shipment_invoice(shipment.name).make_auto_payment, 1)
+		self.assertEqual(make_delivery_note_invoice(shipment.name).make_auto_payment, 1)
 
-	def test_invoice_mapped_from_a_shipment_shows_the_shipped_qty(self):
+	def test_invoice_mapped_from_a_delivery_note_shows_the_shipped_qty(self):
 		received = make_account("Mapped Received", root_type="Liability")
 		set_inventory_accounts(
 			make_account("Mapped Stock", account_type="Stock").name, received.name, self.expense.name
@@ -83,10 +85,12 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 		item = make_item(self.income.name, received.name, track_item=1)
 		seed_stock(item.name, quantity=2, rate=10)
 		row = {"item": item.name, "location": "Stores", "quantity": 2, "rate": 25}
-		shipment = frappe.get_doc({"doctype": "Books Shipment", "party": self.party.name, "items": [row]})
+		shipment = frappe.get_doc(
+			{"doctype": "Books Delivery Note", "party": self.party.name, "items": [row]}
+		)
 		shipment.insert().submit()
 
-		invoice_row = make_shipment_invoice(shipment.name).items[0]
+		invoice_row = make_delivery_note_invoice(shipment.name).items[0]
 
 		self.assertEqual((invoice_row.qty, invoice_row.amount), (2, 50))
 
@@ -418,12 +422,12 @@ class IntegrationTestDocumentActions(IntegrationTestCase):
 
 	def test_new_invoices_follow_up_as_the_defaults_allow(self):
 		frappe.db.set_single_value("Books Accounting Settings", "enable_inventory", 1)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 		invoice = insert(self._invoice_values())
 		self.assertEqual((invoice.make_auto_payment, invoice.make_auto_stock_transfer), (1, 1))
 
 		frappe.db.set_single_value(
-			"Books Defaults", {"sales_payment_account": None, "shipment_location": None}
+			"Books Defaults", {"sales_payment_account": None, "delivery_note_location": None}
 		)
 		invoice = insert(self._invoice_values())
 		self.assertEqual((invoice.make_auto_payment, invoice.make_auto_stock_transfer), (0, 0))

@@ -135,7 +135,7 @@ class IntegrationTestPrinting(IntegrationTestCase):
 				"Business - Sales Invoice": "Books Sales Invoice",
 				"Business - Purchase Invoice": "Books Purchase Invoice",
 				"Business - Payment": "Books Payment",
-				"Business - Shipment": "Books Shipment",
+				"Business - Delivery Note": "Books Delivery Note",
 				"Business-POS - Sales Invoice": "Books Sales Invoice",
 			},
 		)

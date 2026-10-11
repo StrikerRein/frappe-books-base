@@ -137,8 +137,8 @@ test('number series links filter and create by reference_type', async () => {
     series('StockMovement')
   );
   assert.deepEqual(
-    Defaults.createFilters.shipment_number_series(),
-    series('Shipment')
+    Defaults.createFilters.delivery_note_number_series(),
+    series('DeliveryNote')
   );
 });
 

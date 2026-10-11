@@ -23,7 +23,7 @@ _Avoid_: balance, outstanding (for the unsigned amount)
 ## Inventory
 
 **Stock transfer**:
-A Shipment or Purchase Receipt: the document that moves an invoice's stock out of or into a location.
+A Delivery Note or Purchase Receipt: the document that moves an invoice's stock out of or into a location.
 _Avoid_: delivery note, goods receipt
 
 **Automatic transfer**:

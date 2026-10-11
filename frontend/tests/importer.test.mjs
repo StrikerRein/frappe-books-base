@@ -84,7 +84,7 @@ test('an invoice template keeps Books’ column order, without the quantity the 
     'Price List',
     'Apply Discount After Tax',
     'Make Payment On Submit',
-    'Make Shipment On Submit',
+    'Make Delivery Note On Submit',
     'Notes',
     'Back Reference',
     'Return Against',

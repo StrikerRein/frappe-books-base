@@ -309,7 +309,7 @@ const linkSequence = [
   ModelNameEnum.SalesInvoice,
   ModelNameEnum.PurchaseInvoice,
   // Stock Transfers
-  ModelNameEnum.Shipment,
+  ModelNameEnum.DeliveryNote,
   ModelNameEnum.PurchaseReceipt,
   // Other Transactional
   ModelNameEnum.Payment,
@@ -344,7 +344,7 @@ const linkEntryDisplayFields: Record<string, string[]> = {
     'stock_not_transferred',
   ],
   // Stock Transfers
-  [ModelNameEnum.Shipment]: ['name', 'date', 'party', 'grand_total'],
+  [ModelNameEnum.DeliveryNote]: ['name', 'date', 'party', 'grand_total'],
   [ModelNameEnum.PurchaseReceipt]: ['name', 'date', 'party', 'grand_total'],
   // Other Transactional
   [ModelNameEnum.Payment]: ['name', 'date', 'party', 'amount'],

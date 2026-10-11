@@ -143,19 +143,19 @@ export abstract class Invoice extends FrappeDoc {
 
   get autoStockTransferLocation(): string | undefined {
     const fieldname = this.isSales
-      ? 'shipment_location'
+      ? 'delivery_note_location'
       : 'purchase_receipt_location';
     return (this.fyo.singles.Defaults?.[fieldname] as string) || undefined;
   }
 
   get stockTransferSchemaName(): string {
     return this.isSales
-      ? ModelNameEnum.Shipment
+      ? ModelNameEnum.DeliveryNote
       : ModelNameEnum.PurchaseReceipt;
   }
 
   get stockTransferMapper(): string {
-    return this.isSales ? 'make_shipment' : 'make_purchase_receipt';
+    return this.isSales ? 'make_delivery_note' : 'make_purchase_receipt';
   }
 
   // Fields of features turned off in the settings. The DocType's depends_on hides the rest.

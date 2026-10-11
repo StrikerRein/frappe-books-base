@@ -6,6 +6,9 @@ from decimal import Decimal
 import frappe
 from frappe.tests import IntegrationTestCase
 
+from frappe_books.frappe_books.doctype.books_delivery_note.books_delivery_note import (
+	make_sales_invoice as make_delivery_note_invoice,
+)
 from frappe_books.frappe_books.doctype.books_pos_opening_shift.test_books_pos_opening_shift import (
 	start_pos_shift,
 )
@@ -15,12 +18,9 @@ from frappe_books.frappe_books.doctype.books_purchase_invoice.books_purchase_inv
 from frappe_books.frappe_books.doctype.books_purchase_invoice.books_purchase_invoice import (
 	make_return as make_purchase_return,
 )
+from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice import make_delivery_note
 from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice import (
 	make_return as make_sales_return,
-)
-from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice import make_shipment
-from frappe_books.frappe_books.doctype.books_shipment.books_shipment import (
-	make_sales_invoice as make_shipment_invoice,
 )
 from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
 	make_movement,
@@ -40,13 +40,13 @@ from frappe_books.tests.accounting import (
 
 
 class IntegrationTestAutoTransfer(IntegrationTestCase):
-	def test_pos_shipment_uses_pos_inventory(self):
+	def test_pos_delivery_note_uses_pos_inventory(self):
 		self._check_pos_inventory(use_profile=False)
 
-	def test_pos_shipment_uses_profile_inventory(self):
+	def test_pos_delivery_note_uses_profile_inventory(self):
 		self._check_pos_inventory(use_profile=True)
 
-	def test_pos_shipment_still_rejects_insufficient_inventory(self):
+	def test_pos_delivery_note_still_rejects_insufficient_inventory(self):
 		invoice, item, location = self._make_pos_invoice(use_profile=True, opening_quantity=1)
 		with self.assertRaisesRegex(
 			frappe.ValidationError, f"in {location.name}. Available: 1; required: 2."
@@ -68,7 +68,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 	def test_pos_sale_without_a_location_asks_for_the_pos_inventory(self):
 		invoice, _item, _location = self._make_pos_invoice(use_profile=False)
 		frappe.db.set_single_value("Books Pos Settings", "inventory", None)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", None)
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", None)
 
 		self.assertRaisesRegex(
 			frappe.ValidationError, "POS Inventory is not set. Please set it on POS Settings", invoice.submit
@@ -99,33 +99,33 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 			frappe.ValidationError, f"{serial_numbers[0]} is not available", invoice.submit
 		)
 
-	def test_sales_invoice_creates_and_cancels_shipment(self):
+	def test_sales_invoice_creates_and_cancels_delivery_note(self):
 		invoice, item = self._sales_invoice(make_auto_stock_transfer=1)
 		invoice.submit()
 
-		shipment = frappe.get_doc("Books Shipment", invoice.reload().back_reference)
+		shipment = frappe.get_doc("Books Delivery Note", invoice.reload().back_reference)
 		self.assertEqual(shipment.docstatus, 1)
 		self.assertEqual(shipment.back_reference, invoice.name)
 		self.assertEqual(stock_quantity(item, "Stores"), 3)
 		self.assertEqual([invoice.stock_not_transferred, invoice.items[0].stock_not_transferred], [0, 0])
 
 		invoice.cancel()
-		self.assertEqual(frappe.db.get_value("Books Shipment", shipment.name, "docstatus"), 2)
+		self.assertEqual(frappe.db.get_value("Books Delivery Note", shipment.name, "docstatus"), 2)
 		self.assertEqual(stock_quantity(item, "Stores"), 5)
 
-	def test_invoice_cancel_takes_back_what_it_shipped_beside_the_shipment_it_bills(self):
+	def test_invoice_cancel_takes_back_what_it_shipped_beside_the_delivery_note_it_bills(self):
 		_draft, billed_item = self._sales_invoice()
 		invoice, item = self._sales_invoice()
 		shipment = frappe.get_doc(
 			{
-				"doctype": "Books Shipment",
+				"doctype": "Books Delivery Note",
 				"party": invoice.party,
 				"date": invoice.date,
 				"items": [{"item": billed_item, "location": "Stores", "quantity": 2, "rate": 10}],
 			}
 		).insert()
 		shipment.submit()
-		billing = make_shipment_invoice(shipment.name)
+		billing = make_delivery_note_invoice(shipment.name)
 		billing.append("items", {"item": item, "quantity": 1, "rate": 10})
 		billing.update({"make_auto_stock_transfer": 1, "make_auto_payment": 0})
 		billing.insert().submit()
@@ -134,13 +134,13 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		billing.cancel()
 
 		self.assertEqual(stock_quantity(item, "Stores"), 5)
-		self.assertEqual(frappe.db.get_value("Books Shipment", shipment.name, "docstatus"), 1)
+		self.assertEqual(frappe.db.get_value("Books Delivery Note", shipment.name, "docstatus"), 1)
 
-	def test_a_duplicate_shipment_is_not_linked_to_the_invoice(self):
+	def test_a_duplicate_delivery_note_is_not_linked_to_the_invoice(self):
 		invoice, _item = self._sales_invoice(make_auto_stock_transfer=1)
 		invoice.submit()
 
-		shipment = frappe.get_doc("Books Shipment", invoice.reload().back_reference)
+		shipment = frappe.get_doc("Books Delivery Note", invoice.reload().back_reference)
 		# /books copies a document without the fields its DocType marks no_copy.
 		duplicate = frappe.copy_doc(shipment, ignore_no_copy=False)
 
@@ -181,11 +181,11 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		self.assertRaisesRegex(frappe.ValidationError, "no stock transfer to return", return_invoice.submit)
 		self.assertEqual(stock_quantity(item, "Stores"), 5)
 
-	def test_invoice_cancel_keeps_a_shipment_that_has_a_return(self):
+	def test_invoice_cancel_keeps_a_delivery_note_that_has_a_return(self):
 		invoice, _item = self._sales_invoice(make_auto_stock_transfer=1)
 		invoice.submit()
-		shipment = frappe.get_doc("Books Shipment", invoice.reload().back_reference)
-		return_shipment = frappe.get_doc(
+		shipment = frappe.get_doc("Books Delivery Note", invoice.reload().back_reference)
+		return_delivery_note = frappe.get_doc(
 			{
 				"doctype": shipment.doctype,
 				"party": shipment.party,
@@ -194,24 +194,24 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 				"items": [{**shipment.items[0].as_dict(no_default_fields=True), "quantity": -1}],
 			}
 		)
-		return_shipment.insert().submit()
+		return_delivery_note.insert().submit()
 
 		self.assertRaises(frappe.LinkExistsError, invoice.cancel)
 
 	def test_auto_transfer_requires_a_default_location(self):
 		invoice, _item = self._sales_invoice(make_auto_stock_transfer=1)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", None)
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", None)
 
-		self.assertRaisesRegex(frappe.ValidationError, "Set Shipment Location", invoice.submit)
+		self.assertRaisesRegex(frappe.ValidationError, "Set Delivery Note Location", invoice.submit)
 
-	def test_shipment_maps_only_what_the_invoice_has_not_shipped(self):
+	def test_delivery_note_maps_only_what_the_invoice_has_not_shipped(self):
 		invoice, item = self._sales_invoice(currency=foreign_currency(), exchange_rate=2)
 		invoice.submit()
-		first = make_shipment(invoice.name)
+		first = make_delivery_note(invoice.name)
 		first.items[0].update({"quantity": 1, "transfer_quantity": 1})
 		first.insert().submit()
 
-		shipment = make_shipment(invoice.name)
+		shipment = make_delivery_note(invoice.name)
 
 		self.assertEqual((shipment.back_reference, shipment.return_against), (invoice.name, None))
 		self.assertEqual(
@@ -219,15 +219,15 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 			[(item, 1, 200, "Stores")],
 		)
 		shipment.insert().submit()
-		self.assertRaisesRegex(frappe.ValidationError, "no stock left", make_shipment, invoice.name)
+		self.assertRaisesRegex(frappe.ValidationError, "no stock left", make_delivery_note, invoice.name)
 
-	def test_shipment_uses_the_defaults_series(self):
-		series = make_number_series("Shipment")
-		frappe.db.set_single_value("Books Defaults", "shipment_number_series", series)
+	def test_delivery_note_uses_the_defaults_series(self):
+		series = make_number_series("DeliveryNote")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_number_series", series)
 		invoice, _item = self._sales_invoice()
 		invoice.submit()
 
-		shipment = make_shipment(invoice.name)
+		shipment = make_delivery_note(invoice.name)
 
 		self.assertIsNone(shipment.number_series)
 		self.assertTrue(shipment.insert().name.startswith(series), shipment.name)
@@ -244,15 +244,15 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		self.assertEqual(receipt.return_against, invoice.reload().back_reference)
 		self.assertEqual([row.quantity for row in receipt.items], [-2])
 
-	def test_return_shipment_reverses_the_shipment_made_by_hand(self):
+	def test_return_delivery_note_reverses_the_delivery_note_made_by_hand(self):
 		invoice, _item = self._sales_invoice()
 		invoice.submit()
-		shipment = make_shipment(invoice.name).insert()
+		shipment = make_delivery_note(invoice.name).insert()
 		shipment.submit()
 		credit_note = make_sales_return(invoice.name)
 		credit_note.insert().submit()
 
-		self.assertEqual(make_shipment(credit_note.name).return_against, shipment.name)
+		self.assertEqual(make_delivery_note(credit_note.name).return_against, shipment.name)
 
 	def _purchase_invoice(self, **values):
 		# Inventory is on in tests, so a test asks for the automatic transfer it wants.
@@ -285,7 +285,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		received = make_account("Auto Received", root_type="Liability")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", cogs.name)
 		set_inventory_accounts(stock.name, received.name, cogs.name)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 		item = make_item(income.name, received.name, track_item=1, rate=10)
 		make_movement(
 			"MaterialReceipt",
@@ -355,7 +355,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 	def _check_pos_inventory(self, use_profile):
 		invoice, item, location = self._make_pos_invoice(use_profile)
 		invoice.submit()
-		shipment = frappe.get_doc("Books Shipment", invoice.reload().back_reference)
+		shipment = frappe.get_doc("Books Delivery Note", invoice.reload().back_reference)
 		self.assertEqual(shipment.docstatus, 1)
 		self.assertEqual(shipment.items[0].location, location.name)
 		self.assertEqual(stock_quantity(item.name, location.name), 3)
@@ -372,7 +372,7 @@ class IntegrationTestAutoTransfer(IntegrationTestCase):
 		received = make_account("POS Received", root_type="Liability")
 		frappe.db.set_single_value("Books Accounting Settings", "discount_account", cogs.name)
 		set_inventory_accounts(stock.name, received.name, cogs.name)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 		location = frappe.get_doc({"doctype": "Books Location", "name": unique_name("POS Shelf")}).insert()
 		profile = None
 		if use_profile:

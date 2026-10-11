@@ -195,7 +195,7 @@ function makeStockLedger() {
       quantity,
       balance_quantity: balance,
       reference_name: name,
-      reference_type: 'Shipment',
+      reference_type: 'DeliveryNote',
     }))
   );
 }

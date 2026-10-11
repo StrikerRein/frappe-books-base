@@ -227,41 +227,42 @@ class IntegrationTestPermissions(IntegrationTestCase):
 			self.assertIsNone(read_doc("Books Party", party.name).get("email"))
 
 	def test_counts_skip_documents_the_user_cannot_read(self):
-		readable, hidden = _seed_shipment(), _seed_shipment()
-		add_user_permission("Books Shipment", readable, BOOKS_USER)
+		readable, hidden = _seed_delivery_note(), _seed_delivery_note()
+		add_user_permission("Books Delivery Note", readable, BOOKS_USER)
 		filters = [["name", "in", [readable, hidden]]]
 		with self.set_user(BOOKS_USER), patch.dict(frappe.form_dict, {"filters": filters}):
-			self.assertEqual(count("Books Shipment"), 1)
+			self.assertEqual(count("Books Delivery Note"), 1)
 
 	def test_search_skips_documents_the_user_cannot_read(self):
-		readable, hidden = _seed_shipment(), _seed_shipment()
-		add_user_permission("Books Shipment", readable, BOOKS_USER)
+		readable, hidden = _seed_delivery_note(), _seed_delivery_note()
+		add_user_permission("Books Delivery Note", readable, BOOKS_USER)
 		build_search_index()
-		BooksSearch().index_documents_by_name("Books Shipment", [readable, hidden])
+		BooksSearch().index_documents_by_name("Books Delivery Note", [readable, hidden])
 		with self.set_user(BOOKS_USER):
-			self.assertEqual(_search_shipments(hidden), [])
-			self.assertEqual(_search_shipments(readable), [readable])
+			self.assertEqual(_search_delivery_notes(hidden), [])
+			self.assertEqual(_search_delivery_notes(readable), [readable])
 
 	def test_link_search_skips_documents_the_user_cannot_read(self):
-		readable, hidden = _seed_shipment(), _seed_shipment()
-		add_user_permission("Books Shipment", readable, BOOKS_USER)
+		readable, hidden = _seed_delivery_note(), _seed_delivery_note()
+		add_user_permission("Books Delivery Note", readable, BOOKS_USER)
 		with self.set_user(BOOKS_USER):
-			found = [row["value"] for row in search_link("Books Shipment", "", page_length=50)]
+			found = [row["value"] for row in search_link("Books Delivery Note", "", page_length=50)]
 		self.assertIn(readable, found)
 		self.assertNotIn(hidden, found)
 
 	def test_linked_entries_need_the_document_and_hide_unreadable_links(self):
-		original = _seed_shipment()
-		readable_return = _seed_shipment(return_against=original)
-		_seed_shipment(return_against=original)
+		original = _seed_delivery_note()
+		readable_return = _seed_delivery_note(return_against=original)
+		_seed_delivery_note(return_against=original)
 		for name in (original, readable_return):
-			add_user_permission("Books Shipment", name, BOOKS_USER)
-		hidden = _seed_shipment()
+			add_user_permission("Books Delivery Note", name, BOOKS_USER)
+		hidden = _seed_delivery_note()
 		with self.set_user(BOOKS_USER):
 			self.assertEqual(
-				get_linked_entries("Books Shipment", original), {"Books Shipment": [readable_return]}
+				get_linked_entries("Books Delivery Note", original),
+				{"Books Delivery Note": [readable_return]},
 			)
-			self.assertRaises(frappe.PermissionError, get_linked_entries, "Books Shipment", hidden)
+			self.assertRaises(frappe.PermissionError, get_linked_entries, "Books Delivery Note", hidden)
 
 	def _make_invoice_as(self, user, discount=0):
 		receivable = make_account("Permission Receivable", account_type="Receivable")
@@ -300,14 +301,14 @@ def _new_data_import():
 	)
 
 
-def _search_shipments(name):
-	return [row["name"] for row in search(name, ["Books Shipment"])]
+def _search_delivery_notes(name):
+	return [row["name"] for row in search(name, ["Books Delivery Note"])]
 
 
-def _seed_shipment(return_against=None):
+def _seed_delivery_note(return_against=None):
 	doc = frappe.get_doc(
 		{
-			"doctype": "Books Shipment",
+			"doctype": "Books Delivery Note",
 			"name": frappe.generate_hash(),
 			"docstatus": 1,
 			"return_against": return_against,

@@ -52,9 +52,9 @@ test('filter chips show transactions first, by schema label', () => {
   const labels = search.schemaFilterOptions.map(({ label }) => label);
 
   assert.deepEqual(labels.slice(0, 3), [
+    'Delivery Note',
     'Journal Entry',
     'Payment',
-    'Purchase Invoice',
   ]);
   assert.deepEqual(labels.slice(-2), ['Serial Number', 'Tax Template']);
   assert.equal(labels.length, 18);

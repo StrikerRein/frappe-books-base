@@ -8,7 +8,7 @@ from frappe_books.inventory.returns import map_transfer_return
 from frappe_books.inventory.transaction import StockTransferController
 
 
-class BooksShipment(StockTransferController):
+class BooksDeliveryNote(StockTransferController):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -17,8 +17,8 @@ class BooksShipment(StockTransferController):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		from frappe_books.frappe_books.doctype.books_shipment_item.books_shipment_item import (
-			BooksShipmentItem,
+		from frappe_books.frappe_books.doctype.books_delivery_note_item.books_delivery_note_item import (
+			BooksDeliveryNoteItem,
 		)
 
 		amended_from: DF.Link | None
@@ -28,7 +28,7 @@ class BooksShipment(StockTransferController):
 		grand_total: DF.Currency
 		is_fully_billed: DF.Check
 		is_returned: DF.Check
-		items: DF.Table[BooksShipmentItem]
+		items: DF.Table[BooksDeliveryNoteItem]
 		number_series: DF.Link
 		party: DF.Link
 		return_against: DF.Link | None
@@ -41,9 +41,9 @@ class BooksShipment(StockTransferController):
 
 @frappe.whitelist()
 def make_sales_invoice(source_name: str):
-	return map_transfer_invoice("Books Shipment", source_name)
+	return map_transfer_invoice("Books Delivery Note", source_name)
 
 
 @frappe.whitelist()
 def make_return(source_name: str):
-	return map_transfer_return("Books Shipment", source_name)
+	return map_transfer_return("Books Delivery Note", source_name)

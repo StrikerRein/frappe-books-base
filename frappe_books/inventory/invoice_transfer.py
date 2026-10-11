@@ -91,7 +91,7 @@ def update_invoice_balance(transfer):
 
 
 def map_invoice_transfer(invoice_doctype, invoice_name):
-	"""Return an unsaved Shipment or Purchase Receipt of what a submitted invoice has not transferred."""
+	"""Return an unsaved Delivery Note or Purchase Receipt of what a submitted invoice has not transferred."""
 	return get_mapped_doc(
 		invoice_doctype,
 		invoice_name,
@@ -358,7 +358,7 @@ def _is_pos_sale(invoice) -> bool:
 
 def _location_field(invoice) -> str:
 	# A quote ships like the sales invoice made from it.
-	return "purchase_receipt_location" if invoice.transaction_type == "purchase" else "shipment_location"
+	return "purchase_receipt_location" if invoice.transaction_type == "purchase" else "delivery_note_location"
 
 
 def _pos_location() -> str | None:

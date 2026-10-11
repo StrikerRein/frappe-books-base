@@ -35,7 +35,7 @@ async function getSaved(schemaName, name) {
 }
 
 test('a fully billed shipment does not offer an invoice', () => {
-  const [makeInvoice] = getStockTransferActions(fyo, 'Shipment');
+  const [makeInvoice] = getStockTransferActions(fyo, 'DeliveryNote');
   const shipment = { isSubmitted: true, is_fully_billed: 0 };
 
   assert.equal(makeInvoice.condition(shipment), true);
@@ -59,16 +59,16 @@ const mappedDocActions = {
   ],
   Quotation: [['Sales Invoice', 'make_sales_invoice', 'SalesInvoice']],
   SalesInvoice: [
-    ['Shipment', 'make_shipment', 'Shipment'],
+    ['Delivery Note', 'make_delivery_note', 'DeliveryNote'],
     ['Return', 'make_return', 'SalesInvoice'],
   ],
   PurchaseInvoice: [
     ['Purchase Receipt', 'make_purchase_receipt', 'PurchaseReceipt'],
     ['Return', 'make_return', 'PurchaseInvoice'],
   ],
-  Shipment: [
+  DeliveryNote: [
     ['Sales Invoice', 'make_sales_invoice', 'SalesInvoice'],
-    ['Return', 'make_return', 'Shipment'],
+    ['Return', 'make_return', 'DeliveryNote'],
   ],
   PurchaseReceipt: [
     ['Purchase Invoice', 'make_purchase_invoice', 'PurchaseInvoice'],

@@ -10,7 +10,7 @@ class IntegrationTestStockLocation(IntegrationTestCase):
 		self.shelf = make_location("POS Shelf")
 		self.counter = make_location("Counter")
 		frappe.db.set_single_value(
-			"Books Defaults", {"shipment_location": "Stores", "purchase_receipt_location": self.counter}
+			"Books Defaults", {"delivery_note_location": "Stores", "purchase_receipt_location": self.counter}
 		)
 		frappe.db.set_single_value("Books Pos Settings", {"pos_profile": "", "inventory": self.shelf})
 

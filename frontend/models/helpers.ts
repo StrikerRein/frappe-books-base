@@ -87,7 +87,7 @@ export function getInvoiceActions(
 
 export function getStockTransferActions(
   fyo: Fyo,
-  schemaName: ModelNameEnum.Shipment | ModelNameEnum.PurchaseReceipt
+  schemaName: ModelNameEnum.DeliveryNote | ModelNameEnum.PurchaseReceipt
 ): Action[] {
   return [
     getMakeInvoiceAction(fyo, schemaName),
@@ -101,7 +101,7 @@ export function getMakeStockTransferAction(
   fyo: Fyo,
   schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
 ): Action {
-  let label = fyo.t`Shipment`;
+  let label = fyo.t`Delivery Note`;
   if (schemaName === ModelNameEnum.PurchaseInvoice) {
     label = fyo.t`Purchase Receipt`;
   }
@@ -120,7 +120,7 @@ export function getMakeStockTransferAction(
 export function getMakeInvoiceAction(
   fyo: Fyo,
   schemaName:
-    | ModelNameEnum.Shipment
+    | ModelNameEnum.DeliveryNote
     | ModelNameEnum.PurchaseReceipt
     | ModelNameEnum.Quotation
 ): Action {
@@ -137,7 +137,7 @@ export function getMakeInvoiceAction(
         return doc.isSubmitted && doc.reference_type === 'Books Party';
       }
 
-      // Shipments and receipts are Frappe-backed.
+      // Delivery notes and receipts are Frappe-backed.
       return (
         doc.isSubmitted &&
         !doc.back_reference &&

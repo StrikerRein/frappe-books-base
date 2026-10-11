@@ -26,7 +26,7 @@ DEFAULT_TERMS = {
 	"Books Quotation": "sales_invoice_terms",
 	"Books Sales Invoice": "sales_invoice_terms",
 	"Books Purchase Invoice": "purchase_invoice_terms",
-	"Books Shipment": "shipment_terms",
+	"Books Delivery Note": "delivery_note_terms",
 	"Books Purchase Receipt": "purchase_receipt_terms",
 }
 

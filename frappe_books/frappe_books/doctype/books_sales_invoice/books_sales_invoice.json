@@ -252,7 +252,7 @@
    "fieldtype": "Link",
    "label": "Back Reference",
    "no_copy": 1,
-   "options": "Books Shipment"
+   "options": "Books Delivery Note"
   },
   {
    "depends_on": "eval:!doc.docstatus || doc.return_against",
@@ -394,7 +394,7 @@
    "depends_on": "eval:!doc.docstatus",
    "fieldname": "make_auto_stock_transfer",
    "fieldtype": "Check",
-   "label": "Make Shipment On Submit"
+   "label": "Make Delivery Note On Submit"
   }
  ],
  "grid_page_length": 50,

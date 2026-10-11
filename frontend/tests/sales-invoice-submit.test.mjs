@@ -23,7 +23,7 @@ toast.success = () => {};
  * Submits a saved draft of Pen, short by one where it ships from, answering
  * Yes to every dialog. Returns the dialog titles and the document submitted.
  */
-async function submitShortInvoice(makeShipment) {
+async function submitShortInvoice(makeDeliveryNote) {
   const titles = [];
   dialog.confirm = ({ title, actions }) => {
     titles.push(title);
@@ -40,7 +40,7 @@ async function submitShortInvoice(makeShipment) {
   const invoice = newFrappeDoc('SalesInvoice', {
     name: 'SINV-1001',
     date: new Date('2026-01-01T00:00:00Z'),
-    make_auto_stock_transfer: makeShipment,
+    make_auto_stock_transfer: makeDeliveryNote,
     items: [{ item: 'Pen', quantity: 2 }],
   });
   await loadSaved(invoice, { docstatus: 0 });

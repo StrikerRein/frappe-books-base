@@ -131,7 +131,7 @@
  "modified": "2026-10-03 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Books",
- "name": "Books Shipment Item",
+ "name": "Books Delivery Note Item",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

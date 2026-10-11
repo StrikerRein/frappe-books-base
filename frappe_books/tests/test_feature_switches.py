@@ -58,7 +58,7 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 		with self.assertRaisesRegex(frappe.ValidationError, f"Invoice Returns {OFF}"):
 			credit_note.insert()
 		with self.assertRaisesRegex(frappe.ValidationError, f"Invoice Returns {OFF}"):
-			map_transfer_return("Books Shipment", "any shipment")
+			map_transfer_return("Books Delivery Note", "any shipment")
 
 	def test_coupons_need_coupon_codes(self):
 		coupon = self.coupon()

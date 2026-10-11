@@ -2,7 +2,10 @@ import frappe
 from frappe.tests import IntegrationTestCase
 
 from frappe_books.accounting.returns import map_return
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import make_batch, seed_stock
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	make_batch,
+	seed_stock,
+)
 from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party
 
 
@@ -16,7 +19,7 @@ class IntegrationTestInvoiceReturns(IntegrationTestCase):
 	def test_a_credit_note_returns_only_the_batches_the_invoice_sold(self):
 		item = make_item(self.income.name, self.received, track_item=1, has_batch=1).name
 		sold, unsold = make_batch(item), make_batch(item)
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 		seed_stock(item, quantity=2, rate=10, batch=sold)
 		invoice = self._submitted_invoice(item, batch=sold)
 

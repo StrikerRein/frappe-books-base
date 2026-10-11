@@ -18,7 +18,7 @@ const PRINT_TEMPLATE_FIELDS = [
   'purchase_invoice_print_template',
   'journal_entry_print_template',
   'payment_print_template',
-  'shipment_print_template',
+  'delivery_note_print_template',
   'purchase_receipt_print_template',
   'stock_movement_print_template',
   'pos_print_template',
@@ -46,11 +46,11 @@ export class Defaults extends FrappeDoc {
 
   declare sales_payment_account?: string;
   declare purchase_payment_account?: string;
-  declare shipment_location?: string;
+  declare delivery_note_location?: string;
   declare purchase_receipt_location?: string;
   declare sales_invoice_terms?: string;
   declare purchase_invoice_terms?: string;
-  declare shipment_terms?: string;
+  declare delivery_note_terms?: string;
   declare purchase_receipt_terms?: string;
   declare pos_print_template?: string;
   declare pos_customer?: string;
@@ -76,8 +76,8 @@ export class Defaults extends FrappeDoc {
     stock_movement_number_series: () => [
       ['reference_type', '=', ModelNameEnum.StockMovement],
     ],
-    shipment_number_series: () => [
-      ['reference_type', '=', ModelNameEnum.Shipment],
+    delivery_note_number_series: () => [
+      ['reference_type', '=', ModelNameEnum.DeliveryNote],
     ],
     purchase_receipt_number_series: () => [
       ['reference_type', '=', ModelNameEnum.PurchaseReceipt],
@@ -97,14 +97,14 @@ export class Defaults extends FrappeDoc {
   }
 
   hidden: HiddenMap = {
-    shipment_location: this.getInventoryHidden(),
+    delivery_note_location: this.getInventoryHidden(),
     purchase_receipt_location: this.getInventoryHidden(),
     stock_movement_number_series: this.getInventoryHidden(),
-    shipment_number_series: this.getInventoryHidden(),
+    delivery_note_number_series: this.getInventoryHidden(),
     purchase_receipt_number_series: this.getInventoryHidden(),
-    shipment_terms: this.getInventoryHidden(),
+    delivery_note_terms: this.getInventoryHidden(),
     purchase_receipt_terms: this.getInventoryHidden(),
-    shipment_print_template: this.getInventoryHidden(),
+    delivery_note_print_template: this.getInventoryHidden(),
     purchase_receipt_print_template: this.getInventoryHidden(),
     stock_movement_print_template: this.getInventoryHidden(),
     pos_print_template: this.getPointOfSaleHidden(),

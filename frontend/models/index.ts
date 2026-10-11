@@ -33,7 +33,7 @@ import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
 import { PurchaseReceipt } from './inventory/PurchaseReceipt';
 import { SerialNumber } from './inventory/SerialNumber';
-import { Shipment } from './inventory/Shipment';
+import { DeliveryNote } from './inventory/DeliveryNote';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { POSSettings } from './inventory/Point of Sale/POSSettings';
@@ -90,7 +90,7 @@ export const frappeModels: Record<string, FrappeModel> = {
   SalesInvoice: invoices.SalesInvoice,
   PurchaseInvoice: invoices.PurchaseInvoice,
   Quotation: invoices.Quotation,
-  Shipment,
+  DeliveryNote,
   PurchaseReceipt,
   SystemSettings,
 };

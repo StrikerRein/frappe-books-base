@@ -1,7 +1,10 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import make_batch, seed_stock
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	make_batch,
+	seed_stock,
+)
 from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
 	make_movement,
 )

@@ -45,7 +45,7 @@ const cases = [
   ],
   ['JournalEntry', 'Status', 'status', ['Saved', 'Submitted', 'Cancelled']],
   [
-    'Shipment',
+    'DeliveryNote',
     'Status',
     'status',
     ['Saved', 'Submitted', 'Return', 'Return Issued', 'Cancelled'],

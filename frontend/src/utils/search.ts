@@ -73,7 +73,7 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.JournalEntry,
     ...(hasInventory
       ? [
-          ModelNameEnum.Shipment,
+          ModelNameEnum.DeliveryNote,
           ModelNameEnum.PurchaseReceipt,
           ModelNameEnum.StockMovement,
         ]
@@ -180,7 +180,7 @@ function getSwitchedOffSchemaNames(fyo: Fyo): string[] {
       accounting?.enable_inventory,
       [
         ModelNameEnum.StockMovement,
-        ModelNameEnum.Shipment,
+        ModelNameEnum.DeliveryNote,
         ModelNameEnum.PurchaseReceipt,
         ModelNameEnum.Location,
         ModelNameEnum.StockLedgerEntry,

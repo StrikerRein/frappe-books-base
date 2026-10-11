@@ -204,7 +204,7 @@ test('general ledger offers stock reference doctypes only with inventory', async
   ]);
   fyo.singles.AccountingSettings.enable_inventory = true;
   assert.deepEqual(referenceTypes().slice(-3), [
-    'Books Shipment',
+    'Books Delivery Note',
     'Books Purchase Receipt',
     'Books Stock Movement',
   ]);

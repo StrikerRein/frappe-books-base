@@ -8,7 +8,7 @@ from frappe_books.tests.accounting import make_account, make_invoice, make_item,
 STATUS_DOCTYPES = (
 	"Books Sales Invoice",
 	"Books Purchase Invoice",
-	"Books Shipment",
+	"Books Delivery Note",
 	"Books Purchase Receipt",
 	"Books Quotation",
 	"Books Journal Entry",

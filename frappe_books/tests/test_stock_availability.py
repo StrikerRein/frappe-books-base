@@ -2,7 +2,10 @@ import frappe
 from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, now_datetime
 
-from frappe_books.frappe_books.doctype.books_shipment.test_books_shipment import make_batch, seed_stock
+from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_note import (
+	make_batch,
+	seed_stock,
+)
 from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
 	movement_values,
 )
@@ -17,7 +20,7 @@ class IntegrationTestStockAvailability(IntegrationTestCase):
 		self.income = make_account("Income", root_type="Income").name
 		received = make_account("Received", root_type="Liability")
 		self.make_item = lambda **values: make_item(self.income, received.name, **values).name
-		frappe.db.set_single_value("Books Defaults", "shipment_location", "Stores")
+		frappe.db.set_single_value("Books Defaults", "delivery_note_location", "Stores")
 
 	def test_sales_lack_what_tracked_items_and_batches_miss_where_they_ship_from(self):
 		pen, ink = self.make_item(track_item=1), self.make_item(track_item=1, has_batch=1)

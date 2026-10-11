@@ -19,7 +19,7 @@ PRINT_FORMAT_FIELDS = {
 	"purchase_invoice_print_template": "Books Purchase Invoice",
 	"journal_entry_print_template": "Books Journal Entry",
 	"payment_print_template": "Books Payment",
-	"shipment_print_template": "Books Shipment",
+	"delivery_note_print_template": "Books Delivery Note",
 	"purchase_receipt_print_template": "Books Purchase Receipt",
 	"stock_movement_print_template": "Books Stock Movement",
 }
@@ -68,10 +68,10 @@ class BooksDefaults(Document):
 		quotation_number_series: DF.Link | None
 		quotation_print_template: DF.Link | None
 		save_button_colour: DF.Color | None
-		shipment_location: DF.Link | None
-		shipment_number_series: DF.Link | None
-		shipment_print_template: DF.Link | None
-		shipment_terms: DF.Text | None
+		delivery_note_location: DF.Link | None
+		delivery_note_number_series: DF.Link | None
+		delivery_note_print_template: DF.Link | None
+		delivery_note_terms: DF.Text | None
 		stock_movement_number_series: DF.Link | None
 		stock_movement_print_template: DF.Link | None
 	# end: auto-generated types
@@ -83,7 +83,7 @@ class BooksDefaults(Document):
 	purchase_invoice_print_template = print_format_field("purchase_invoice_print_template")
 	journal_entry_print_template = print_format_field("journal_entry_print_template")
 	payment_print_template = print_format_field("payment_print_template")
-	shipment_print_template = print_format_field("shipment_print_template")
+	delivery_note_print_template = print_format_field("delivery_note_print_template")
 	purchase_receipt_print_template = print_format_field("purchase_receipt_print_template")
 	stock_movement_print_template = print_format_field("stock_movement_print_template")
 

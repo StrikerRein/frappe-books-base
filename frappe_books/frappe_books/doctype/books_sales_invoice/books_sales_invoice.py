@@ -258,5 +258,5 @@ def make_return(source_name: str):
 
 
 @frappe.whitelist()
-def make_shipment(source_name: str):
+def make_delivery_note(source_name: str):
 	return map_invoice_transfer("Books Sales Invoice", source_name)

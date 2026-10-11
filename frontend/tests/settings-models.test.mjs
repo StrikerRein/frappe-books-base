@@ -128,9 +128,9 @@ test('Defaults hide inventory and POS fields as those features are off', () => {
   fyo.singles.InventorySettings = {};
   const defaults = newFrappeDoc('Defaults');
   const gated = [
-    'shipment_location',
+    'delivery_note_location',
     'purchase_receipt_location',
-    'shipment_terms',
+    'delivery_note_terms',
     'pos_customer',
     'pos_print_template',
   ];

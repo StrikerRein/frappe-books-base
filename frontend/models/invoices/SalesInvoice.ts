@@ -92,7 +92,7 @@ export class SalesInvoice extends Invoice {
       title: this.fyo.t`Insufficient quantity`,
       detail: [
         this.fyo
-          .t`The following items have insufficient quantity for Shipment: ${list}`,
+          .t`The following items have insufficient quantity for Delivery Note: ${list}`,
         this.fyo.t`Continue submitting Sales Invoice?`,
       ],
       accept: () => this.set('make_auto_stock_transfer', false),

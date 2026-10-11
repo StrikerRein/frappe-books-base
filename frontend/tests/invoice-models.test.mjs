@@ -73,7 +73,7 @@ test('features and totals show the fields that go with them', () => {
       enable_price_list: true,
       enable_coupon_code: true,
     },
-    defaults: { sales_payment_account: 'Cash', shipment_location: 'Stores' },
+    defaults: { sales_payment_account: 'Cash', delivery_note_location: 'Stores' },
   });
   const invoice = newInvoice('SalesInvoice', {
     total_discount: fyo.pesa(5),
@@ -604,13 +604,13 @@ test('invoice actions follow the Frappe invoice values', () => {
 
   assert.deepEqual(labels(invoice), [
     'Payment',
-    'Shipment',
+    'Delivery Note',
     'Accounting entries',
     'Return',
   ]);
   invoice.outstanding_amount = fyo.pesa(0);
   invoice.return_against = 'SINV-1000';
-  assert.deepEqual(labels(invoice), ['Shipment', 'Accounting entries']);
+  assert.deepEqual(labels(invoice), ['Delivery Note', 'Accounting entries']);
 });
 
 test('Return Against shows while returns are on, or once it is set', () => {

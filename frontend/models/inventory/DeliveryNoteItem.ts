@@ -6,9 +6,9 @@ import {
   transferRowLinks,
 } from './StockTransferItem';
 
-export class ShipmentItem extends StockTransferItem {
+export class DeliveryNoteItem extends StockTransferItem {
   static override presentation = {
-    label: 'Shipment Item',
+    label: 'DeliveryNote Item',
     quickEditFields: transferRowFields,
     fields: transferRowLinks,
   };

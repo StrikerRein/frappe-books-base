@@ -16,7 +16,7 @@ const PRINTED_DOCTYPES = [
   { value: 'Books Purchase Invoice', label: 'Purchase Invoice' },
   { value: 'Books Journal Entry', label: 'Journal Entry' },
   { value: 'Books Payment', label: 'Payment' },
-  { value: 'Books Shipment', label: 'Shipment' },
+  { value: 'Books Delivery Note', label: 'Delivery Note' },
   { value: 'Books Purchase Receipt', label: 'Purchase Receipt' },
   { value: 'Books Stock Movement', label: 'Stock Movement' },
 ];

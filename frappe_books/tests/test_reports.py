@@ -314,7 +314,7 @@ class IntegrationTestStockReports(IntegrationTestCase):
 		rows = _run("Books Stock Ledger", item=self.item, reference_type="Books Stock Movement")
 
 		self.assertEqual([row["reference_type"] for row in rows], ["Books Stock Movement"] * 3)
-		self.assertEqual(_run("Books Stock Ledger", item=self.item, reference_type="Books Shipment"), [])
+		self.assertEqual(_run("Books Stock Ledger", item=self.item, reference_type="Books Delivery Note"), [])
 
 	def test_stock_ledger_groups_rows_and_numbers_them_in_order(self):
 		other = self._item()

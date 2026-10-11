@@ -5,7 +5,7 @@ import { FrappeDoc } from 'src/frappe/document';
 import { getMappedValues } from 'src/frappe/documents';
 import { withoutCreate } from 'src/frappe/schema';
 
-/** Shipment and purchase receipt fields: links that offer no Create, and items edited in the row editor. */
+/** Delivery note and purchase receipt fields: links that offer no Create, and items edited in the row editor. */
 export const transferFields = {
   ...withoutCreate(['back_reference', 'return_against']),
   items: { edit: true },
@@ -37,7 +37,7 @@ export abstract class StockTransfer extends FrappeDoc {
   static invoiceMapper: string;
 
   get isSales() {
-    return this.schemaName === ModelNameEnum.Shipment;
+    return this.schemaName === ModelNameEnum.DeliveryNote;
   }
 
   get isReturn(): boolean {
