@@ -38,7 +38,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.CouponCode]: 'books/coupon-code',
 
   // Inventory
-  [ModelNameEnum.StockMovement]: 'books/stock-movement',
+  [ModelNameEnum.StockEntry]: 'books/stock-movement',
   [ModelNameEnum.DeliveryNote]: 'books/shipment',
   [ModelNameEnum.PurchaseReceipt]: 'books/purchase-receipt',
   StockLedger: 'books/stock-ledger',

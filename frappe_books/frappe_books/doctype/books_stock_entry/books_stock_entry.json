@@ -24,7 +24,7 @@
    "hidden": 1,
    "label": "Amended From",
    "no_copy": 1,
-   "options": "Books Stock Movement",
+   "options": "Books Stock Entry",
    "print_hide": 1,
    "read_only": 1,
    "search_index": 1
@@ -82,7 +82,7 @@
    "fieldname": "items",
    "fieldtype": "Table",
    "label": "Items",
-   "options": "Books Stock Movement Item",
+   "options": "Books Stock Entry Item",
    "reqd": 1
   },
   {
@@ -99,7 +99,7 @@
  "modified": "2026-10-05 14:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Books",
- "name": "Books Stock Movement",
+ "name": "Books Stock Entry",
  "naming_rule": "By script",
  "owner": "Administrator",
  "permissions": [

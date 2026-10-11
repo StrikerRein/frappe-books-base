@@ -1,10 +1,10 @@
 # Copyright (c) 2026, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
-from frappe_books.inventory.transaction import StockMovementController
+from frappe_books.inventory.transaction import StockEntryController
 
 
-class BooksStockMovement(StockMovementController):
+class BooksStockEntry(StockEntryController):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -13,14 +13,14 @@ class BooksStockMovement(StockMovementController):
 	if TYPE_CHECKING:
 		from frappe.types import DF
 
-		from frappe_books.frappe_books.doctype.books_stock_movement_item.books_stock_movement_item import (
-			BooksStockMovementItem,
+		from frappe_books.frappe_books.doctype.books_stock_entry_item.books_stock_entry_item import (
+			BooksStockEntryItem,
 		)
 
 		amended_from: DF.Link | None
 		amount: DF.Currency
 		date: DF.Datetime
-		items: DF.Table[BooksStockMovementItem]
+		items: DF.Table[BooksStockEntryItem]
 		movement_type: DF.Literal["MaterialIssue", "MaterialReceipt", "MaterialTransfer", "Manufacture"]
 		number_series: DF.Link
 		status: DF.Literal["Saved", "Submitted", "Cancelled"]

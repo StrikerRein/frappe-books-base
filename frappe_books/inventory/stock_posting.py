@@ -12,7 +12,7 @@ from frappe_books.inventory.stock import parse_serial_numbers
 STOCK_COUNTER_ACCOUNTS = {
 	"Books Delivery Note": "cost_of_goods_sold",
 	"Books Purchase Receipt": "stock_received_but_not_billed",
-	"Books Stock Movement": "stock_adjustment",
+	"Books Stock Entry": "stock_adjustment",
 }
 
 
@@ -148,7 +148,7 @@ def _post_stock_value(transaction):
 
 
 def _validate_value_direction(transaction, value):
-	if transaction.doctype == "Books Stock Movement":
+	if transaction.doctype == "Books Stock Entry":
 		# A manufacture can add or remove value; an issue or a receipt moves it one way only.
 		return
 	takes_stock_out = (transaction.doctype == "Books Delivery Note") != bool(transaction.return_against)
@@ -184,15 +184,15 @@ def _revalue_dependents(restated):
 
 def _revalue_transfers(references):
 	"""Bring in the stock of restated material transfers at the cost it now leaves with."""
-	names = [name for doctype, name in references if doctype == "Books Stock Movement"]
+	names = [name for doctype, name in references if doctype == "Books Stock Entry"]
 	if not names:
 		return set()
 	transfers = frappe.get_all(
-		"Books Stock Movement",
+		"Books Stock Entry",
 		filters={"name": ["in", names], "movement_type": "MaterialTransfer"},
 		pluck="name",
 	)
-	entries = valuation.transaction_entries("Books Stock Movement", transfers)
+	entries = valuation.transaction_entries("Books Stock Entry", transfers)
 	rates = {}
 	for entry in entries:
 		# Each incoming entry follows the outgoing entry it takes its cost from.

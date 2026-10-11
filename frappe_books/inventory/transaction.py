@@ -54,7 +54,7 @@ class StockTransactionController(StatusMixin, SeriesNamingMixin, Document):
 		stock_posting.delete(self)
 
 
-class StockMovementController(StockTransactionController):
+class StockEntryController(StockTransactionController):
 	def before_validate(self):
 		self.calculate()
 

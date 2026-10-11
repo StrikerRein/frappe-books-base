@@ -15,9 +15,9 @@ import {
   stubFrappe,
 } from './helpers/frappe.mjs';
 
-const stockSchemas = ['StockMovement', 'DeliveryNote', 'PurchaseReceipt'];
+const stockSchemas = ['StockEntry', 'DeliveryNote', 'PurchaseReceipt'];
 const rowSchemas = {
-  StockMovement: 'StockMovementItem',
+  StockEntry: 'StockEntryItem',
   DeliveryNote: 'DeliveryNoteItem',
   PurchaseReceipt: 'PurchaseReceiptItem',
 };
@@ -62,7 +62,7 @@ test('stock item tables open their rows in the row editor', () => {
 });
 
 test('movement types keep their labels', () => {
-  const { options } = getSchema('StockMovement').fields.find(
+  const { options } = getSchema('StockEntry').fields.find(
     ({ fieldname }) => fieldname === 'movement_type'
   );
   assert.deepEqual(
@@ -72,7 +72,7 @@ test('movement types keep their labels', () => {
 });
 
 test('a movement row asks for the locations its type moves stock between', () => {
-  const movement = newFrappeDoc('StockMovement');
+  const movement = newFrappeDoc('StockEntry');
   const row = movement._getChildDoc({ item: 'Pen' }, 'items');
   const state = (fieldname) =>
     ['required', 'readOnly'].map(
@@ -162,7 +162,7 @@ test('a transfer row shows the item discounts of its invoice only when it has th
 });
 
 test('a row takes its item defaults again when its item changes', async () => {
-  const movement = newFrappeDoc('StockMovement');
+  const movement = newFrappeDoc('StockEntry');
   await movement.append('items', { item: 'Pen', batch: 'PEN-1' });
   const [row] = movement.items;
   await row.set('item', 'Ink');
@@ -213,7 +213,7 @@ test('links of stock documents filter by the vocabulary of their targets', async
   }));
   const shipment = newFrappeDoc('DeliveryNote');
   const receipt = newFrappeDoc('PurchaseReceipt');
-  const movementRow = newFrappeDoc('StockMovement')._getChildDoc(
+  const movementRow = newFrappeDoc('StockEntry')._getChildDoc(
     { item: 'Pen' },
     'items'
   );
@@ -230,7 +230,7 @@ test('links of stock documents filter by the vocabulary of their targets', async
     ['track_item', '=', 1],
   ]);
   assert.deepEqual(
-    await getModel('StockMovementItem').filters.transfer_unit(movementRow),
+    await getModel('StockEntryItem').filters.transfer_unit(movementRow),
     [['name', 'in', ['Unit', 'Box']]]
   );
   assert.deepEqual(requests[0].params.filters, [['name', '=', 'Pen']]);
@@ -281,8 +281,8 @@ test('stock lists show and filter by their Frappe fieldnames', () => {
 });
 
 test('a submitted movement links to its accounting and stock entries', () => {
-  const actions = frappeModels.StockMovement.getActions(fyo);
-  const movement = newFrappeDoc('StockMovement', { docstatus: 1 });
+  const actions = frappeModels.StockEntry.getActions(fyo);
+  const movement = newFrappeDoc('StockEntry', { docstatus: 1 });
 
   assert.deepEqual(
     actions.map(({ label }) => label),

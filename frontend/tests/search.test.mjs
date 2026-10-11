@@ -91,7 +91,7 @@ test('the palette lists only the lists of features that are on', () => {
     'Lead',
     'Price List',
     'Serial Number',
-    'Stock Movement',
+    'Stock Entry',
   ];
   try {
     const off = lists({}, undefined);

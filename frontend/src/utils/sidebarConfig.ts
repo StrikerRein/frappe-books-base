@@ -101,13 +101,13 @@ function getInventorySidebar(): SidebarRoot[] {
       label: t`Inventory`,
       name: 'inventory',
       icon: 'lucide-package',
-      route: '/list/StockMovement',
+      route: '/list/StockEntry',
       items: [
         {
-          label: t`Stock Movement`,
-          name: 'stock-movement',
-          route: '/list/StockMovement',
-          schemaName: 'StockMovement',
+          label: t`Stock Entry`,
+          name: 'stock-entry',
+          route: '/list/StockEntry',
+          schemaName: 'StockEntry',
         },
         {
           label: t`Delivery Note`,

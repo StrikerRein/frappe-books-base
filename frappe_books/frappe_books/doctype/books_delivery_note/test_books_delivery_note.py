@@ -370,7 +370,7 @@ class IntegrationTestBooksDeliveryNote(IntegrationTestCase):
 			row = {"item": item.name, "to_location": shelf, "quantity": 1, "rate": 10}
 			movement = frappe.get_doc(
 				{
-					"doctype": "Books Stock Movement",
+					"doctype": "Books Stock Entry",
 					"movement_type": "MaterialReceipt",
 					"date": add_to_date(now, hours=hours),
 					"items": [{**row, "serial_number": serial_number}],
@@ -591,7 +591,7 @@ def seed_stock(item, quantity, rate, serial_number=None, batch=None, date=None):
 	row = {"item": item, "to_location": "Stores", "quantity": quantity, "rate": rate, "batch": batch}
 	movement = frappe.get_doc(
 		{
-			"doctype": "Books Stock Movement",
+			"doctype": "Books Stock Entry",
 			"movement_type": "MaterialReceipt",
 			"date": date or now_datetime(),
 			"items": [{**row, "serial_number": serial_number}],

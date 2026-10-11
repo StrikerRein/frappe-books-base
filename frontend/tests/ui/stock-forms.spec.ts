@@ -19,7 +19,7 @@ test('a stock movement takes its series, rate and locations from the server', as
   page,
 }) => {
   const item = await insertItem(page, 'Movement Item', 12);
-  await page.goto('/books/list/StockMovement');
+  await page.goto('/books/list/StockEntry');
   await waitForBooks(page);
   await page.getByRole('button', { name: 'New', exact: true }).click();
   await expect(
@@ -48,7 +48,7 @@ test('a stock movement takes its series, rate and locations from the server', as
   await choose(page, 'Movement Type', 'Material Receipt');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
-  await expect(page).toHaveURL(/\/books\/edit\/StockMovement\/SMOV-/);
+  await expect(page).toHaveURL(/\/books\/edit\/StockEntry\/SMOV-/);
   await page.getByRole('button', { name: 'Submit', exact: true }).click();
   await page.getByRole('button', { name: 'Yes', exact: true }).click();
   await expect(page.getByText('View stock entries')).toBeVisible();
@@ -57,7 +57,7 @@ test('a stock movement takes its series, rate and locations from the server', as
 test('form table columns resize by dragging and keep their width', async ({
   page,
 }) => {
-  await page.goto('/books/edit/StockMovement/new');
+  await page.goto('/books/edit/StockEntry/new');
   await waitForBooks(page);
   const handle = page.getByRole('separator', { name: 'Resize Item column' });
   const start = (await handle.boundingBox())!;

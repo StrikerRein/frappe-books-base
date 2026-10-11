@@ -35,7 +35,7 @@ import { PurchaseReceipt } from './inventory/PurchaseReceipt';
 import { SerialNumber } from './inventory/SerialNumber';
 import { DeliveryNote } from './inventory/DeliveryNote';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
-import { StockMovement } from './inventory/StockMovement';
+import { StockEntry } from './inventory/StockEntry';
 import { POSSettings } from './inventory/Point of Sale/POSSettings';
 import { POSProfile } from './baseModels/POSProfile/PosProfile';
 import { POSOpeningShift } from './inventory/Point of Sale/POSOpeningShift';
@@ -79,7 +79,7 @@ export const frappeModels: Record<string, FrappeModel> = {
   InventorySettings,
   Location,
   StockLedgerEntry,
-  StockMovement,
+  StockEntry,
   Batch,
   SerialNumber,
   CustomForm,

@@ -18,10 +18,10 @@ from frappe_books.tests.accounting import (
 	unique_name,
 )
 
-READ_ONLY_USER = "books-movement-preview-reader@example.com"
+READ_ONLY_USER = "books-stock-entry-preview-reader@example.com"
 
 
-class IntegrationTestBooksStockMovement(IntegrationTestCase):
+class IntegrationTestBooksStockEntry(IntegrationTestCase):
 	def setUp(self):
 		income = make_account("Income", root_type="Income")
 		received = make_account("Received", root_type="Liability")
@@ -319,7 +319,7 @@ class IntegrationTestBooksStockMovement(IntegrationTestCase):
 		movement.preview()
 
 		row = movement.items[0]
-		self.assertEqual(movement.number_series, default_series("Books Stock Movement"))
+		self.assertEqual(movement.number_series, default_series("Books Stock Entry"))
 		self.assertEqual(
 			(row.to_location, row.rate, row.amount, row.unit), (self.warehouse.name, 15, 30, "Unit")
 		)
@@ -360,7 +360,7 @@ class IntegrationTestBooksStockMovement(IntegrationTestCase):
 		self.assertRaisesRegex(frappe.ValidationError, "Only From or To", manufacture.insert)
 
 
-class IntegrationTestStockMovementPostings(IntegrationTestCase):
+class IntegrationTestStockEntryPostings(IntegrationTestCase):
 	"""A movement moves its net stock value between Stock In Hand and Stock Adjustment."""
 
 	def setUp(self):
@@ -458,7 +458,7 @@ def make_movement(movement_type, items):
 
 def movement_values(movement_type, items):
 	return {
-		"doctype": "Books Stock Movement",
+		"doctype": "Books Stock Entry",
 		"movement_type": movement_type,
 		"date": now_datetime(),
 		"items": items,

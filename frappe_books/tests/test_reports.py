@@ -311,9 +311,9 @@ class IntegrationTestStockReports(IntegrationTestCase):
 			self.assertRegex(row["date"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?[+-]\d{2}:\d{2}$")
 
 	def test_stock_ledger_filters_and_shows_documents_by_doctype(self):
-		rows = _run("Books Stock Ledger", item=self.item, reference_type="Books Stock Movement")
+		rows = _run("Books Stock Ledger", item=self.item, reference_type="Books Stock Entry")
 
-		self.assertEqual([row["reference_type"] for row in rows], ["Books Stock Movement"] * 3)
+		self.assertEqual([row["reference_type"] for row in rows], ["Books Stock Entry"] * 3)
 		self.assertEqual(_run("Books Stock Ledger", item=self.item, reference_type="Books Delivery Note"), [])
 
 	def test_stock_ledger_groups_rows_and_numbers_them_in_order(self):

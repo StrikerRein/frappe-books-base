@@ -240,7 +240,7 @@ test('a submitted document links only to the ledgers the user may open', () => {
   fyo.store.permissions = null;
   window.frappe.boot.allowed_reports = { 'Books Stock Ledger': {} };
 
-  const actions = shownActions('StockMovement', { isSubmitted: true });
+  const actions = shownActions('StockEntry', { isSubmitted: true });
 
   delete window.frappe.boot.allowed_reports;
   assert.deepEqual(actions, ['Stock entries']);

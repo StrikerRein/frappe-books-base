@@ -17,7 +17,7 @@
   "purchase_invoice_number_series",
   "journal_entry_number_series",
   "payment_number_series",
-  "stock_movement_number_series",
+  "stock_entry_number_series",
   "delivery_note_number_series",
   "purchase_receipt_number_series",
   "quotation_number_series",
@@ -34,7 +34,7 @@
   "payment_print_template",
   "delivery_note_print_template",
   "purchase_receipt_print_template",
-  "stock_movement_print_template",
+  "stock_entry_print_template",
   "pos_print_template",
   "point_of_sale_section_break_31",
   "pos_customer",
@@ -112,9 +112,9 @@
    "options": "Books Number Series"
   },
   {
-   "fieldname": "stock_movement_number_series",
+   "fieldname": "stock_entry_number_series",
    "fieldtype": "Link",
-   "label": "Stock Movement Number Series",
+   "label": "Stock Entry Number Series",
    "options": "Books Number Series"
   },
   {
@@ -222,11 +222,11 @@
    "options": "Print Format"
   },
   {
-   "fieldname": "stock_movement_print_template",
+   "fieldname": "stock_entry_print_template",
    "fieldtype": "Link",
    "is_virtual": 1,
-   "label": "Stock Movement Print Template",
-   "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Books Stock Movement\"]]",
+   "label": "Stock Entry Print Template",
+   "link_filters": "[[\"Print Format\",\"doc_type\",\"=\",\"Books Stock Entry\"]]",
    "options": "Print Format"
   },
   {

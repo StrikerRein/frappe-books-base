@@ -25,7 +25,7 @@ class BooksNumberSeries(Document):
 			"PurchaseInvoice",
 			"Payment",
 			"JournalEntry",
-			"StockMovement",
+			"StockEntry",
 			"DeliveryNote",
 			"PurchaseReceipt",
 			"PricingRule",

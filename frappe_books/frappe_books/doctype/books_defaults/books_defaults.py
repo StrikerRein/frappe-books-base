@@ -21,7 +21,7 @@ PRINT_FORMAT_FIELDS = {
 	"payment_print_template": "Books Payment",
 	"delivery_note_print_template": "Books Delivery Note",
 	"purchase_receipt_print_template": "Books Purchase Receipt",
-	"stock_movement_print_template": "Books Stock Movement",
+	"stock_entry_print_template": "Books Stock Entry",
 }
 
 
@@ -72,8 +72,8 @@ class BooksDefaults(Document):
 		delivery_note_number_series: DF.Link | None
 		delivery_note_print_template: DF.Link | None
 		delivery_note_terms: DF.Text | None
-		stock_movement_number_series: DF.Link | None
-		stock_movement_print_template: DF.Link | None
+		stock_entry_number_series: DF.Link | None
+		stock_entry_print_template: DF.Link | None
 	# end: auto-generated types
 
 	_DOCTYPE_NAME = "Books Defaults"
@@ -85,7 +85,7 @@ class BooksDefaults(Document):
 	payment_print_template = print_format_field("payment_print_template")
 	delivery_note_print_template = print_format_field("delivery_note_print_template")
 	purchase_receipt_print_template = print_format_field("purchase_receipt_print_template")
-	stock_movement_print_template = print_format_field("stock_movement_print_template")
+	stock_entry_print_template = print_format_field("stock_entry_print_template")
 
 	def validate(self):
 		validate_changed_accounts(self, ACCOUNT_TYPES)

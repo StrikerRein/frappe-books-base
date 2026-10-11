@@ -124,15 +124,15 @@ test('item links filter and create items by Frappe fieldnames', async () => {
   const sale = { isSales: true };
   const purchase = { isSales: false };
   const SalesInvoiceItem = frappeModels.SalesInvoice.rowModels.items;
-  const StockMovementItem = frappeModels.StockMovement.rowModels.items;
+  const StockEntryItem = frappeModels.StockEntry.rowModels.items;
   assert.deepEqual(await SalesInvoiceItem.filters.item(sale), [
     ['item_usage', 'not in', ['Purchases']],
   ]);
   assert.deepEqual(await SalesInvoiceItem.createFilters.item(purchase), [
     ['item_usage', '=', 'Purchases'],
   ]);
-  assert.deepEqual(StockMovementItem.filters.item(), [['track_item', '=', 1]]);
-  assert.deepEqual(StockMovementItem.createFilters.item(), [
+  assert.deepEqual(StockEntryItem.filters.item(), [['track_item', '=', 1]]);
+  assert.deepEqual(StockEntryItem.createFilters.item(), [
     ['track_item', '=', 1],
     ['item_type', '=', 'Product'],
   ]);

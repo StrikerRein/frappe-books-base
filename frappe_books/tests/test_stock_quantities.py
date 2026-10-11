@@ -5,7 +5,7 @@ from frappe_books.frappe_books.doctype.books_delivery_note.test_books_delivery_n
 	make_batch,
 	seed_stock,
 )
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	make_movement,
 )
 from frappe_books.inventory.availability import get_stock_quantities

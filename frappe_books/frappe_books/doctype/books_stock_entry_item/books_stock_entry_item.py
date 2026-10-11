@@ -5,7 +5,7 @@
 from frappe.model.document import Document
 
 
-class BooksStockMovementItem(Document):
+class BooksStockEntryItem(Document):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
 
@@ -31,4 +31,4 @@ class BooksStockMovementItem(Document):
 		unit_conversion_factor: DF.Float
 	# end: auto-generated types
 
-	_DOCTYPE_NAME = "Books Stock Movement Item"
+	_DOCTYPE_NAME = "Books Stock Entry Item"

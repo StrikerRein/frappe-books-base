@@ -20,7 +20,7 @@ const PRINT_TEMPLATE_FIELDS = [
   'payment_print_template',
   'delivery_note_print_template',
   'purchase_receipt_print_template',
-  'stock_movement_print_template',
+  'stock_entry_print_template',
   'pos_print_template',
 ];
 
@@ -73,8 +73,8 @@ export class Defaults extends FrappeDoc {
     payment_number_series: () => [
       ['reference_type', '=', ModelNameEnum.Payment],
     ],
-    stock_movement_number_series: () => [
-      ['reference_type', '=', ModelNameEnum.StockMovement],
+    stock_entry_number_series: () => [
+      ['reference_type', '=', ModelNameEnum.StockEntry],
     ],
     delivery_note_number_series: () => [
       ['reference_type', '=', ModelNameEnum.DeliveryNote],
@@ -99,14 +99,14 @@ export class Defaults extends FrappeDoc {
   hidden: HiddenMap = {
     delivery_note_location: this.getInventoryHidden(),
     purchase_receipt_location: this.getInventoryHidden(),
-    stock_movement_number_series: this.getInventoryHidden(),
+    stock_entry_number_series: this.getInventoryHidden(),
     delivery_note_number_series: this.getInventoryHidden(),
     purchase_receipt_number_series: this.getInventoryHidden(),
     delivery_note_terms: this.getInventoryHidden(),
     purchase_receipt_terms: this.getInventoryHidden(),
     delivery_note_print_template: this.getInventoryHidden(),
     purchase_receipt_print_template: this.getInventoryHidden(),
-    stock_movement_print_template: this.getInventoryHidden(),
+    stock_entry_print_template: this.getInventoryHidden(),
     pos_print_template: this.getPointOfSaleHidden(),
     pos_cash_denominations: this.getPointOfSaleHidden(),
     pos_customer: this.getPointOfSaleHidden(),

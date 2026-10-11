@@ -22,7 +22,7 @@ from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice i
 from frappe_books.frappe_books.doctype.books_sales_invoice.books_sales_invoice import (
 	make_return as make_sales_return,
 )
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	make_movement,
 )
 from frappe_books.tests.accounting import (

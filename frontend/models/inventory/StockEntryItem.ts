@@ -6,10 +6,10 @@ import {
   stockRowRefills,
 } from './stockRows';
 
-/** A Books Stock Movement row. The server fills its units, rate and locations. */
-export class StockMovementItem extends FrappeDoc {
+/** A Books Stock Entry row. The server fills its units, rate and locations. */
+export class StockEntryItem extends FrappeDoc {
   static override presentation = {
-    label: 'Stock Movement Item',
+    label: 'Stock Entry Item',
     fields: { transfer_unit: { create: false } },
     quickEditFields: [
       'item',

@@ -126,7 +126,7 @@ class IntegrationTestSeriesBatches(IntegrationTestCase):
 def movement_values(movement_type, row):
 	location = "to_location" if movement_type == "MaterialReceipt" else "from_location"
 	return {
-		"doctype": "Books Stock Movement",
+		"doctype": "Books Stock Entry",
 		"movement_type": movement_type,
 		"date": now_datetime(),
 		"items": [{location: "Stores", **row}],

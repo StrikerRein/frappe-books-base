@@ -10,7 +10,7 @@ from frappe_books.frappe_books.doctype.books_purchase_receipt.test_books_purchas
 	make_receipt,
 	stock_value_change,
 )
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	movement_values,
 )
 from frappe_books.tests.accounting import (

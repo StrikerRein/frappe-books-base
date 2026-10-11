@@ -100,10 +100,10 @@ class IntegrationTestFeatureSwitches(IntegrationTestCase):
 		with self.assertRaisesRegex(frappe.ValidationError, f"Loyalty Program {OFF}"):
 			self.party.save()
 
-	def test_stock_movements_need_inventory(self):
+	def test_stock_entrys_need_inventory(self):
 		self.switch_off("enable_inventory")
 		movement = frappe.get_doc(
-			{"doctype": "Books Stock Movement", "movement_type": "MaterialReceipt", "date": now_datetime()}
+			{"doctype": "Books Stock Entry", "movement_type": "MaterialReceipt", "date": now_datetime()}
 		)
 		with self.assertRaisesRegex(frappe.ValidationError, f"Inventory {OFF}"):
 			movement.insert()

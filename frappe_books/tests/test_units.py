@@ -2,7 +2,7 @@ import frappe
 from frappe.client import insert
 from frappe.tests import IntegrationTestCase
 
-from frappe_books.frappe_books.doctype.books_stock_movement.test_books_stock_movement import (
+from frappe_books.frappe_books.doctype.books_stock_entry.test_books_stock_entry import (
 	movement_values,
 )
 from frappe_books.tests.accounting import make_account, make_invoice, make_item, make_party, unique_name

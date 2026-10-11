@@ -314,7 +314,7 @@ const linkSequence = [
   // Other Transactional
   ModelNameEnum.Payment,
   ModelNameEnum.JournalEntry,
-  ModelNameEnum.StockMovement,
+  ModelNameEnum.StockEntry,
   // Non Transfers
   ModelNameEnum.Party,
   ModelNameEnum.Item,
@@ -349,7 +349,7 @@ const linkEntryDisplayFields: Record<string, string[]> = {
   // Other Transactional
   [ModelNameEnum.Payment]: ['name', 'date', 'party', 'amount'],
   [ModelNameEnum.JournalEntry]: ['name', 'date', 'entry_type'],
-  [ModelNameEnum.StockMovement]: ['name', 'date', 'amount'],
+  [ModelNameEnum.StockEntry]: ['name', 'date', 'amount'],
   // Ledgers
   [ModelNameEnum.AccountingLedgerEntry]: ['name', 'posting_date', 'account', 'credit', 'debit'],
   [ModelNameEnum.StockLedgerEntry]: ['name', 'date', 'item', 'location', 'quantity'],

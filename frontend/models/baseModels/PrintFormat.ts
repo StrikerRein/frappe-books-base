@@ -18,7 +18,7 @@ const PRINTED_DOCTYPES = [
   { value: 'Books Payment', label: 'Payment' },
   { value: 'Books Delivery Note', label: 'Delivery Note' },
   { value: 'Books Purchase Receipt', label: 'Purchase Receipt' },
-  { value: 'Books Stock Movement', label: 'Stock Movement' },
+  { value: 'Books Stock Entry', label: 'Stock Entry' },
 ];
 
 /** Frappe's Print Format. /books edits the ones with custom HTML that no app ships. */

@@ -7,18 +7,18 @@ import {
 } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { FrappeDoc } from 'src/frappe/document';
-import { StockMovementItem } from './StockMovementItem';
+import { StockEntryItem } from './StockEntryItem';
 import { MovementTypeEnum } from './types';
 
 /**
- * Books Stock Movement, served by Frappe. Its `preview` fills the number
+ * Books Stock Entry, served by Frappe. Its `preview` fills the number
  * series, row units, rates, locations and the total while the user edits.
  */
-export class StockMovement extends FrappeDoc {
-  static override doctype = 'Books Stock Movement';
+export class StockEntry extends FrappeDoc {
+  static override doctype = 'Books Stock Entry';
   static override presentation = {
-    label: 'Stock Movement',
-    nameField: { label: 'Stock Movement No.', hidden: true },
+    label: 'Stock Entry',
+    nameField: { label: 'Stock Entry No.', hidden: true },
     quickEditFields: [
       'number_series',
       'date',
@@ -47,10 +47,10 @@ export class StockMovement extends FrappeDoc {
     ],
   };
   static override previewMethod = 'preview';
-  static override rowModels = { items: StockMovementItem };
+  static override rowModels = { items: StockEntryItem };
 
   static filters: FiltersMap = {
-    number_series: () => [['reference_type', '=', ModelNameEnum.StockMovement]],
+    number_series: () => [['reference_type', '=', ModelNameEnum.StockEntry]],
   };
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {

@@ -206,7 +206,7 @@ export const previousForms = {
     ],
   },
   stock: {
-    StockMovement: {
+    StockEntry: {
       layout: [
         'number_series | Number Series |  | Default | ',
         'movement_type | Movement Type |  | Default | ',
@@ -250,7 +250,7 @@ export const previousForms = {
       ],
       quickEditFields: [],
     },
-    StockMovementItem: {
+    StockEntryItem: {
       layout: [
         'item | Item |  | Default | ',
         'from_location | From |  | Default | ',
@@ -367,7 +367,7 @@ export const previousForms = {
     'Defaults.purchase_invoice_number_series': true,
     'Defaults.journal_entry_number_series': true,
     'Defaults.payment_number_series': true,
-    'Defaults.stock_movement_number_series': true,
+    'Defaults.stock_entry_number_series': true,
     'Defaults.delivery_note_number_series': true,
     'Defaults.purchase_receipt_number_series': true,
     'Defaults.quotation_number_series': true,
@@ -378,7 +378,7 @@ export const previousForms = {
     'Defaults.payment_print_template': false,
     'Defaults.delivery_note_print_template': false,
     'Defaults.purchase_receipt_print_template': false,
-    'Defaults.stock_movement_print_template': false,
+    'Defaults.stock_entry_print_template': false,
     'Defaults.pos_print_template': false,
     'Defaults.pos_customer': true,
     'PrintSettings.address': true,
@@ -425,12 +425,12 @@ export const previousForms = {
     'InventorySettings.stock_received_but_not_billed': false,
     'InventorySettings.cost_of_goods_sold': false,
     'Location.address': true,
-    'StockMovement.number_series': true,
-    'StockMovementItem.item': true,
-    'StockMovementItem.from_location': true,
-    'StockMovementItem.to_location': true,
-    'StockMovementItem.transfer_unit': false,
-    'StockMovementItem.batch': true,
+    'StockEntry.number_series': true,
+    'StockEntryItem.item': true,
+    'StockEntryItem.from_location': true,
+    'StockEntryItem.to_location': true,
+    'StockEntryItem.transfer_unit': false,
+    'StockEntryItem.batch': true,
     'Batch.item': true,
     'SerialNumber.item': true,
     'POSSettings.inventory': true,

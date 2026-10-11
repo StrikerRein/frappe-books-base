@@ -113,7 +113,7 @@
  "modified": "2026-09-30 20:00:00.000000",
  "modified_by": "Administrator",
  "module": "Frappe Books",
- "name": "Books Stock Movement Item",
+ "name": "Books Stock Entry Item",
  "owner": "Administrator",
  "permissions": [],
  "row_format": "Dynamic",

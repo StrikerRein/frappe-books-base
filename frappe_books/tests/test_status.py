@@ -13,7 +13,7 @@ STATUS_DOCTYPES = (
 	"Books Quotation",
 	"Books Journal Entry",
 	"Books Payment",
-	"Books Stock Movement",
+	"Books Stock Entry",
 	"Books Lead",
 	"Books Serial Number",
 )

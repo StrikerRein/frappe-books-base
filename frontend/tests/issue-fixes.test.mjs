@@ -206,6 +206,6 @@ test('general ledger offers stock reference doctypes only with inventory', async
   assert.deepEqual(referenceTypes().slice(-3), [
     'Books Delivery Note',
     'Books Purchase Receipt',
-    'Books Stock Movement',
+    'Books Stock Entry',
   ]);
 });

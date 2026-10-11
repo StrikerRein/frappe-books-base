@@ -40,7 +40,7 @@ ROLE_MATRIX = {
 	"Books Purchase Invoice": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Quotation": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Payment": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
-	"Books Stock Movement": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
+	"Books Stock Entry": (FULL_SUBMIT, FULL_SUBMIT, SUBMIT),
 	"Books Journal Entry": (FULL_SUBMIT, FULL_SUBMIT, NONE),
 	"Books Party": (FULL, FULL, FULL),
 	"Books Item": (FULL, FULL, FULL),

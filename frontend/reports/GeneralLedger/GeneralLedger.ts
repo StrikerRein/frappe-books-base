@@ -72,7 +72,7 @@ export class GeneralLedger extends Report {
       refTypeOptions.push(
         { label: t`Delivery Note`, value: 'Books Delivery Note' },
         { label: t`Purchase Receipt`, value: 'Books Purchase Receipt' },
-        { label: t`Stock Movements`, value: 'Books Stock Movement' }
+        { label: t`Stock Entry`, value: 'Books Stock Entry' }
       );
     }
 
