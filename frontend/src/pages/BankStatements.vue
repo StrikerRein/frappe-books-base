@@ -94,6 +94,7 @@
                     · page {{ line.source_page }}</span
                   >
                 </p>
+                <a v-if="sourceTransactionLink(line)" :href="sourceTransactionLink(line)" target="_blank" rel="noopener" class="text-xs underline">Open original bank transaction</a>
                 <details
                   v-if="line.review_note || line.source_data"
                   class="text-xs mt-2"
@@ -456,6 +457,17 @@ const visibleLines = computed(
         .includes(search.value.toLowerCase())
     ) ?? []
 );
+function sourceTransactionLink(line: Line): string | undefined {
+  try {
+    const raw = JSON.parse(line.source_data || '{}').original_transaction_url;
+    if (typeof raw !== 'string') return;
+    const url = new URL(raw);
+    if (url.protocol !== 'http:' || !url.hostname.endsWith('.localhost') ||
+        url.port !== '8088' || !url.pathname.startsWith('/books/bank-statements/') ||
+        url.username || url.password) return;
+    return url.href;
+  } catch { return; }
+}
 function money(value: number) {
   return new Intl.NumberFormat('en-ZA', {
     style: 'currency',
