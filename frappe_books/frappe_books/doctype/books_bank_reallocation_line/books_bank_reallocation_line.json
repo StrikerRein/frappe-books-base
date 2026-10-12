@@ -11,7 +11,9 @@
   "bank_transaction",
   "old_account",
   "old_classification",
-  "previous_reallocation"
+  "previous_reallocation",
+  "old_business_percentage",
+  "old_personal_account"
  ],
  "fields": [
   {
@@ -42,6 +44,17 @@
    "fieldname": "previous_reallocation",
    "fieldtype": "Data",
    "label": "Previous reallocation"
+  },
+  {
+   "fieldname": "old_business_percentage",
+   "fieldtype": "Float",
+   "label": "Previous business-use %"
+  },
+  {
+   "fieldname": "old_personal_account",
+   "fieldtype": "Link",
+   "label": "Previous personal account",
+   "options": "Books Account"
   }
  ],
  "permissions": []

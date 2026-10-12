@@ -8,6 +8,7 @@ import frappe
 from frappe.utils import getdate
 from frappe_books.accounting.money import rounded
 from frappe_books.accounting.ledger import validate_leaf_accounts, reverse_entries
+from frappe_books.bank_allocations import allocations
 
 BATCH = "Books Bank Statement"
 LINE = "Books Bank Statement Line"
@@ -60,7 +61,7 @@ def upload(title: str, bank_account: str, opening_balance: str | float, closing_
             incoming = rounded(row["money_in"] or 0)
         except (ValueError, TypeError):
             frappe.throw(f"Invalid date or amount on CSV row {index}.")
-        rows.append(dict(transaction_date=date, description=row["description"], money_out=out, money_in=incoming, statement_balance=rounded(row["balance"]) if row.get("balance") else None, has_statement_balance=bool(row.get("balance")), reference=row.get("reference") or f"Row {index}", offset_account=row.get("account"), classification=row.get("classification") or "Review", source_file=filename, source_row=index))
+        rows.append(dict(transaction_date=date, description=row["description"], money_out=out, money_in=incoming, statement_balance=rounded(row["balance"]) if row.get("balance") else None, has_statement_balance=bool(row.get("balance")), reference=row.get("reference") or f"Row {index}", offset_account=row.get("account"), classification=row.get("classification") or "Review", business_percentage=row.get("business_percentage") or 0, personal_account=row.get("personal_account"), source_file=filename, source_row=index))
     if not rows or len(rows) > 10000:
         frappe.throw("A statement must contain 1 to 10,000 transactions.")
     doc = frappe.get_doc(dict(doctype=BATCH, title=title, bank_account=bank_account, opening_balance=opening_balance, closing_balance=closing_balance, source_hash=digest, source_filename=filename, lines=rows))
@@ -83,6 +84,8 @@ def save_categories(name: str, lines: list[dict]):
         if row.name in changes:
             row.offset_account = changes[row.name]["offset_account"]
             row.classification = changes[row.name]["classification"]
+            row.business_percentage = changes[row.name].get("business_percentage") or 0
+            row.personal_account = changes[row.name].get("personal_account")
     doc.save()
     return doc.name
 
@@ -106,6 +109,9 @@ def validate(doc):
         frappe.throw("Add statement transactions before saving.")
     balance = rounded(doc.opening_balance)
     for row in doc.lines:
+        if row.classification != "Mixed spend":
+            row.business_percentage = 0
+            row.personal_account = None
         out, incoming = rounded(row.money_out), rounded(row.money_in)
         if out == 0 and incoming == 0 and row.classification == "Bank memo":
             row.running_balance = balance
@@ -116,6 +122,8 @@ def validate(doc):
             frappe.throw(f"Line {row.idx} must contain either money in or money out.")
         if row.offset_account == doc.bank_account:
             frappe.throw(f"Line {row.idx}: the category must differ from the bank account.")
+        if row.classification == "Mixed spend":
+            allocations(row)
         balance += incoming - out
         row.running_balance = balance
         if row.has_statement_balance and rounded(row.statement_balance) != balance:
@@ -143,7 +151,9 @@ def submit(doc):
             continue
         if not row.offset_account:
             frappe.throw(f"Select a category for line {row.idx} before posting.")
-        for account, debit, credit in ((doc.bank_account, row.money_in, row.money_out), (row.offset_account, row.money_out, row.money_in)):
+        amounts = {doc.bank_account: rounded(row.money_in) - rounded(row.money_out), **allocations(row)}
+        for account, amount in amounts.items():
+            debit, credit = max(amount, 0), max(-amount, 0)
             frappe.get_doc(dict(doctype="Books Ledger Entry", posting_date=row.transaction_date, account=account, debit=debit, credit=credit, voucher_type=BATCH, voucher_no=doc.name, bank_statement=doc.name, bank_transaction=row.name, bank_description=row.description)).insert(ignore_permissions=True)
 
 

@@ -20,7 +20,9 @@
   "legacy_voucher",
   "review_note",
   "source_data",
-  "last_reallocation"
+  "last_reallocation",
+  "business_percentage",
+  "personal_account"
  ],
  "fields": [
   {
@@ -81,7 +83,7 @@
    "fieldname": "classification",
    "fieldtype": "Select",
    "label": "Classification",
-   "options": "Business\nPersonal\nTransfer\nReview\nBank memo",
+   "options": "Business\nPersonal\nTransfer\nReview\nBank memo\nMixed spend",
    "default": "Review"
   },
   {
@@ -123,6 +125,17 @@
    "label": "Latest category change",
    "options": "Books Bank Reallocation",
    "read_only": 1
+  },
+  {
+   "fieldname": "business_percentage",
+   "fieldtype": "Float",
+   "label": "Business-use %"
+  },
+  {
+   "fieldname": "personal_account",
+   "fieldtype": "Link",
+   "label": "Personal portion account",
+   "options": "Books Account"
   }
  ],
  "permissions": [],

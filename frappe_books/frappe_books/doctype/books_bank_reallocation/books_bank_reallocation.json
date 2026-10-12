@@ -10,7 +10,9 @@
   "target_account",
   "target_classification",
   "reason",
-  "changes"
+  "changes",
+  "business_percentage",
+  "personal_account"
  ],
  "fields": [
   {
@@ -24,7 +26,7 @@
    "fieldname": "target_classification",
    "fieldtype": "Select",
    "label": "New classification",
-   "options": "Business\nPersonal\nTransfer\nReview",
+   "options": "Business\nPersonal\nTransfer\nReview\nMixed spend",
    "reqd": 1
   },
   {
@@ -39,6 +41,17 @@
    "label": "Transactions",
    "options": "Books Bank Reallocation Line",
    "reqd": 1
+  },
+  {
+   "fieldname": "business_percentage",
+   "fieldtype": "Float",
+   "label": "Business-use %"
+  },
+  {
+   "fieldname": "personal_account",
+   "fieldtype": "Link",
+   "label": "Personal portion account",
+   "options": "Books Account"
   }
  ],
  "permissions": [

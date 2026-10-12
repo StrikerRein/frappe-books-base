@@ -81,7 +81,13 @@
             class="border rounded p-2 w-full"
           >
             <option
-              v-for="c in ['Business', 'Personal', 'Transfer', 'Review']"
+              v-for="c in [
+                'Business',
+                'Personal',
+                'Transfer',
+                'Review',
+                'Mixed spend',
+              ]"
               :key="c"
             >
               {{ c }}
@@ -95,10 +101,61 @@
             placeholder="Explain the category correction"
         /></label>
       </div>
+      <div
+        v-if="classification === 'Mixed spend'"
+        class="grid grid-cols-2 gap-3 my-3"
+      >
+        <label
+          >Business-use percentage<input
+            v-model.number="businessPercentage"
+            type="number"
+            min="0.01"
+            max="99.99"
+            step="0.01"
+            class="border rounded p-2 w-full"
+        /></label>
+        <label
+          >Personal portion account<select
+            v-model="personalAccount"
+            class="border rounded p-2 w-full"
+          >
+            <option value="">Choose owner/personal account</option>
+            <option v-for="a in personalAccounts" :key="a.name" :value="a.name">
+              {{ a.name }}
+            </option>
+          </select></label
+        >
+        <p class="col-span-2">
+          Business:
+          <strong
+            >{{ businessPercentage }}% · {{ money(businessAmount) }}</strong
+          >
+          to {{ targetAccount || 'the chosen category' }}. Personal:
+          <strong
+            >{{ (100 - Number(businessPercentage)).toFixed(2) }}% ·
+            {{ money(selectedOut - businessAmount) }}</strong
+          >
+          to {{ personalAccount || 'the personal account' }}.
+        </p>
+        <p v-if="selectedIn > 0" class="col-span-2 text-red-700">
+          Mixed spend applies to payments. Deselect receipts before applying a
+          split.
+        </p>
+      </div>
       <button
         v-if="!reviewing"
         class="border rounded px-3 py-2 mt-3"
-        :disabled="busy || !selected.length || !targetAccount || !reason.trim()"
+        :disabled="
+          busy ||
+          !selected.length ||
+          !targetAccount ||
+          !reason.trim() ||
+          (classification === 'Mixed spend' &&
+            (!personalAccount ||
+              selectedIn > 0 ||
+              Number(businessPercentage) <= 0 ||
+              Number(businessPercentage) >= 100))
+        "
         @click="reviewing = true"
       >
         Review changes
@@ -108,6 +165,10 @@
           Move {{ selected.length }} selected transactions to
           <strong>{{ targetAccount }}</strong> ({{ classification }}). Reports
           will use their original transaction dates.
+        </p>
+        <p v-if="classification === 'Mixed spend'">
+          Business {{ money(businessAmount) }}; personal
+          {{ money(selectedOut - businessAmount) }} to {{ personalAccount }}.
         </p>
         <button
           class="border rounded bg-blue-50 px-3 py-2 mt-2 me-2"
@@ -180,6 +241,10 @@
               {{ row.offset_account }}<br /><span class="text-xs">{{
                 row.classification
               }}</span>
+              <p v-if="row.classification === 'Mixed spend'">
+                {{ row.business_percentage }}% business ·
+                {{ row.personal_account }} personal remainder
+              </p>
             </td>
           </tr>
         </tbody>
@@ -201,6 +266,8 @@ interface Account {
   root_type: string;
 }
 interface Row {
+  business_percentage?: number;
+  personal_account?: string;
   last_reallocation?: string;
   name: string;
   parent: string;
@@ -222,6 +289,8 @@ const currentAccount = ref(String(route.query.account ?? ''));
 const search = ref('');
 const targetAccount = ref('');
 const classification = ref('Business');
+const businessPercentage = ref(50);
+const personalAccount = ref('');
 const reason = ref('');
 const reviewing = ref(false);
 const busy = ref(false);
@@ -233,6 +302,24 @@ const categoryAccounts = computed(() =>
 );
 const selectedRows = computed(() =>
   rows.value.filter((r) => selected.value.includes(r.name))
+);
+const personalAccounts = computed(() =>
+  categoryAccounts.value.filter((a) =>
+    ['Asset', 'Liability', 'Equity'].includes(a.root_type)
+  )
+);
+const businessAmount = computed(() =>
+  selectedRows.value.reduce(
+    (sum, row) =>
+      sum +
+      Math.round(
+        ((Number(row.money_out) * Number(businessPercentage.value)) / 100 +
+          Number.EPSILON) *
+          100
+      ) /
+        100,
+    0
+  )
 );
 const selectedOut = computed(() =>
   selectedRows.value.reduce((n, r) => n + Number(r.money_out), 0)
@@ -263,9 +350,23 @@ async function load() {
         to_date: toDate.value,
         account: currentAccount.value,
         search: search.value,
+        transaction: String(route.query.transaction || ''),
       }
     );
     rows.value = result.rows;
+    if (route.query.transaction && rows.value.length === 1) {
+      const row = rows.value[0];
+      selected.value = [row.name];
+      if (row.classification === 'Mixed spend') {
+        targetAccount.value = row.offset_account;
+        businessPercentage.value = Number(row.business_percentage);
+        personalAccount.value = row.personal_account || '';
+      }
+      classification.value =
+        route.query.mixed || row.classification === 'Mixed spend'
+          ? 'Mixed spend'
+          : row.classification;
+    }
     hasMore.value = result.has_more;
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e);
@@ -294,6 +395,8 @@ async function apply() {
         target_account: targetAccount.value,
         classification: classification.value,
         reason: reason.value,
+        business_percentage: Number(businessPercentage.value),
+        personal_account: personalAccount.value,
         expected: selectedRows.value.map((row) => ({
           name: row.name,
           offset_account: row.offset_account,
@@ -310,6 +413,10 @@ async function apply() {
   }
 }
 watch(targetAccount, (name) => {
+  if (classification.value === 'Mixed spend') {
+    reviewing.value = false;
+    return;
+  }
   classification.value = ['Income', 'Expense'].includes(
     accounts.value.find((a) => a.name === name)?.root_type ?? ''
   )
@@ -317,7 +424,7 @@ watch(targetAccount, (name) => {
     : 'Personal';
   reviewing.value = false;
 });
-watch([classification, reason], () => {
+watch([classification, reason, businessPercentage, personalAccount], () => {
   reviewing.value = false;
 });
 void load();

@@ -12,6 +12,10 @@ Existing journal imports can be retained as **Linked history** batches with thei
 
 ## Bulk category corrections
 
+For shared personal/business payments, select **Mixed spend**, choose the business category, enter the business-use percentage, and choose the owner's personal account for the remainder. The same split can be applied to one payment or a selected group of payments. The preview shows both amounts. Each payment retains its full statement amount and balance; only its category allocation is split. Business amounts are rounded in the company currency and the personal portion receives the exact remainder.
+
+Posted splits can be revised or converted to a full category allocation through bulk reallocation, with history and undo. On a statement, **Split / change spend** opens the selected payment. Draft statements also have percentage and personal-account fields. The CSV template supports `business_percentage` and `personal_account` columns. Mixed-spend percentages must be greater than zero and less than 100; use Business or Personal for a full allocation.
+
 Open **Common → Bulk Reallocation**, or **Bulk reallocate** from the General Ledger. Filter by dates, current category or bank description; select up to 1,000 transactions across statement batches; choose the new category and classification; enter a reason; then review and apply.
 
 Posted statements and linked historical imports are supported. Category corrections create one audited reallocation record, with balanced corrections on each original transaction date. The original source lines and bank ledger entries are preserved. Statement categories and reports reflect the correction. Split or inconsistent allocations must be reviewed separately.

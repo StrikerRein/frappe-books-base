@@ -5,34 +5,36 @@ import frappe
 from frappe.utils import getdate
 from frappe_books.bank_import import BATCH, LINE, check
 from frappe_books.accounting.ledger import validate_leaf_accounts, reverse_entries
-from frappe_books.accounting.money import rounded
+from frappe_books.accounting.money import rounded, as_decimal
+from frappe_books.bank_allocations import allocations
 
 DOCTYPE = "Books Bank Reallocation"
 
 
 @frappe.whitelist()
-def transactions(from_date: str = "", to_date: str = "", account: str = "", search: str = ""):
+def transactions(from_date: str = "", to_date: str = "", account: str = "", search: str = "", transaction: str = ""):
     check()
     parents = frappe.get_list(BATCH, filters={"status": ["in", ["Posted", "Linked history"]]}, pluck="name", limit_page_length=0)
     if not parents:
         return {"rows": [], "has_more": False}
     filters = {"parent": ["in", parents]}
+    if transaction:
+        filters["name"] = transaction
     if from_date:
         filters["transaction_date"] = [">=", getdate(from_date)]
     if to_date:
         filters["transaction_date"] = ["between", [getdate(from_date) if from_date else "1900-01-01", getdate(to_date)]]
-    if account:
-        filters["offset_account"] = ["descendants of (inclusive)", account]
+    account_filters = [["offset_account", "descendants of (inclusive)", account], ["personal_account", "descendants of (inclusive)", account]] if account else None
     if search:
         filters["description"] = ["like", "%" + search + "%"]
-    rows = frappe.get_all(LINE, filters=filters, fields=["name", "parent", "transaction_date", "reference", "description", "money_in", "money_out", "offset_account", "classification", "last_reallocation"], order_by="transaction_date desc, parent desc, idx desc", limit_page_length=5001)
+    rows = frappe.get_all(LINE, filters=filters, or_filters=account_filters, fields=["name", "parent", "transaction_date", "reference", "description", "money_in", "money_out", "offset_account", "classification", "last_reallocation", "business_percentage", "personal_account"], order_by="transaction_date desc, parent desc, idx desc", limit_page_length=5001)
     has_more = len(rows) > 5000
     rows = [r for r in rows if rounded(r.money_in) or rounded(r.money_out)]
     return {"rows": rows[:5000], "has_more": has_more}
 
 
 @frappe.whitelist()
-def reallocate(transaction_ids: list[str], target_account: str, classification: str, reason: str, expected: list[dict] | None = None):
+def reallocate(transaction_ids: list[str], target_account: str, classification: str, reason: str, expected: list[dict] | None = None, business_percentage: float = 0, personal_account: str = ""):
     frappe.has_permission(DOCTYPE, "create", throw=True)
     frappe.has_permission(DOCTYPE, "submit", throw=True)
     if not transaction_ids or len(transaction_ids) > 1000 or len(set(transaction_ids)) != len(transaction_ids):
@@ -47,8 +49,8 @@ def reallocate(transaction_ids: list[str], target_account: str, classification: 
             before = expected_map.get(name)
             if not before or before.get("offset_account") != line.offset_account or (before.get("last_reallocation") or "") != (line.get("last_reallocation") or ""):
                 frappe.throw("A selected transaction changed. Refresh and review the selection again.")
-        changes.append(dict(bank_statement=line.parent, bank_transaction=line.name, old_account=line.offset_account, old_classification=line.classification, previous_reallocation=line.get("last_reallocation")))
-    doc = frappe.get_doc(dict(doctype=DOCTYPE, target_account=target_account, target_classification=classification, reason=reason, changes=changes))
+        changes.append(dict(bank_statement=line.parent, bank_transaction=line.name, old_account=line.offset_account, old_classification=line.classification, old_business_percentage=line.get("business_percentage") or 0, old_personal_account=line.get("personal_account"), previous_reallocation=line.get("last_reallocation")))
+    doc = frappe.get_doc(dict(doctype=DOCTYPE, target_account=target_account, target_classification=classification, business_percentage=business_percentage, personal_account=personal_account, reason=reason, changes=changes))
     frappe.db.savepoint("bank_reallocation")
     try:
         doc.insert()
@@ -64,7 +66,7 @@ def history(bank_statement: str):
     doc = frappe.get_doc(BATCH, bank_statement)
     doc.check_permission("read")
     names = frappe.get_all("Books Bank Reallocation Line", filters={"bank_statement": bank_statement}, pluck="parent")
-    return frappe.get_list(DOCTYPE, filters={"name": ["in", names]}, fields=["name", "creation", "owner", "target_account", "target_classification", "reason", "docstatus"], order_by="creation desc", limit_page_length=100) if names else []
+    return frappe.get_list(DOCTYPE, filters={"name": ["in", names]}, fields=["name", "creation", "owner", "target_account", "target_classification", "reason", "docstatus", "business_percentage", "personal_account"], order_by="creation desc", limit_page_length=100) if names else []
 
 
 @frappe.whitelist()
@@ -84,7 +86,7 @@ def validate(doc):
     validate_leaf_accounts({doc.target_account})
     if not (doc.reason or "").strip():
         frappe.throw("Enter a reason for the category change.")
-    if doc.target_classification not in {"Business", "Personal", "Transfer", "Review"}:
+    if doc.target_classification not in {"Business", "Personal", "Transfer", "Review", "Mixed spend"}:
         frappe.throw("Choose a valid classification.")
     if not doc.changes or len(doc.changes) > 1000:
         frappe.throw("Select 1 to 1,000 transactions.")
@@ -105,7 +107,7 @@ def apply(doc):
             frappe.throw("Use a category account rather than another bank account.")
         if line.offset_account != change.old_account or line.classification != change.old_classification or (line.get("last_reallocation") or "") != (change.previous_reallocation or ""):
             frappe.throw("A selected transaction changed. Refresh and select it again.")
-        if line.offset_account == doc.target_account and line.classification == doc.target_classification:
+        if line.offset_account == doc.target_account and line.classification == doc.target_classification and (doc.target_classification != "Mixed spend" or (as_decimal(line.business_percentage) == as_decimal(doc.business_percentage) and line.personal_account == doc.personal_account)):
             frappe.throw("A selected transaction already has this category and classification.")
         net = rounded(line.money_out) - rounded(line.money_in)
         if not net:
@@ -115,12 +117,16 @@ def apply(doc):
             if entry.account != batch.bank_account:
                 actual[entry.account] += rounded(entry.debit) - rounded(entry.credit)
         actual = {a: amount for a, amount in actual.items() if amount}
-        if actual != {line.offset_account: net}:
+        old_allocation = allocations(line)
+        new_line = frappe._dict(money_out=line.money_out, money_in=line.money_in, offset_account=doc.target_account, classification=doc.target_classification, business_percentage=doc.business_percentage, personal_account=doc.personal_account)
+        new_allocation = allocations(new_line)
+        if actual != old_allocation:
             frappe.throw(f"Transaction {line.reference} has a split or inconsistent allocation; review it separately.")
-        if line.offset_account != doc.target_account:
-            for account, amount in ((line.offset_account, -net), (doc.target_account, net)):
+        differences = {account: new_allocation.get(account, rounded(0)) - old_allocation.get(account, rounded(0)) for account in old_allocation.keys() | new_allocation.keys()}
+        for account, amount in differences.items():
+            if amount:
                 frappe.get_doc(dict(doctype="Books Ledger Entry", posting_date=line.transaction_date, account=account, debit=max(amount, 0), credit=max(-amount, 0), voucher_type=DOCTYPE, voucher_no=doc.name, bank_statement=batch.name, bank_transaction=line.name, bank_description=line.description)).insert(ignore_permissions=True)
-        frappe.db.set_value(LINE, line.name, {"offset_account": doc.target_account, "classification": doc.target_classification, "last_reallocation": doc.name}, update_modified=False)
+        frappe.db.set_value(LINE, line.name, {"offset_account": doc.target_account, "classification": doc.target_classification, "business_percentage": doc.business_percentage if doc.target_classification == "Mixed spend" else 0, "personal_account": doc.personal_account if doc.target_classification == "Mixed spend" else None, "last_reallocation": doc.name}, update_modified=False)
         frappe.db.set_value(BATCH, batch.name, "modified", frappe.utils.now())
 
 
@@ -132,4 +138,4 @@ def cancel(doc):
             frappe.throw("A later reallocation exists. Undo the latest change first.")
     reverse_entries(doc)
     for change in doc.changes:
-        frappe.db.set_value(LINE, change.bank_transaction, {"offset_account": change.old_account, "classification": change.old_classification, "last_reallocation": change.previous_reallocation}, update_modified=False)
+        frappe.db.set_value(LINE, change.bank_transaction, {"offset_account": change.old_account, "classification": change.old_classification, "business_percentage": change.old_business_percentage, "personal_account": change.old_personal_account, "last_reallocation": change.previous_reallocation}, update_modified=False)

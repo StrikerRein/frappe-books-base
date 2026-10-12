@@ -123,6 +123,7 @@
                         'Personal',
                         'Transfer',
                         'Review',
+                        'Mixed spend',
                       ]"
                       :key="c"
                     >
@@ -143,11 +144,57 @@
                     </option>
                   </select></template
                 >
-                <template v-else
+                <div
+                  v-if="
+                    batch.status === 'Draft' &&
+                    line.classification === 'Mixed spend'
+                  "
+                  class="my-2"
+                >
+                  <label
+                    >Business-use %<input
+                      v-model.number="line.business_percentage"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      max="99.99"
+                      class="border p-1 w-full"
+                  /></label>
+                  <label
+                    >Personal portion account<select
+                      v-model="line.personal_account"
+                      class="border p-1 w-full"
+                    >
+                      <option value="">Choose personal account</option>
+                      <option
+                        v-for="a in accountOptions.filter(
+                          (a) =>
+                            a.account_type !== 'Bank' &&
+                            ['Asset', 'Liability', 'Equity'].includes(
+                              a.root_type
+                            )
+                        )"
+                        :key="a.name"
+                        :value="a.name"
+                      >
+                        {{ a.name }}
+                      </option>
+                    </select></label
+                  >
+                </div>
+                <template v-if="batch.status !== 'Draft'"
                   >{{ line.classification }}<br />{{
                     line.offset_account
                   }}</template
                 >
+                <p v-if="line.classification === 'Mixed spend'">
+                  {{ line.business_percentage }}% business ·
+                  {{ money(splitBusiness(line)) }}<br />{{
+                    (100 - Number(line.business_percentage)).toFixed(2)
+                  }}% personal ·
+                  {{ money(Number(line.money_out) - splitBusiness(line))
+                  }}<br />{{ line.personal_account }}
+                </p>
               </td>
               <td class="p-2">
                 <RouterLink
@@ -164,6 +211,24 @@
                   :to="ledgerLink(line, true)"
                   class="block underline mt-2"
                   >Bank ledger</RouterLink
+                >
+                <RouterLink
+                  v-if="batch.status !== 'Draft' && Number(line.money_out) > 0"
+                  :to="{
+                    path: '/bank-reallocation',
+                    query: { transaction: line.name, mixed: '1' },
+                  }"
+                  class="block underline mt-2"
+                  >Split / change spend</RouterLink
+                >
+                <RouterLink
+                  v-if="
+                    line.classification === 'Mixed spend' &&
+                    batch.status !== 'Draft'
+                  "
+                  :to="ledgerLink(line, false, true)"
+                  class="block underline mt-2"
+                  >Personal ledger</RouterLink
                 >
                 <span v-if="!Number(line.money_out) && !Number(line.money_in)"
                   >Bank memo — no cash movement</span
@@ -187,6 +252,10 @@
           <p>
             {{ change.target_account }} ({{ change.target_classification }}) —
             {{ change.reason }}
+          </p>
+          <p v-if="change.target_classification === 'Mixed spend'">
+            {{ change.business_percentage }}% business; personal remainder to
+            {{ change.personal_account }}.
           </p>
           <template v-if="change.docstatus === 1">
             <button
@@ -312,6 +381,8 @@ import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { call } from 'src/web/api';
 import { fyo } from 'src/initFyo';
 interface Line {
+  business_percentage?: number;
+  personal_account?: string;
   name: string;
   transaction_date: string;
   reference: string;
@@ -349,13 +420,17 @@ const reallocations = ref<
     owner: string;
     target_account: string;
     target_classification: string;
+    business_percentage?: number;
+    personal_account?: string;
     reason: string;
     docstatus: number;
   }[]
 >([]);
 const undoReview = ref('');
 const batch = ref<Batch | null>(null);
-const accountOptions = ref<{ name: string; account_type: string }[]>([]);
+const accountOptions = ref<
+  { name: string; account_type: string; root_type: string }[]
+>([]);
 const busy = ref(false);
 const error = ref('');
 const search = ref('');
@@ -387,12 +462,25 @@ function money(value: number) {
     currency: String(fyo.singles.SystemSettings?.currency || 'ZAR'),
   }).format(Number(value));
 }
-function ledgerLink(line: Line, bank = false) {
+function splitBusiness(line: Line) {
+  return (
+    Math.round(
+      ((Number(line.money_out) * Number(line.business_percentage)) / 100 +
+        Number.EPSILON) *
+        100
+    ) / 100
+  );
+}
+function ledgerLink(line: Line, bank = false, personal = false) {
   return {
     path: '/report/GeneralLedger',
     query: {
       defaultFilters: JSON.stringify({
-        account: bank ? batch.value!.bank_account : line.offset_account,
+        account: bank
+          ? batch.value!.bank_account
+          : personal
+            ? line.personal_account
+            : line.offset_account,
         fromDate: line.transaction_date,
         toDate: line.transaction_date,
         referenceType: 'All',
@@ -460,6 +548,8 @@ async function save() {
         name: l.name,
         offset_account: l.offset_account,
         classification: l.classification,
+        business_percentage: l.business_percentage,
+        personal_account: l.personal_account,
       })),
     });
   });
@@ -475,7 +565,7 @@ async function post() {
 function template() {
   const blob = new Blob(
     [
-      'date,description,money_out,money_in,balance,reference,account,classification\n',
+      'date,description,money_out,money_in,balance,reference,account,classification,business_percentage,personal_account\n',
     ],
     { type: 'text/csv' }
   );
