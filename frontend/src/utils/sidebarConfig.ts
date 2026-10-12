@@ -307,6 +307,11 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/bank-statements',
         },
         {
+          label: t`Bulk Reallocation`,
+          name: 'bank-reallocation',
+          route: '/bank-reallocation',
+        },
+        {
           label: t`Item`,
           name: 'item',
           route: '/list/Item',

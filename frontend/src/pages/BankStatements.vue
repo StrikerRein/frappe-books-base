@@ -2,6 +2,9 @@
   <div class="h-full overflow-auto p-5 text-ink-gray-8">
     <div class="flex items-center justify-between mb-5">
       <h1 class="text-xl font-semibold">Bank statements</h1>
+      <RouterLink to="/bank-reallocation" class="underline"
+        >Bulk reallocate transactions</RouterLink
+      >
       <RouterLink to="/bank-statements" class="underline"
         >All batches</RouterLink
       >
@@ -170,6 +173,47 @@
           </tbody>
         </table>
       </div>
+      <section v-if="reallocations.length" class="border rounded p-4 mt-5">
+        <h2 class="font-semibold mb-2">Category change history</h2>
+        <div
+          v-for="change in reallocations"
+          :key="change.name"
+          class="border-b py-3"
+        >
+          <p>
+            {{ change.name }} · {{ change.creation }} · {{ change.owner }} ·
+            {{ change.docstatus === 2 ? 'Undone' : 'Applied' }}
+          </p>
+          <p>
+            {{ change.target_account }} ({{ change.target_classification }}) —
+            {{ change.reason }}
+          </p>
+          <template v-if="change.docstatus === 1">
+            <button
+              v-if="undoReview !== change.name"
+              class="underline mt-2"
+              @click="undoReview = change.name"
+            >
+              Undo this reallocation
+            </button>
+            <div v-else>
+              <p class="my-2">
+                Restore the previous categories for every transaction in this
+                reallocation, including transactions in other batches.
+              </p>
+              <button
+                class="border rounded p-2 me-3"
+                :disabled="busy"
+                @click="undoChange(change.name)"
+              >
+                Confirm undo</button
+              ><button class="underline" @click="undoReview = ''">
+                Keep change
+              </button>
+            </div>
+          </template>
+        </div>
+      </section>
     </template>
     <template v-else-if="!busy">
       <section class="border rounded p-4 mb-6">
@@ -298,6 +342,18 @@ interface Batch {
 const route = useRoute();
 const router = useRouter();
 const batches = ref<Batch[]>([]);
+const reallocations = ref<
+  {
+    name: string;
+    creation: string;
+    owner: string;
+    target_account: string;
+    target_classification: string;
+    reason: string;
+    docstatus: number;
+  }[]
+>([]);
+const undoReview = ref('');
 const batch = ref<Batch | null>(null);
 const accountOptions = ref<{ name: string; account_type: string }[]>([]);
 const busy = ref(false);
@@ -364,8 +420,13 @@ async function load() {
       batch.value = await call('frappe_books.bank_import.get_batch', {
         name: route.params.name,
       });
+      reallocations.value = await call(
+        'frappe_books.bank_reallocation.history',
+        { bank_statement: route.params.name }
+      );
     } else {
       batch.value = null;
+      reallocations.value = [];
       batches.value = await call('frappe_books.bank_import.list_batches');
     }
   });
@@ -425,4 +486,13 @@ function template() {
   URL.revokeObjectURL(a.href);
 }
 watch(() => route.fullPath, load, { immediate: true });
+async function undoChange(name: string) {
+  await run(async () => {
+    await call('frappe_books.bank_reallocation.undo', { name });
+  });
+  if (!error.value) {
+    undoReview.value = '';
+    await load();
+  }
+}
 </script>

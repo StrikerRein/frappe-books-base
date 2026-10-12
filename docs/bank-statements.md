@@ -10,4 +10,12 @@ Profit & Loss, Balance Sheet and Trial Balance account links open the General Le
 
 Existing journal imports can be retained as **Linked history** batches with their original source lines and ledger links. These batches are read-only and cannot be posted again; linking them does not change the accounting balances.
 
+## Bulk category corrections
+
+Open **Common → Bulk Reallocation**, or **Bulk reallocate** from the General Ledger. Filter by dates, current category or bank description; select up to 1,000 transactions across statement batches; choose the new category and classification; enter a reason; then review and apply.
+
+Posted statements and linked historical imports are supported. Category corrections create one audited reallocation record, with balanced corrections on each original transaction date. The original source lines and bank ledger entries are preserved. Statement categories and reports reflect the correction. Split or inconsistent allocations must be reviewed separately.
+
+The statement's **Category change history** shows the user, time, reason and destination category. **Undo this reallocation** restores all transactions in that operation, including any from other statements. If there are later changes, undo those first. A statement cannot be cancelled while it has active reallocations.
+
 The initial uploader accepts the supplied CSV layout. It does not parse arbitrary bank PDFs or arbitrary Excel workbook layouts.

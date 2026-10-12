@@ -33,7 +33,7 @@ def get_batch(name: str):
 @frappe.whitelist()
 def accounts():
     check()
-    return frappe.get_list("Books Account", filters={"is_group": 0}, fields=["name", "account_type"], limit_page_length=0, order_by="name")
+    return frappe.get_list("Books Account", filters={"is_group": 0}, fields=["name", "account_type", "root_type"], limit_page_length=0, order_by="name")
 
 
 @frappe.whitelist()
@@ -148,4 +148,7 @@ def submit(doc):
 
 
 def cancel(doc):
+    for name in frappe.get_all("Books Bank Reallocation Line", filters={"bank_statement": doc.name}, pluck="parent"):
+        if frappe.db.get_value("Books Bank Reallocation", name, "docstatus") == 1:
+            frappe.throw("Undo this statement's reallocations before cancelling it.")
     reverse_entries(doc)

@@ -19,7 +19,8 @@
   "source_page",
   "legacy_voucher",
   "review_note",
-  "source_data"
+  "source_data",
+  "last_reallocation"
  ],
  "fields": [
   {
@@ -114,6 +115,13 @@
    "fieldtype": "Code",
    "label": "Original workbook data",
    "options": "JSON",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_reallocation",
+   "fieldtype": "Link",
+   "label": "Latest category change",
+   "options": "Books Bank Reallocation",
    "read_only": 1
   }
  ],

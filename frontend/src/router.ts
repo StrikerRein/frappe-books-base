@@ -33,6 +33,10 @@ declare module 'vue-router' {
 
 const routes: RouteRecordRaw[] = [
   {
+    path: '/bank-reallocation',
+    component: () => import('src/pages/BankReallocation.vue'),
+  },
+  {
     path: '/bank-statements/:name?',
     component: () => import('src/pages/BankStatements.vue'),
   },

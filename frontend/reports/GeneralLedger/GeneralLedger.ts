@@ -5,6 +5,7 @@ import { Report } from 'reports/Report';
 import { ServerRow } from 'reports/serverReport';
 import { ColumnField, PhoneLayout, ReportRow } from 'reports/types';
 import { Field, RawValue } from 'schemas/types';
+import { routeTo } from 'src/utils/ui';
 
 export class GeneralLedger extends Report {
   static title = t`General Ledger`;
@@ -57,7 +58,21 @@ export class GeneralLedger extends Report {
   }
 
   getActions(): Action[] {
-    return getCommonExportActions(this);
+    return [
+      {
+        label: t`Bulk reallocate`,
+        action: () =>
+          routeTo({
+            path: '/bank-reallocation',
+            query: {
+              account: String(this.get('account') || ''),
+              fromDate: String(this.fromDate || ''),
+              toDate: String(this.toDate || ''),
+            },
+          }),
+      },
+      ...getCommonExportActions(this),
+    ];
   }
 
   getFilters() {

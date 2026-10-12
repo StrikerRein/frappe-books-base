@@ -1,0 +1,66 @@
+{
+ "doctype": "DocType",
+ "name": "Books Bank Reallocation",
+ "module": "Frappe Books",
+ "autoname": "format:BRA-{#####}",
+ "istable": 0,
+ "is_submittable": 1,
+ "track_changes": 1,
+ "field_order": [
+  "target_account",
+  "target_classification",
+  "reason",
+  "changes"
+ ],
+ "fields": [
+  {
+   "fieldname": "target_account",
+   "fieldtype": "Link",
+   "label": "New category",
+   "options": "Books Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "target_classification",
+   "fieldtype": "Select",
+   "label": "New classification",
+   "options": "Business\nPersonal\nTransfer\nReview",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Reason",
+   "reqd": 1
+  },
+  {
+   "fieldname": "changes",
+   "fieldtype": "Table",
+   "label": "Transactions",
+   "options": "Books Bank Reallocation Line",
+   "reqd": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "Books Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  }
+ ]
+}

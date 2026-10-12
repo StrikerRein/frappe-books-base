@@ -1,0 +1,48 @@
+{
+ "doctype": "DocType",
+ "name": "Books Bank Reallocation Line",
+ "module": "Frappe Books",
+ "autoname": "hash",
+ "istable": 1,
+ "is_submittable": 0,
+ "track_changes": 1,
+ "field_order": [
+  "bank_statement",
+  "bank_transaction",
+  "old_account",
+  "old_classification",
+  "previous_reallocation"
+ ],
+ "fields": [
+  {
+   "fieldname": "bank_statement",
+   "fieldtype": "Link",
+   "label": "Statement",
+   "options": "Books Bank Statement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_transaction",
+   "fieldtype": "Data",
+   "label": "Bank transaction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "old_account",
+   "fieldtype": "Link",
+   "label": "Previous category",
+   "options": "Books Account"
+  },
+  {
+   "fieldname": "old_classification",
+   "fieldtype": "Data",
+   "label": "Previous classification"
+  },
+  {
+   "fieldname": "previous_reallocation",
+   "fieldtype": "Data",
+   "label": "Previous reallocation"
+  }
+ ],
+ "permissions": []
+}
