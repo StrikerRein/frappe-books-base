@@ -10,7 +10,9 @@ export function getAccountLedgerLink(
   column?: ColumnField
 ): RouteLocationRaw | null {
   if (
-    !['profit-and-loss', 'trial-balance'].includes(report.reportName) ||
+    !['balance-sheet', 'profit-and-loss', 'trial-balance'].includes(
+      report.reportName
+    ) ||
     row.isEmpty ||
     row.isTotal ||
     !canOpenReport('Books General Ledger')

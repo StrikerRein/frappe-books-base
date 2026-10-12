@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   fyo,
+  BalanceSheet,
   ProfitAndLoss,
   TrialBalance,
   getAccountLedgerLink,
@@ -60,6 +61,34 @@ test('P&L amount links use the exact server period, including partial months', (
   assert.equal(
     filters(getAccountLedgerLink(report, row, report.columns[3])).fromDate,
     '2025-06-09'
+  );
+});
+
+test('balance sheet accounts drill through with the selected statement period', () => {
+  const report = new BalanceSheet(fyo);
+  report.columns = [
+    { fieldname: 'account', label: 'Account', fieldtype: 'Link' },
+    {
+      fieldname: 'period_2026_02_28',
+      fieldtype: 'Currency',
+      fromDate: '2025-03-01',
+      toDate: '2026-02-28',
+    },
+  ];
+  const row = report.getReportRow({
+    account: '1100 - Owner current account / mixed bank clearing',
+    indent: 2,
+    period_2026_02_28: 197138.62,
+  });
+  assert.deepEqual(
+    filters(getAccountLedgerLink(report, row, report.columns[1])),
+    {
+      account: '1100 - Owner current account / mixed bank clearing',
+      fromDate: '2025-03-01',
+      toDate: '2026-02-28',
+      referenceType: 'All',
+      groupBy: 'none',
+    }
   );
 });
 

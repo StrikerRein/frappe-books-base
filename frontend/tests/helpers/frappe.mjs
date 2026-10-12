@@ -57,6 +57,7 @@ await build({
       export { searcherKey } from './src/utils/injectionKeys';
       export { createApp, effectScope, shallowRef } from 'vue';
       export { GeneralLedger } from './reports/GeneralLedger/GeneralLedger';
+      export { BalanceSheet } from './reports/BalanceSheet/BalanceSheet';
       export { ProfitAndLoss } from './reports/ProfitAndLoss/ProfitAndLoss';
       export { TrialBalance } from './reports/TrialBalance/TrialBalance';
       export { getAccountLedgerLink } from './src/components/Report/accountLedgerLink';
@@ -192,6 +193,7 @@ export const {
   effectScope,
   shallowRef,
   GeneralLedger,
+  BalanceSheet,
   ProfitAndLoss,
   TrialBalance,
   getAccountLedgerLink,
