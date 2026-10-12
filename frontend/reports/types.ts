@@ -31,6 +31,9 @@ export interface ColumnField extends Omit<BaseField, 'fieldtype'> {
   width?: number;
   /** The schema whose records a Link column names. */
   target?: string;
+  /** The server's exact period represented by a financial statement amount. */
+  fromDate?: string;
+  toDate?: string;
 }
 
 export type Periodicity = 'Monthly' | 'Quarterly' | 'Half Yearly' | 'Yearly';

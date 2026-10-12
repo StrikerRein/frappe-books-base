@@ -58,6 +58,8 @@ await build({
       export { createApp, effectScope, shallowRef } from 'vue';
       export { GeneralLedger } from './reports/GeneralLedger/GeneralLedger';
       export { ProfitAndLoss } from './reports/ProfitAndLoss/ProfitAndLoss';
+      export { TrialBalance } from './reports/TrialBalance/TrialBalance';
+      export { getAccountLedgerLink } from './src/components/Report/accountLedgerLink';
       export { StockBalance } from './reports/inventory/StockBalance';
       export { MobileTree } from './src/components/Report/Mobile/MobileTree';
       export { getCsvData, getJsonData } from './reports/commonExporter';
@@ -191,6 +193,8 @@ export const {
   shallowRef,
   GeneralLedger,
   ProfitAndLoss,
+  TrialBalance,
+  getAccountLedgerLink,
   StockBalance,
   MobileTree,
   getCsvData,

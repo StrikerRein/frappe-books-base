@@ -14,6 +14,8 @@ export interface ServerColumn {
   fieldtype: FieldType;
   options?: string;
   width?: number;
+  from_date?: string;
+  to_date?: string;
 }
 
 export type ServerRow = Record<string, RawValue | undefined>;
@@ -66,6 +68,8 @@ export function toColumnField(column: ServerColumn): ColumnField {
       column.fieldtype === 'Link' && column.options
         ? toSchemaName(column.options)
         : undefined,
+    fromDate: column.from_date,
+    toDate: column.to_date,
   };
 }
 

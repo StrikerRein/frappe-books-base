@@ -34,7 +34,14 @@ def get_trial_balance_default_filters() -> dict:
 def get_statement_columns(periods) -> list[dict]:
 	return [
 		_account_column(),
-		*(_amount_column(period.key, period.label) for period in periods),
+		*(
+			{
+				**_amount_column(period.key, period.label),
+				"from_date": period.from_date,
+				"to_date": period.to_date,
+			}
+			for period in periods
+		),
 	]
 
 
@@ -42,7 +49,13 @@ def get_profit_and_loss_columns(periods) -> list[dict]:
 	"""Return the statement columns, then a Total column when there is more than one period."""
 	columns = get_statement_columns(periods)
 	if len(periods) > 1:
-		columns.append(_amount_column("total", _("Total")))
+		columns.append(
+			{
+				**_amount_column("total", _("Total")),
+				"from_date": min(period.from_date for period in periods),
+				"to_date": max(period.to_date for period in periods),
+			}
+		)
 	return columns
 
 

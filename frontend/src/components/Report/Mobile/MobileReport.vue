@@ -103,6 +103,8 @@ import MobileReportSkeleton from './MobileReportSkeleton.vue';
 import MobileReportTree from './MobileReportTree.vue';
 import { MobileTree } from './MobileTree';
 import { getColumnIndex, getPhoneLayout } from './mobileRows';
+import { getAccountLedgerLink } from '../accountLedgerLink';
+import { routeTo } from 'src/utils/ui';
 
 const props = defineProps<{
   report: Report;
@@ -170,6 +172,14 @@ const detailTitle = computed(() => {
 });
 
 function openDetail(row: ReportRow) {
+  const column = props.report.columns.find(
+    (c) => c.fieldname === valueColumns.value[0]?.key
+  );
+  const link = getAccountLedgerLink(props.report, row, column);
+  if (link) {
+    void routeTo(link);
+    return;
+  }
   detailRow.value = row;
   detailOpen.value = true;
 }

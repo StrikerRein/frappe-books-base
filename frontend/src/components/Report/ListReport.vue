@@ -33,7 +33,7 @@
             <FrappeListRow
               v-if="!row.folded"
               :value="value"
-              :on-click="row.isGroup ? () => onRowClick(row, index) : undefined"
+              :on-click="getRowAction(row, index)"
             >
               <FrappeListCell
                 v-for="(cell, cellIndex) in row.cells"
@@ -46,7 +46,49 @@
                 ]"
                 :style="getIndentStyle(cell)"
               >
-                <ReportOverflowText :value="cell.value" />
+                <button
+                  v-if="
+                    row.isGroup &&
+                    cellIndex === 0 &&
+                    getAccountLedgerLink(report, row)
+                  "
+                  type="button"
+                  class="me-1 shrink-0 rounded-1 p-1 hover:bg-surface-gray-2"
+                  :aria-expanded="!row.foldedBelow"
+                  :aria-label="
+                    row.foldedBelow
+                      ? t`Expand ${cell.value}`
+                      : t`Collapse ${cell.value}`
+                  "
+                  @click.stop="onRowClick(row, index)"
+                >
+                  <FrappeIcon
+                    :icon="
+                      row.foldedBelow
+                        ? 'lucide-chevron-right'
+                        : 'lucide-chevron-down'
+                    "
+                    class="size-3.5"
+                  />
+                </button>
+                <RouterLink
+                  v-if="
+                    getAccountLedgerLink(report, row, report.columns[cellIndex])
+                  "
+                  :to="
+                    getAccountLedgerLink(
+                      report,
+                      row,
+                      report.columns[cellIndex]
+                    ) ?? ''
+                  "
+                  class="block w-full min-w-0 rounded-1 hover:underline focus-visible:outline focus-visible:outline-2"
+                  :title="t`View transactions in General Ledger`"
+                  @click.stop
+                >
+                  <ReportOverflowText :value="cell.value" />
+                </RouterLink>
+                <ReportOverflowText v-else :value="cell.value" />
               </FrappeListCell>
             </FrappeListRow>
           </template>
@@ -75,6 +117,7 @@
 </template>
 <script>
 import {
+  Icon as FrappeIcon,
   LoadingText as FrappeLoadingText,
   ScrollArea as FrappeScrollArea,
 } from 'frappe-ui';
@@ -90,6 +133,9 @@ import { isEqual } from 'lodash';
 import { isNumeric } from 'src/utils';
 import { languageDirectionKey } from 'src/utils/injectionKeys';
 import { defineComponent, inject } from 'vue';
+import { RouterLink } from 'vue-router';
+import { routeTo } from 'src/utils/ui';
+import { getAccountLedgerLink } from './accountLedgerLink';
 import Paginator from '../Paginator.vue';
 import ReportColumnHeader from './ReportColumnHeader.vue';
 import { getReportCellColorClass } from './cellColor';
@@ -98,6 +144,8 @@ import ReportOverflowText from './ReportOverflowText.vue';
 
 export default defineComponent({
   components: {
+    FrappeIcon,
+    RouterLink,
     FrappeLoadingText,
     FrappeList,
     FrappeListCell,
@@ -158,6 +206,12 @@ export default defineComponent({
     },
   },
   methods: {
+    getAccountLedgerLink,
+    getRowAction(row, index) {
+      if (row.isGroup) return () => this.onRowClick(row, index);
+      const link = getAccountLedgerLink(this.report, row);
+      return link ? () => routeTo(link) : undefined;
+    },
     fitColumn(column, index) {
       this.columnWidths.fit(
         column,
