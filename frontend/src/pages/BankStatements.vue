@@ -91,6 +91,18 @@
                     · page {{ line.source_page }}</span
                   >
                 </p>
+                <details
+                  v-if="line.review_note || line.source_data"
+                  class="text-xs mt-2"
+                >
+                  <summary class="cursor-pointer underline">
+                    Allocation and review details
+                  </summary>
+                  <p class="whitespace-pre-wrap my-2">{{ line.review_note }}</p>
+                  <pre v-if="line.source_data" class="whitespace-pre-wrap">{{
+                    line.source_data
+                  }}</pre>
+                </details>
               </td>
               <td class="p-2 text-right">{{ money(line.money_out) }}</td>
               <td class="p-2 text-right">{{ money(line.money_in) }}</td>
@@ -142,10 +154,16 @@
                   >Category ledger</RouterLink
                 >
                 <RouterLink
-                  v-if="batch.status !== 'Draft'"
+                  v-if="
+                    batch.status !== 'Draft' &&
+                    (Number(line.money_out) || Number(line.money_in))
+                  "
                   :to="ledgerLink(line, true)"
                   class="block underline mt-2"
                   >Bank ledger</RouterLink
+                >
+                <span v-if="!Number(line.money_out) && !Number(line.money_in)"
+                  >Bank memo — no cash movement</span
                 >
               </td>
             </tr>
@@ -262,6 +280,8 @@ interface Line {
   source_file: string;
   source_row: number;
   source_page: string;
+  review_note?: string;
+  source_data?: string;
 }
 interface Batch {
   name: string;

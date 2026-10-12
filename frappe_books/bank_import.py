@@ -107,6 +107,11 @@ def validate(doc):
     balance = rounded(doc.opening_balance)
     for row in doc.lines:
         out, incoming = rounded(row.money_out), rounded(row.money_in)
+        if out == 0 and incoming == 0 and row.classification == "Bank memo":
+            row.running_balance = balance
+            if row.has_statement_balance and rounded(row.statement_balance) != balance:
+                frappe.throw(f"Statement balance does not reconcile on memo line {row.idx}.")
+            continue
         if min(out, incoming) < 0 or (out == 0) == (incoming == 0):
             frappe.throw(f"Line {row.idx} must contain either money in or money out.")
         if row.offset_account == doc.bank_account:
@@ -134,6 +139,8 @@ def submit(doc):
     if frappe.db.exists("Books Ledger Entry", {"account": doc.bank_account, "posting_date": ["between", [doc.from_date, doc.to_date]], "reverted": 0}):
         frappe.throw("This bank period already has ledger postings. Check overlapping statements before posting.")
     for row in doc.lines:
+        if rounded(row.money_out) == 0 and rounded(row.money_in) == 0:
+            continue
         if not row.offset_account:
             frappe.throw(f"Select a category for line {row.idx} before posting.")
         for account, debit, credit in ((doc.bank_account, row.money_in, row.money_out), (row.offset_account, row.money_out, row.money_in)):

@@ -31,3 +31,15 @@ class IntegrationTestBankImport(IntegrationTestCase):
         bank = make_account("Reconcile Bank", account_type="Bank")
         with self.assertRaises(frappe.ValidationError):
             bank_import.upload("Invalid closing", bank.name, 0, 99, "date,description,money_out,money_in\n2026-01-01,Receipt,0,100\n", "invalid.csv")
+
+    def test_bank_memo_is_retained_without_posting(self):
+        bank = make_account("Memo Bank", account_type="Bank")
+        income = make_account("Memo Income", root_type="Income")
+        csv = f"date,description,money_out,money_in,balance,reference,account,classification\n2026-01-01,Receipt,0,100,100,IN,{income.name},Business\n2026-01-01,Payment notification,0,0,100,MEMO,,Bank memo\n"
+        name = bank_import.upload("Memo statement", bank.name, 0, 100, csv, "memo.csv")
+        bank_import.post(name)
+        doc = frappe.get_doc("Books Bank Statement", name)
+        self.assertEqual(len(doc.lines), 2)
+        self.assertEqual(doc.lines[1].running_balance, 100)
+        self.assertEqual(frappe.db.count("Books Ledger Entry", {"voucher_no": name}), 2)
+        self.assertFalse(frappe.db.exists("Books Ledger Entry", {"bank_transaction": doc.lines[1].name}))

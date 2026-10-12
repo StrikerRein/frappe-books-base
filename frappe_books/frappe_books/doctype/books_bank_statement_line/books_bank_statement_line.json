@@ -17,7 +17,9 @@
   "source_file",
   "source_row",
   "source_page",
-  "legacy_voucher"
+  "legacy_voucher",
+  "review_note",
+  "source_data"
  ],
  "fields": [
   {
@@ -78,7 +80,7 @@
    "fieldname": "classification",
    "fieldtype": "Select",
    "label": "Classification",
-   "options": "Business\nPersonal\nTransfer\nReview",
+   "options": "Business\nPersonal\nTransfer\nReview\nBank memo",
    "default": "Review"
   },
   {
@@ -100,6 +102,19 @@
    "fieldname": "legacy_voucher",
    "fieldtype": "Data",
    "label": "Original posting"
+  },
+  {
+   "fieldname": "review_note",
+   "fieldtype": "Small Text",
+   "label": "Allocation and review notes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_data",
+   "fieldtype": "Code",
+   "label": "Original workbook data",
+   "options": "JSON",
+   "read_only": 1
   }
  ],
  "permissions": [],
