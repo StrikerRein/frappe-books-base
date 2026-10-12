@@ -1,0 +1,111 @@
+{
+ "doctype": "DocType",
+ "name": "Books Bank Statement Line",
+ "module": "Frappe Books",
+ "autoname": "hash",
+ "field_order": [
+  "transaction_date",
+  "reference",
+  "description",
+  "money_out",
+  "money_in",
+  "has_statement_balance",
+  "statement_balance",
+  "running_balance",
+  "offset_account",
+  "classification",
+  "source_file",
+  "source_row",
+  "source_page",
+  "legacy_voucher"
+ ],
+ "fields": [
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "reference",
+   "fieldtype": "Data",
+   "label": "Bank reference"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "money_out",
+   "fieldtype": "Currency",
+   "label": "Money out",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "money_in",
+   "fieldtype": "Currency",
+   "label": "Money in",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "has_statement_balance",
+   "fieldtype": "Check",
+   "label": "Statement balance supplied"
+  },
+  {
+   "fieldname": "statement_balance",
+   "fieldtype": "Currency",
+   "label": "Statement balance"
+  },
+  {
+   "fieldname": "running_balance",
+   "fieldtype": "Currency",
+   "label": "Running balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "offset_account",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Books Account",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "classification",
+   "fieldtype": "Select",
+   "label": "Classification",
+   "options": "Business\nPersonal\nTransfer\nReview",
+   "default": "Review"
+  },
+  {
+   "fieldname": "source_file",
+   "fieldtype": "Data",
+   "label": "Source file"
+  },
+  {
+   "fieldname": "source_row",
+   "fieldtype": "Int",
+   "label": "Source row"
+  },
+  {
+   "fieldname": "source_page",
+   "fieldtype": "Data",
+   "label": "Source page"
+  },
+  {
+   "fieldname": "legacy_voucher",
+   "fieldtype": "Data",
+   "label": "Original posting"
+  }
+ ],
+ "permissions": [],
+ "istable": 1,
+ "is_submittable": 0,
+ "track_changes": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC"
+}

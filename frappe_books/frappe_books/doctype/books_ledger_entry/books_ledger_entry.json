@@ -19,7 +19,10 @@
   "voucher_type",
   "voucher_no",
   "reverted",
-  "reverts"
+  "reverts",
+  "bank_statement",
+  "bank_transaction",
+  "bank_description"
  ],
  "fields": [
   {
@@ -109,6 +112,27 @@
    "fieldname": "reference_section_break_8",
    "fieldtype": "Section Break",
    "label": "Reference"
+  },
+  {
+   "fieldname": "bank_statement",
+   "fieldtype": "Link",
+   "label": "Bank statement",
+   "options": "Books Bank Statement",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "bank_transaction",
+   "fieldtype": "Data",
+   "label": "Bank transaction",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "bank_description",
+   "fieldtype": "Small Text",
+   "label": "Bank description",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,

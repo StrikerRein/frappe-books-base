@@ -1,0 +1,118 @@
+{
+ "doctype": "DocType",
+ "name": "Books Bank Statement",
+ "module": "Frappe Books",
+ "autoname": "format:BS-{#####}",
+ "field_order": [
+  "title",
+  "bank_account",
+  "from_date",
+  "to_date",
+  "opening_balance",
+  "closing_balance",
+  "status",
+  "source_hash",
+  "source_filename",
+  "source_attachment",
+  "lines"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Statement",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank account",
+   "options": "Books Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "opening_balance",
+   "fieldtype": "Currency",
+   "label": "Opening balance",
+   "reqd": 1
+  },
+  {
+   "fieldname": "closing_balance",
+   "fieldtype": "Currency",
+   "label": "Closing balance",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPosted\nLinked history\nCancelled",
+   "default": "Draft",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_hash",
+   "fieldtype": "Data",
+   "label": "File fingerprint",
+   "hidden": 1
+  },
+  {
+   "fieldname": "source_filename",
+   "fieldtype": "Data",
+   "label": "Source file",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_attachment",
+   "fieldtype": "Attach",
+   "label": "Source attachment"
+  },
+  {
+   "fieldname": "lines",
+   "fieldtype": "Table",
+   "label": "Bank transactions",
+   "options": "Books Bank Statement Line",
+   "reqd": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "Books Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "istable": 0,
+ "is_submittable": 1,
+ "track_changes": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC"
+}

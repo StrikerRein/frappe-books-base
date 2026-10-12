@@ -26,6 +26,7 @@ export class GeneralLedger extends Report {
   reverted = false;
   /** The doctype of the entries' documents, or `All`. */
   referenceType = 'All';
+  bankTransaction = '';
   groupBy: 'none' | 'party' | 'account' | 'reference_name' = 'none';
 
   async setDefaultFilters() {
@@ -77,6 +78,12 @@ export class GeneralLedger extends Report {
     }
 
     return [
+      {
+        fieldtype: 'Data',
+        fieldname: 'bankTransaction',
+        label: t`Bank Transaction`,
+        placeholder: t`Bank Transaction`,
+      },
       {
         fieldtype: 'Select',
         options: refTypeOptions,

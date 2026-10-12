@@ -302,6 +302,11 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'JournalEntry',
         },
         {
+          label: t`Bank Statements`,
+          name: 'bank-statements',
+          route: '/bank-statements',
+        },
+        {
           label: t`Item`,
           name: 'item',
           route: '/list/Item',

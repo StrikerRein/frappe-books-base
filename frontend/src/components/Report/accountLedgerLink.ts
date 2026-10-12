@@ -9,6 +9,29 @@ export function getAccountLedgerLink(
   row: ReportRow,
   column?: ColumnField
 ): RouteLocationRaw | null {
+  if (report.reportName === 'general-ledger' && !row.isSummary) {
+    const raw = (field: string) =>
+      row.cells[report.columns.findIndex((c) => c.fieldname === field)]
+        ?.rawValue;
+    const statement = raw('bank_statement');
+    const transaction = raw('bank_transaction');
+    if (
+      typeof statement === 'string' &&
+      statement &&
+      (!column ||
+        [
+          'bank_statement',
+          'bank_transaction',
+          'bank_description',
+          'reference_name',
+        ].includes(column.fieldname))
+    ) {
+      return {
+        path: `/bank-statements/${statement}`,
+        query: { transaction: String(transaction ?? '') },
+      };
+    }
+  }
   if (
     !['balance-sheet', 'profit-and-loss', 'trial-balance'].includes(
       report.reportName

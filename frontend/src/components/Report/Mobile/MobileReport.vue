@@ -175,7 +175,11 @@ function openDetail(row: ReportRow) {
   const column = props.report.columns.find(
     (c) => c.fieldname === valueColumns.value[0]?.key
   );
-  const link = getAccountLedgerLink(props.report, row, column);
+  const link = getAccountLedgerLink(
+    props.report,
+    row,
+    props.report.reportName === 'general-ledger' ? undefined : column
+  );
   if (link) {
     void routeTo(link);
     return;

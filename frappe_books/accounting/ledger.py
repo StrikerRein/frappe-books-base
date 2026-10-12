@@ -114,7 +114,7 @@ def reverse_entries(voucher):
 			"voucher_no": voucher.name,
 			"reverted": 0,
 		},
-		fields=["name", "account", "party_type", "party", "debit", "credit"],
+		fields=["name", "account", "party_type", "party", "debit", "credit", "posting_date", "bank_statement", "bank_transaction", "bank_description"],
 		# Reverse newest first, whatever order the list sorts by.
 		order_by="creation desc",
 	)
@@ -123,7 +123,10 @@ def reverse_entries(voucher):
 		frappe.get_doc(
 			{
 				"doctype": "Books Ledger Entry",
-				"posting_date": _posting_date(voucher),
+				"posting_date": entry.posting_date,
+				"bank_statement": entry.get("bank_statement"),
+				"bank_transaction": entry.get("bank_transaction"),
+				"bank_description": entry.get("bank_description"),
 				"party_type": entry.party_type,
 				"party": entry.party,
 				"account": entry.account,

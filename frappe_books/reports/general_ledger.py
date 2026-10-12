@@ -9,6 +9,9 @@ DOCTYPE = "Books Ledger Entry"
 BALANCE = {"SUB": [{"SUM": "debit"}, {"SUM": "credit"}], "as": "balance"}
 GROUP_FIELDS = {"party": "party", "account": "account", "reference_name": "voucher_no"}
 ENTRY_FIELDS = [
+	"bank_statement",
+	"bank_transaction",
+	"bank_description",
 	"account",
 	"posting_date",
 	"debit",
@@ -46,6 +49,11 @@ def get_columns(filters) -> list[dict]:
 		{"fieldname": "reference_name", "label": _("Ref Name"), "fieldtype": "Data"},
 		{"fieldname": "reference_type", "label": _("Ref Type"), "fieldtype": "Data"},
 	]
+	columns += [
+		{"fieldname": "bank_description", "label": _("Bank Description"), "fieldtype": "Data", "width": 300},
+		{"fieldname": "bank_statement", "label": _("Bank Statement"), "fieldtype": "Data", "width": 140},
+		{"fieldname": "bank_transaction", "label": _("Bank Transaction"), "fieldtype": "Data", "width": 160},
+	]
 	if filters.get("reverted"):
 		columns.append({"fieldname": "reverted", "label": _("Reverted"), "fieldtype": "Check"})
 	return columns
@@ -74,6 +82,7 @@ def _conditions(filters):
 			("party_type", "party_type"),
 			("party", "party"),
 			("reference_name", "voucher_no"),
+			("bank_transaction", "bank_transaction"),
 		)
 		if filters.get(source)
 	]
@@ -148,6 +157,9 @@ def _entry_row(entry, index):
 		"party": entry.party,
 		"reference_type": entry.voucher_type,
 		"reference_name": entry.voucher_no,
+		"bank_statement": entry.get("bank_statement"),
+		"bank_transaction": entry.get("bank_transaction"),
+		"bank_description": entry.get("bank_description"),
 		"reverted": bool(entry.reverted),
 	}
 

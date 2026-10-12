@@ -3,12 +3,36 @@ import { test } from 'node:test';
 import {
   fyo,
   BalanceSheet,
+  GeneralLedger,
   ProfitAndLoss,
   TrialBalance,
   getAccountLedgerLink,
 } from './helpers/frappe.mjs';
 
 const account = '4000 - Rendering of services / memberships';
+test('bank ledger source links keep the exact batch and transaction', () => {
+  const report = new GeneralLedger(fyo);
+  report.columns = [
+    { fieldname: 'bank_statement', fieldtype: 'Data' },
+    { fieldname: 'bank_transaction', fieldtype: 'Data' },
+    { fieldname: 'bank_description', fieldtype: 'Data' },
+  ];
+  const row = report.getReportRow({
+    type: 'entry',
+    bank_statement: 'BS-001',
+    bank_transaction: 'line-123',
+    bank_description: 'Membership receipt',
+  });
+  assert.deepEqual(getAccountLedgerLink(report, row, report.columns[2]), {
+    path: '/bank-statements/BS-001',
+    query: { transaction: 'line-123' },
+  });
+  const opening = report.getReportRow({
+    type: 'opening',
+    bank_statement: 'BS-001',
+  });
+  assert.equal(getAccountLedgerLink(report, opening), null);
+});
 function statement() {
   const report = new ProfitAndLoss(fyo);
   report.columns = [

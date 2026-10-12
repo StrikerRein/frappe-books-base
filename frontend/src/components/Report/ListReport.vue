@@ -83,7 +83,11 @@
                     ) ?? ''
                   "
                   class="block w-full min-w-0 rounded-1 hover:underline focus-visible:outline focus-visible:outline-2"
-                  :title="t`View transactions in General Ledger`"
+                  :title="
+                    report.reportName === 'general-ledger'
+                      ? t`View original bank transaction`
+                      : t`View transactions in General Ledger`
+                  "
                   @click.stop
                 >
                   <ReportOverflowText :value="cell.value" />
