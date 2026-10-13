@@ -1,0 +1,142 @@
+{
+ "doctype": "DocType",
+ "name": "Books Client Review",
+ "module": "Frappe Books",
+ "autoname": "format:CR-{#####}",
+ "track_changes": 1,
+ "field_order": [
+  "client",
+  "source_site",
+  "company",
+  "kind",
+  "status",
+  "question",
+  "due_date",
+  "source_line",
+  "snapshot",
+  "answer",
+  "classification",
+  "percentage",
+  "suggested_category",
+  "answered_at",
+  "review_note",
+  "reviewed_by",
+  "reviewed_at",
+  "review_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "client",
+   "label": "Assigned client",
+   "fieldtype": "Link",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_site",
+   "label": "Source account/site",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "label": "Account name",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "kind",
+   "label": "Review type",
+   "fieldtype": "Select",
+   "options": "Transaction\nQuestion",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "label": "Status",
+   "fieldtype": "Select",
+   "options": "Open\nAnswered\nFollow-up\nReviewed",
+   "default": "Open",
+   "reqd": 1
+  },
+  {
+   "fieldname": "question",
+   "label": "Accountant question",
+   "fieldtype": "Small Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "label": "Due date",
+   "fieldtype": "Date"
+  },
+  {
+   "fieldname": "source_line",
+   "label": "Original bank transaction",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "snapshot",
+   "label": "Assigned transaction snapshot",
+   "fieldtype": "Long Text"
+  },
+  {
+   "fieldname": "answer",
+   "label": "Client explanation",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "classification",
+   "label": "Client suggested use",
+   "fieldtype": "Select",
+   "options": "\nBusiness\nPrivate\nRental\nTransfer\nMixed\nUnsure"
+  },
+  {
+   "fieldname": "percentage",
+   "label": "Business or rental share %",
+   "fieldtype": "Float"
+  },
+  {
+   "fieldname": "suggested_category",
+   "label": "Client suggested category",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "answered_at",
+   "label": "Answered at",
+   "fieldtype": "Datetime"
+  },
+  {
+   "fieldname": "review_note",
+   "label": "Accountant review note",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "label": "Reviewed by",
+   "fieldtype": "Link",
+   "options": "User"
+  },
+  {
+   "fieldname": "reviewed_at",
+   "label": "Reviewed at",
+   "fieldtype": "Datetime"
+  },
+  {
+   "fieldname": "review_log",
+   "label": "Response and review history",
+   "fieldtype": "Long Text"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1
+  }
+ ]
+}

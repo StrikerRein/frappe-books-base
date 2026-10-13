@@ -1,0 +1,44 @@
+{
+ "doctype": "DocType",
+ "name": "Books Review Access",
+ "module": "Frappe Books",
+ "autoname": "format:BRACT-{#####}",
+ "track_changes": 1,
+ "field_order": [
+  "client",
+  "source_site",
+  "enabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "client",
+   "label": "Client",
+   "fieldtype": "Link",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_site",
+   "label": "Source account/site",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "enabled",
+   "label": "Enabled",
+   "fieldtype": "Check",
+   "default": "1"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1,
+   "export": 1
+  }
+ ]
+}
