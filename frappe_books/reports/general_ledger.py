@@ -9,6 +9,7 @@ DOCTYPE = "Books Ledger Entry"
 BALANCE = {"SUB": [{"SUM": "debit"}, {"SUM": "credit"}], "as": "balance"}
 GROUP_FIELDS = {"party": "party", "account": "account", "reference_name": "voucher_no"}
 ENTRY_FIELDS = [
+	"name",
 	"bank_statement",
 	"bank_transaction",
 	"bank_description",
@@ -148,6 +149,7 @@ def _group_rows(key, entries, opening, filters, index):
 def _entry_row(entry, index):
 	return {
 		"type": "entry",
+		"ledger_entry": entry.get("name"),
 		"index": index,
 		"account": entry.account,
 		"date": entry.posting_date,

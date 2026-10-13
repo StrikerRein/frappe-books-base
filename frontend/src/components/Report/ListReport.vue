@@ -1,5 +1,6 @@
 <template>
   <div class="overflow-hidden flex flex-col h-full">
+    <ClientReviewAssignment v-if="report.reportName === 'general-ledger'" :items="reviewSelection.map(name => ({ kind: 'ledger', name }))" @clear="reviewSelection = []" />
     <FrappeScrollArea
       v-if="dataSlice.length"
       orientation="both"
@@ -46,6 +47,7 @@
                 ]"
                 :style="getIndentStyle(cell)"
               >
+                <input v-if="report.reportName === 'general-ledger' && cellIndex === 0 && row.reviewEntry && !row.isSummary" v-model="reviewSelection" type="checkbox" :value="row.reviewEntry" :aria-label="`Select ledger item ${cell.value} for client review`" :disabled="!reviewSelection.includes(row.reviewEntry) && reviewSelection.length >= 50" class="mr-2 shrink-0" @click.stop />
                 <button
                   v-if="
                     row.isGroup &&
@@ -126,6 +128,7 @@ import {
   ScrollArea as FrappeScrollArea,
 } from 'frappe-ui';
 import { Report } from 'reports/Report';
+import ClientReviewAssignment from 'src/components/ClientReviewAssignment.vue';
 import {
   List as FrappeList,
   ListCell as FrappeListCell,
@@ -148,6 +151,7 @@ import ReportOverflowText from './ReportOverflowText.vue';
 
 export default defineComponent({
   components: {
+    ClientReviewAssignment,
     FrappeIcon,
     RouterLink,
     FrappeLoadingText,
@@ -173,6 +177,7 @@ export default defineComponent({
     return {
       columnWidths: new ReportColumnWidths(this.report.reportName),
       columnHeaders: {},
+      reviewSelection: [],
       pageStart: 0,
       pageEnd: 0,
     };
@@ -202,10 +207,12 @@ export default defineComponent({
   watch: {
     'report.filterMap'(filters, previousFilters) {
       if (!isEqual(filters, previousFilters)) {
+        this.reviewSelection = [];
         this.$refs.paginator?.setPageNo(1);
       }
     },
     'report.reportName'(name) {
+      this.reviewSelection = [];
       this.columnWidths = new ReportColumnWidths(name);
     },
   },

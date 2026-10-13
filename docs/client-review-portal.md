@@ -28,3 +28,10 @@ The public preview gateway allows only login, logout, the client review page, it
 ## Validation
 
 The integration test covers separate client visibility, denied cross-client answers and source reading, denied raw document access, guest denial, invalid percentages, mixed-use answers, follow-up, audit retention and completion locking. The local end-to-end verification also checks real client HTTPS login, secure cookies, anonymous API denial and gateway route restrictions. Test questions are rolled back and no client allocations are changed.
+
+
+## Assign inside Books
+
+On a bank statement, tick transaction checkboxes and choose **Assign client review**. In the General Ledger, tick the checkbox beside each entry number, including journal entries in a suspense account. Up to 50 items can be assigned at once. Choose an eligible client, enter the question and optional due date, then send to the review inbox. Changing ledger filters clears the selection; pagination keeps selected items. Opening, total and closing rows cannot be assigned.
+
+The accountant-only bridge reads snapshots from the current company and writes review tasks into the configured sibling portal site (`books_review_portal_site`, default `books.localhost`). The authenticated accountant must also have an enabled manager account on the portal. Client grants are checked centrally. Browser-supplied amounts and source sites are ignored. Assignment never posts or changes the ledger, and duplicate active reviews for the same source item/client are rejected atomically.

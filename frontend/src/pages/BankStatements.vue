@@ -52,6 +52,7 @@
           Post statement batch
         </button>
       </div>
+      <ClientReviewAssignment :items="selected.map(name => ({ kind: 'bank' as const, name }))" @clear="selected = []" />
       <input
         v-model="search"
         placeholder="Search description, reference or account"
@@ -62,6 +63,7 @@
         <table class="w-full text-sm tabular-nums border-collapse">
           <thead>
             <tr class="text-left border-b">
+              <th class="p-2">Review</th>
               <th class="p-2">Date / reference</th>
               <th class="p-2">Bank description</th>
               <th class="p-2 text-right">Money out</th>
@@ -81,6 +83,7 @@
                 route.query.transaction === line.name ? 'bg-yellow-50' : ''
               "
             >
+              <td class="p-2"><input v-model="selected" type="checkbox" :value="line.name" :aria-label="`Select for client review ${line.reference || line.description}`" :disabled="!selected.includes(line.name) && selected.length >= 50" /></td>
               <td class="p-2 whitespace-nowrap">
                 {{ line.transaction_date }}<br /><span class="text-xs">{{
                   line.reference
@@ -381,6 +384,8 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
 import { call } from 'src/web/api';
 import { fyo } from 'src/initFyo';
+import ClientReviewAssignment from 'src/components/ClientReviewAssignment.vue';
+const selected = ref<string[]>([]);
 interface Line {
   business_percentage?: number;
   personal_account?: string;
@@ -514,6 +519,7 @@ async function run(action: () => Promise<void>) {
   }
 }
 async function load() {
+  selected.value = [];
   await run(async () => {
     accountOptions.value = await call('frappe_books.bank_import.accounts');
     if (route.params.name) {

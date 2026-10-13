@@ -41,6 +41,7 @@ export class GeneralLedger extends Report {
   getReportRow(row: ServerRow): ReportRow {
     const reportRow = super.getReportRow(row);
     reportRow.isSummary = row.type !== 'entry';
+    (reportRow as ReportRow & { reviewEntry?: string }).reviewEntry = String(row.ledger_entry || '');
     for (const cell of reportRow.cells) {
       cell.italics = row.type === 'opening' || row.type === 'total';
       cell.bold = row.type === 'closing';

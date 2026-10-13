@@ -61,7 +61,11 @@ def serialize(doc):
         base=(frappe.conf.get('books_review_source_urls') or {}).get(doc.source_site,'')
         parsed=urlsplit(base)
         if parsed.scheme in {'http','https'} and parsed.hostname and not parsed.username and not parsed.password and snap.get('name'):
-            result['source_url']=base.rstrip('/')+'/books/bank-statements/'+quote(snap['parent'],safe='')+'?transaction='+quote(snap['name'],safe='')
+            if snap.get('source_kind') == 'ledger':
+                filters=dict(account=snap.get('offset_account'),fromDate=snap.get('transaction_date'),toDate=snap.get('transaction_date'),referenceType='All',referenceName=snap.get('reference'),groupBy='none')
+                result['source_url']=base.rstrip('/')+'/books/report/GeneralLedger?defaultFilters='+quote(json.dumps(filters),safe='')
+            else:
+                result['source_url']=base.rstrip('/')+'/books/bank-statements/'+quote(snap['parent'],safe='')+'?transaction='+quote(snap['name'],safe='')
     return result
 
 @frappe.whitelist()
