@@ -25,9 +25,30 @@ def main():
             if not frappe.db.get_value('User', request['actor'], 'enabled'):
                 frappe.throw('Accountant access is disabled.')
             source = request['source']
-            if source not in portal.sources():
+            if source not in portal.sources() and not (request['operation']=='workflow' and source==request['portal']):
                 frappe.throw('This company is not enabled for client reviews.')
-            if request['operation'] == 'clients':
+            if request['operation'] == 'workflow':
+                from frappe_books import workflows
+                operation=request['workflow_operation']
+                values=request['values']
+                if operation=='workspace':
+                    result=workflows.workspace(None if source==request['portal'] else source)
+                elif operation=='save_template':
+                    result=workflows.save_template(**values)
+                elif operation=='create':
+                    if source!=request['portal']:values['source_site']=source
+                    result=workflows.create(**values)
+                elif operation=='review_task':
+                    task=frappe.get_doc(portal.TASK,values.get('name'))
+                    if source!=request['portal'] and task.source_site!=source:frappe.throw('This task belongs to another company.')
+                    result=portal.review(**values)
+                elif operation in {'add_question','advance'}:
+                    case=frappe.get_doc(workflows.WORKFLOW,values.get('name'))
+                    if source!=request['portal'] and case.source_site!=source:frappe.throw('This workflow belongs to another company.')
+                    result=getattr(workflows,operation)(**values)
+                else:frappe.throw('Invalid workflow operation.')
+                frappe.db.commit()
+            elif request['operation'] == 'clients':
                 result = [c for c in portal.profile()['clients'] if source in c['sources']]
             elif request['operation'] == 'assign':
                 client = request['client']
@@ -55,6 +76,9 @@ def main():
                     portal.log(doc, 'Assigned', question=question)
                     doc.insert()
                     result.append(doc.name)
+                from frappe_books import workflows
+                case=workflows.create_case(request.get('workflow_template') or 'Transaction clarification',client,source,question[:140],due or '')
+                workflows.attach(case,result)
                 frappe.db.commit()
             else:
                 frappe.throw('Invalid review operation.')

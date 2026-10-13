@@ -56,6 +56,9 @@ def log(doc,action,**values):
 def serialize(doc):
     snap=json.loads(doc.snapshot or '{}')
     result=dict(name=doc.name,client=doc.client,company=doc.company,source_site=doc.source_site,kind=doc.kind,status=doc.status,question=doc.question,due_date=doc.due_date,transaction=snap,answer=doc.answer,classification=doc.classification,percentage=doc.percentage,suggested_category=doc.suggested_category,answered_at=doc.answered_at,review_note=doc.review_note,modified=doc.modified)
+    if doc.get('workflow'):
+        workflow=frappe.get_doc('Books Workflow',doc.workflow)
+        result.update(workflow=workflow.name,workflow_title=workflow.title,workflow_stage=workflow.stage,workflow_topic=workflow.topic)
     if manager():
         result['history']=json.loads(doc.review_log or '[]')
         base=(frappe.conf.get('books_review_source_urls') or {}).get(doc.source_site,'')
@@ -103,7 +106,7 @@ def find_transactions(source_site: str,search: str='',from_date: str='',to_date:
     return source_rows(source_site,search=search,from_date=from_date,to_date=to_date)
 
 @frappe.whitelist(methods=['POST'])
-def assign(client: str,source_site: str,question: str,line_ids: list[str]|None=None,due_date: str=''):
+def assign(client: str,source_site: str,question: str,line_ids: list[str]|None=None,due_date: str='',workflow_name: str='',workflow_template: str='Transaction clarification'):
     require_manager()
     if not allowed(client,source_site):frappe.throw('This client does not have access to that account.',frappe.PermissionError)
     question=(question or '').strip()
@@ -122,6 +125,9 @@ def assign(client: str,source_site: str,question: str,line_ids: list[str]|None=N
             doc=frappe.get_doc(dict(doctype=TASK,client=client,source_site=source_site,company=sources()[source_site],kind='Transaction' if row else 'Question',status='Open',question=question,due_date=due_date or None,source_line=row['name'] if row else None,snapshot=json.dumps(row,default=str) if row else '{}'))
             log(doc,'Assigned',question=question)
             doc.insert();created.append(doc.name)
+        from frappe_books import workflows
+        case=frappe.get_doc(workflows.WORKFLOW,workflow_name) if workflow_name else workflows.create_case(workflow_template,client,source_site,question[:140],due_date)
+        workflows.attach(case,created)
     except BaseException:
         frappe.db.rollback(save_point='review_assign');raise
     return created
@@ -142,6 +148,8 @@ def answer(name: str,explanation: str,classification: str='Unsure',percentage: f
     doc.update(dict(answer=explanation,classification=classification,percentage=percentage if classification=='Mixed' else 100 if classification in {'Business','Rental'} else 0,suggested_category=suggested_category,status='Answered',answered_at=now_datetime()))
     log(doc,'Answered',answer=doc.answer,classification=doc.classification,percentage=doc.percentage,suggested_category=doc.suggested_category)
     doc.save(ignore_permissions=True)
+    from frappe_books.workflows import task_updated
+    task_updated(doc)
     return serialize(doc)
 
 @frappe.whitelist(methods=['POST'])
@@ -155,4 +163,6 @@ def review(name: str,action: str,note: str,expected_modified: str=''):
     doc.update(dict(status=action,review_note=note.strip(),reviewed_by=frappe.session.user,reviewed_at=now_datetime()))
     log(doc,action,note=doc.review_note)
     doc.save()
+    from frappe_books.workflows import task_updated
+    task_updated(doc)
     return serialize(doc)

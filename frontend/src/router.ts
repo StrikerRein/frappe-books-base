@@ -32,6 +32,7 @@ declare module 'vue-router' {
 }
 
 const routes: RouteRecordRaw[] = [
+  { path: '/workflows', component: () => import('src/pages/Workflows.vue') },
   {
     path: '/bank-reallocation',
     component: () => import('src/pages/BankReallocation.vue'),

@@ -14,6 +14,7 @@
 
     <FrappeScrollArea class="min-h-0 flex-1" viewport-class="px-2 pt-0.5 pb-10">
       <div class="space-y-0.5">
+        <FrappeSidebarItem label="Workflows" route="/workflows" :active="$route.path === '/workflows'" icon="lucide-list-checks" />
         <template v-for="group in groups" :key="group.label">
           <FrappeSidebarItem
             :label="group.label"

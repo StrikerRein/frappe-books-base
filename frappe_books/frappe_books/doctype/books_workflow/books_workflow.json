@@ -1,0 +1,89 @@
+{
+ "doctype": "DocType",
+ "name": "Books Workflow",
+ "module": "Frappe Books",
+ "autoname": "format:WF-{#####}",
+ "track_changes": 1,
+ "field_order": [
+  "title",
+  "template",
+  "topic",
+  "client",
+  "source_site",
+  "company",
+  "due_date",
+  "stage",
+  "stages",
+  "workflow_log"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "label": "Workflow title",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "template",
+   "label": "Template",
+   "fieldtype": "Link",
+   "options": "Books Workflow Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "topic",
+   "label": "Topic",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "client",
+   "label": "Client",
+   "fieldtype": "Link",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_site",
+   "label": "Company/site",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "label": "Company",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "due_date",
+   "label": "Due date",
+   "fieldtype": "Date"
+  },
+  {
+   "fieldname": "stage",
+   "label": "Current stage",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "stages",
+   "label": "Stages at creation",
+   "fieldtype": "Long Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "workflow_log",
+   "label": "History",
+   "fieldtype": "Long Text"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1
+  }
+ ]
+}

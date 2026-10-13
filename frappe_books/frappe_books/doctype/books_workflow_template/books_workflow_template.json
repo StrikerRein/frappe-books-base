@@ -1,0 +1,50 @@
+{
+ "doctype": "DocType",
+ "name": "Books Workflow Template",
+ "module": "Frappe Books",
+ "autoname": "field:title",
+ "track_changes": 1,
+ "field_order": [
+  "title",
+  "topic",
+  "enabled",
+  "stages"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "label": "Template name",
+   "fieldtype": "Data",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "topic",
+   "label": "Topic",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "enabled",
+   "label": "Enabled",
+   "fieldtype": "Check",
+   "default": 1
+  },
+  {
+   "fieldname": "stages",
+   "label": "Stages",
+   "fieldtype": "Long Text",
+   "reqd": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1
+  }
+ ]
+}

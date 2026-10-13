@@ -34,7 +34,7 @@ def clients():
 
 
 @frappe.whitelist(methods=['POST'])
-def assign(client: str, question: str, items: list, due_date: str = ''):
+def assign(client: str, question: str, items: list, due_date: str = '', workflow_template: str = 'Transaction clarification'):
     require_manager()
     items = frappe.parse_json(items)
     if not isinstance(items, list) or not 1 <= len(items) <= 50:
@@ -46,4 +46,14 @@ def assign(client: str, question: str, items: list, due_date: str = ''):
         normalized.append(dict(kind=item['kind'], name=item['name']))
     if len({(i['kind'], i['name']) for i in normalized}) != len(normalized):
         frappe.throw('Select each transaction only once.')
-    return invoke('assign', client=client, question=question, items=normalized, due_date=due_date)
+    return invoke('assign', client=client, question=question, items=normalized, due_date=due_date, workflow_template=workflow_template)
+
+
+@frappe.whitelist(methods=['POST'])
+def workflow(operation: str, values: dict | None = None):
+    require_manager()
+    if operation not in {'workspace', 'save_template', 'create', 'add_question', 'advance', 'review_task'}:
+        frappe.throw('Invalid workflow action.')
+    values=frappe.parse_json(values or {})
+    if not isinstance(values,dict):frappe.throw('Invalid workflow request.')
+    return invoke('workflow', workflow_operation=operation, values=values)

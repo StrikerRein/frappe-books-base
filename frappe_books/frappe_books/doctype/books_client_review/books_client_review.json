@@ -5,6 +5,7 @@
  "autoname": "format:CR-{#####}",
  "track_changes": 1,
  "field_order": [
+  "workflow",
   "client",
   "source_site",
   "company",
@@ -25,6 +26,12 @@
   "review_log"
  ],
  "fields": [
+  {
+   "fieldname": "workflow",
+   "label": "Workflow",
+   "fieldtype": "Link",
+   "options": "Books Workflow"
+  },
   {
    "fieldname": "client",
    "label": "Assigned client",
