@@ -23,7 +23,10 @@
   "review_note",
   "reviewed_by",
   "reviewed_at",
-  "review_log"
+  "review_log",
+  "tax_year",
+  "item_title",
+  "propose_rule"
  ],
  "fields": [
   {
@@ -55,7 +58,7 @@
    "fieldname": "kind",
    "label": "Review type",
    "fieldtype": "Select",
-   "options": "Transaction\nQuestion",
+   "options": "Transaction\nDocument\nQuestion\nDecision",
    "reqd": 1
   },
   {
@@ -96,7 +99,7 @@
    "fieldname": "classification",
    "label": "Client suggested use",
    "fieldtype": "Select",
-   "options": "\nBusiness\nPrivate\nRental\nTransfer\nMixed\nUnsure"
+   "options": "\nBusiness\nPrivate\nRental\nTransfer\nMixed\nUnsure\nOther"
   },
   {
    "fieldname": "percentage",
@@ -133,6 +136,21 @@
    "fieldname": "review_log",
    "label": "Response and review history",
    "fieldtype": "Long Text"
+  },
+  {
+   "fieldname": "tax_year",
+   "label": "Tax year",
+   "fieldtype": "Int"
+  },
+  {
+   "fieldname": "item_title",
+   "label": "Client-facing title",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "propose_rule",
+   "label": "Suggest this split for similar payments",
+   "fieldtype": "Check"
   }
  ],
  "permissions": [

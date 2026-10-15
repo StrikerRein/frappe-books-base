@@ -34,7 +34,7 @@ def clients():
 
 
 @frappe.whitelist(methods=['POST'])
-def assign(client: str, question: str, items: list, due_date: str = '', workflow_template: str = 'Transaction clarification'):
+def assign(client: str, question: str, items: list, due_date: str = '', workflow_template: str = 'Transaction clarification', tax_year: int = 2026):
     require_manager()
     items = frappe.parse_json(items)
     if not isinstance(items, list) or not 1 <= len(items) <= 50:
@@ -46,13 +46,13 @@ def assign(client: str, question: str, items: list, due_date: str = '', workflow
         normalized.append(dict(kind=item['kind'], name=item['name']))
     if len({(i['kind'], i['name']) for i in normalized}) != len(normalized):
         frappe.throw('Select each transaction only once.')
-    return invoke('assign', client=client, question=question, items=normalized, due_date=due_date, workflow_template=workflow_template)
+    return invoke('assign', client=client, question=question, items=normalized, due_date=due_date, workflow_template=workflow_template, tax_year=tax_year)
 
 
 @frappe.whitelist(methods=['POST'])
 def workflow(operation: str, values: dict | None = None):
     require_manager()
-    if operation not in {'workspace', 'save_template', 'create', 'add_question', 'advance', 'review_task'}:
+    if operation not in {'workspace', 'save_template', 'create', 'add_question', 'advance', 'review_task', 'allocation_rule'}:
         frappe.throw('Invalid workflow action.')
     values=frappe.parse_json(values or {})
     if not isinstance(values,dict):frappe.throw('Invalid workflow request.')

@@ -343,6 +343,12 @@ async function load() {
   reviewing.value = false;
   try {
     accounts.value = await call('frappe_books.bank_import.accounts');
+    if (route.query.rule && !reason.value) {
+      const rule = await call<{ match_text: string; percentage: number; reason: string; from_date: string; to_date: string }>('frappe_books.review_bridge.workflow', { operation: 'allocation_rule', values: { name: String(route.query.rule) } });
+      search.value = rule.match_text; businessPercentage.value = rule.percentage;
+      reason.value = rule.reason; fromDate.value = rule.from_date; toDate.value = rule.to_date;
+      classification.value = 'Mixed spend';
+    }
     const result = await call<{ rows: Row[]; has_more: boolean }>(
       'frappe_books.bank_reallocation.transactions',
       {

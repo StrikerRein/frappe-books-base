@@ -1,0 +1,78 @@
+{
+ "doctype": "DocType",
+ "name": "Books Client Allocation Rule",
+ "module": "Frappe Books",
+ "autoname": "format:AR-{#####}",
+ "track_changes": 1,
+ "field_order": [
+  "client",
+  "source_site",
+  "tax_year",
+  "match_text",
+  "percentage",
+  "review_task",
+  "approval_note",
+  "enabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "client",
+   "label": "Client",
+   "fieldtype": "Link",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_site",
+   "label": "Company",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tax_year",
+   "label": "Tax year",
+   "fieldtype": "Int",
+   "reqd": 1
+  },
+  {
+   "fieldname": "match_text",
+   "label": "Bank description contains",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "percentage",
+   "label": "Business or rental share %",
+   "fieldtype": "Float",
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_task",
+   "label": "Reviewed task",
+   "fieldtype": "Link",
+   "options": "Books Client Review",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approval_note",
+   "label": "Accountant approval note",
+   "fieldtype": "Small Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "enabled",
+   "label": "Active approved rule",
+   "fieldtype": "Check",
+   "default": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "create": 1,
+   "write": 0,
+   "delete": 0
+  }
+ ]
+}

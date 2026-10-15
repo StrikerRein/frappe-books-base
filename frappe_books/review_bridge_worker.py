@@ -9,6 +9,7 @@ from pathlib import Path
 def main():
     import frappe
     from frappe_books import review_portal as portal
+    from frappe_books.review_documents import tax_year as valid_tax_year
     from frappe.utils import getdate
     request = json.load(sys.stdin)
     sites = Path(request['sites_path']).resolve()
@@ -31,7 +32,10 @@ def main():
                 from frappe_books import workflows
                 operation=request['workflow_operation']
                 values=request['values']
-                if operation=='workspace':
+                if operation=='allocation_rule':
+                    from frappe_books.review_documents import rule_parameters
+                    result=rule_parameters(values.get('name'),source)
+                elif operation=='workspace':
                     result=workflows.workspace(None if source==request['portal'] else source)
                 elif operation=='save_template':
                     result=workflows.save_template(**values)
@@ -71,7 +75,7 @@ def main():
                         frappe.throw('A selected transaction already has an active review for this client.')
                     doc = frappe.get_doc(dict(doctype=portal.TASK, client=client,
                         source_site=source, company=portal.sources()[source], kind='Transaction',
-                        status='Open', question=question, due_date=due, source_line=key,
+                        status='Open', tax_year=valid_tax_year(request.get('tax_year',2026)), question=question, due_date=due, source_line=key,
                         snapshot=json.dumps(row, default=str)))
                     portal.log(doc, 'Assigned', question=question)
                     doc.insert()
