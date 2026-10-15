@@ -56,6 +56,7 @@
       :loading="loading"
     />
 
+    <p v-if="report?.message" class="px-4 py-3 text-sm bg-surface-gray-2 whitespace-pre-line" role="note">{{ report.message }}</p>
     <!-- Report Body -->
     <ListReport v-if="report && !isMobile" :report="report" class="" />
   </div>

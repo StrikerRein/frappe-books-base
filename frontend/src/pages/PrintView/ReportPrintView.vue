@@ -34,6 +34,7 @@
               </tr>
             </table>
 
+            <p v-if="report?.message" style="font-size: 0.75rem; white-space: pre-line">{{ report.message }}</p>
             <table
               style="
                 width: 100%;

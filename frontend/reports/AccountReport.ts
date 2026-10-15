@@ -19,6 +19,7 @@ export abstract class AccountReport extends Report {
     chips: ['toDate', 'fromYear', 'toYear', 'periodicity'],
   };
 
+  comparePreviousYear?: boolean;
   toDate?: string;
   count?: number;
   fromYear?: number;
@@ -140,6 +141,7 @@ export abstract class AccountReport extends Report {
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
       } as Field,
+      { fieldtype: 'Check', label: t`Compare Previous Year`, fieldname: 'comparePreviousYear' } as Field,
     ].flat();
   }
 }

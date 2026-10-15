@@ -48,15 +48,23 @@ export function getAccountLedgerLink(
   const account = row.cells[accountIndex]?.rawValue;
   if (typeof account !== 'string' || !account) return null;
 
+  if (column?.comparisonSource) return { path: `/report-comparison/${column.comparisonSource}`, query: { account } };
+
   let fromDate: string | undefined;
   let toDate: string | undefined;
   if (report.reportName === 'trial-balance') {
     fromDate = report.get('fromDate') as string | undefined;
     toDate = report.get('toDate') as string | undefined;
+    if (column?.fieldname.startsWith('opening_') && fromDate) {
+      const previous = new Date(`${fromDate}T12:00:00Z`);
+      previous.setUTCDate(previous.getUTCDate() - 1);
+      toDate = previous.toISOString().slice(0, 10);
+      fromDate = '1900-01-01';
+    }
   } else if (column?.fromDate && column.toDate) {
     ({ fromDate, toDate } = column);
   } else {
-    const periods = report.columns.filter((c) => c.fromDate && c.toDate);
+    const periods = report.columns.filter((c) => c.fromDate && c.toDate && !c.comparisonSource);
     fromDate = periods.map((c) => c.fromDate!).sort()[0];
     toDate = periods
       .map((c) => c.toDate!)

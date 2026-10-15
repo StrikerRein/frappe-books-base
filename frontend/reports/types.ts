@@ -34,6 +34,7 @@ export interface ColumnField extends Omit<BaseField, 'fieldtype'> {
   /** The server's exact period represented by a financial statement amount. */
   fromDate?: string;
   toDate?: string;
+  comparisonSource?: string;
 }
 
 export type Periodicity = 'Monthly' | 'Quarterly' | 'Half Yearly' | 'Yearly';

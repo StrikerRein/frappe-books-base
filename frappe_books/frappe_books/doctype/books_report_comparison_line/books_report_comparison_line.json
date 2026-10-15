@@ -1,0 +1,32 @@
+{
+ "doctype": "DocType",
+ "name": "Books Report Comparison Line",
+ "module": "Frappe Books",
+ "istable": 1,
+ "track_changes": 0,
+ "field_order": [
+  "account",
+  "balance",
+  "source_cell"
+ ],
+ "fields": [
+  {
+   "fieldname": "account",
+   "label": "Account",
+   "fieldtype": "Link",
+   "options": "Books Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "balance",
+   "label": "Debit less credit",
+   "fieldtype": "Currency"
+  },
+  {
+   "fieldname": "source_cell",
+   "label": "Source cell",
+   "fieldtype": "Data"
+  }
+ ],
+ "permissions": []
+}

@@ -1,0 +1,97 @@
+{
+ "doctype": "DocType",
+ "name": "Books Report Comparison",
+ "module": "Frappe Books",
+ "istable": 0,
+ "track_changes": 1,
+ "field_order": [
+  "title",
+  "from_date",
+  "to_date",
+  "status",
+  "source_file",
+  "source_sha256",
+  "source_sheet",
+  "notes",
+  "balances"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "label": "Comparison title",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_date",
+   "label": "Period start",
+   "fieldtype": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "label": "Period end",
+   "fieldtype": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "status",
+   "label": "Status",
+   "fieldtype": "Select",
+   "options": "Draft\nApproved",
+   "default": "Draft",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_file",
+   "label": "Source workbook",
+   "fieldtype": "Link",
+   "options": "File",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_sha256",
+   "label": "Source SHA-256",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_sheet",
+   "label": "Source sheet",
+   "fieldtype": "Data",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notes",
+   "label": "Source notes",
+   "fieldtype": "Small Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "balances",
+   "label": "Reported account balances",
+   "fieldtype": "Table",
+   "options": "Books Report Comparison Line",
+   "reqd": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "Books Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1
+  },
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0,
+   "report": 1
+  }
+ ],
+ "autoname": "format:CMP-{#####}"
+}

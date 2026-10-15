@@ -88,7 +88,7 @@
                   :title="
                     report.reportName === 'general-ledger'
                       ? t`View original bank transaction`
-                      : t`View transactions in General Ledger`
+                      : report.columns[cellIndex].comparisonSource ? t`View comparative workbook source` : t`View transactions in General Ledger`
                   "
                   @click.stop
                 >

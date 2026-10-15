@@ -41,6 +41,7 @@ export class TrialBalance extends AccountReport {
         label: t`Hide Group Amounts`,
         fieldname: 'hideGroupAmounts',
       } as Field,
+      { fieldtype: 'Check', label: t`Compare Previous Year`, fieldname: 'comparePreviousYear' } as Field,
     ] as Field[];
   }
 }

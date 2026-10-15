@@ -16,6 +16,7 @@ export interface ServerColumn {
   width?: number;
   from_date?: string;
   to_date?: string;
+  comparison_source?: string;
 }
 
 export type ServerRow = Record<string, RawValue | undefined>;
@@ -24,6 +25,7 @@ export type ServerFilters = Record<string, RawValue>;
 export interface ServerReportResult {
   columns: ColumnField[];
   rows: ServerRow[];
+  message?: string;
 }
 
 /** Run a Script Report through the framework, which checks its permissions. */
@@ -31,15 +33,16 @@ export async function runServerReport(
   reportName: string,
   filters: ServerFilters
 ): Promise<ServerReportResult> {
-  const { columns, result } = await call<{
+  const { columns, result, message } = await call<{
     columns: ServerColumn[];
     result: ServerRow[];
+    message?: string;
   }>('frappe.desk.query_report.run', {
     report_name: reportName,
     filters: toServerFilters(filters),
     ignore_prepared_report: true,
   });
-  return { columns: columns.map(toColumnField), rows: result };
+  return { columns: columns.map(toColumnField), rows: result, message };
 }
 
 /** Script Reports take Frappe's snake_case filter names. */
@@ -70,6 +73,7 @@ export function toColumnField(column: ServerColumn): ColumnField {
         : undefined,
     fromDate: column.from_date,
     toDate: column.to_date,
+    comparisonSource: column.comparison_source,
   };
 }
 

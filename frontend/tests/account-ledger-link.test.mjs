@@ -174,3 +174,20 @@ test('drill-through respects permission to open General Ledger', () => {
     globalThis.window = previous;
   }
 });
+
+test('comparative amounts open their source without widening current account dates', () => {
+  const report = statement();
+  report.columns.push({ fieldname: 'comparison', fieldtype: 'Currency', fromDate: '2024-03-01', toDate: '2025-02-28', comparisonSource: 'CMP-001' });
+  const row = report.getReportRow({ account, indent: 2, comparison: 100 });
+  assert.deepEqual(getAccountLedgerLink(report, row, report.columns.at(-1)), { path: '/report-comparison/CMP-001', query: { account } });
+  assert.equal(filters(getAccountLedgerLink(report, row)).fromDate, '2025-06-09');
+});
+test('opening balance amounts open ledger history through the day before the period', () => {
+  const report = new TrialBalance(fyo);
+  report.fromDate = '2025-03-01'; report.toDate = '2026-02-28';
+  report.columns = [{ fieldname: 'account', fieldtype: 'Link' }, { fieldname: 'opening_debit', fieldtype: 'Currency' }];
+  const row = report.getReportRow({ account, indent: 2, opening_debit: 100 });
+  const dates = filters(getAccountLedgerLink(report, row, report.columns[1]));
+  assert.equal(dates.fromDate, '1900-01-01');
+  assert.equal(dates.toDate, '2025-02-28');
+});

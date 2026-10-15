@@ -32,6 +32,7 @@ export abstract class Report extends Observable<RawValue> {
   static phoneLayout?: PhoneLayout;
 
   fyo: Fyo;
+  message = '';
   columns: ColumnField[] = [];
   filters: Field[] = [];
   reportData: ReportData;
@@ -149,7 +150,8 @@ export abstract class Report extends Observable<RawValue> {
 
   async setReportData(_filter?: string, _force?: boolean): Promise<void> {
     this.loading = true;
-    const { columns, rows } = await this.runReport();
+    const { columns, rows, message } = await this.runReport();
+    this.message = message ?? '';
     this.columns = columns;
     this.reportData = rows.map((row) =>
       isBlankRow(row) ? this.getEmptyRow() : this.getReportRow(row)
