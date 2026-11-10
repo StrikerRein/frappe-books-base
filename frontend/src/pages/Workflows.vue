@@ -51,6 +51,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { call } from 'src/web/api';
 type Stage = { name: string; role: string };
 type Template = { name: string; title: string; topic: string; enabled: number; stages: string; modified: string };
@@ -59,13 +60,15 @@ type Workflow = { name: string; title: string; topic: string; client: string; co
 type Workspace = { templates: Template[]; cases: Workflow[]; clients: { email: string; label: string; sources: string[] }[]; sources: Record<string, string> };
 const defaults = () => [{ name: 'Draft', role: 'Draft' }, { name: 'Assigned', role: 'Assigned' }, { name: 'Client responded', role: 'Responded' }, { name: 'Accountant review', role: 'Review' }, { name: 'Complete', role: 'Complete' }];
 const responsibilities: Record<string, string> = { Draft: 'Preparation', Assigned: 'Client action', Responded: 'Answers received', Review: 'Accountant approval', Complete: 'Finished' };
-const data = ref<Workspace>(); const tab = ref('work'); const busy = ref(false); const error = ref(''); const message = ref(''); const search = ref('');
+const route = useRoute();
+const data = ref<Workspace>(); const tab = ref('work'); const busy = ref(false); const error = ref(''); const message = ref(''); const search = ref(typeof route.query.search === 'string' ? route.query.search : '');
+watch(() => route.query.search, (value) => { search.value = typeof value === 'string' ? value : ''; });
 const notes = ref<Record<string, string>>({}); const questions = ref<Record<string, string>>({}); const taskNotes = ref<Record<string, string>>({});
 const newCase = ref({ template: 'Tax review', client: '', source_site: '', title: '', due_date: '', question: '' });
 const template = ref({ name: '', title: '', topic: '', expected_modified: '', stage_list: defaults() });
 const eligibleClients = computed(() => data.value?.clients.filter(c => c.sources.includes(newCase.value.source_site)) || []);
 watch(() => newCase.value.source_site, () => { newCase.value.client = eligibleClients.value.length === 1 ? eligibleClients.value[0].email : ''; });
-const filteredCases = computed(() => data.value?.cases.filter(w => `${w.title} ${w.topic} ${w.company} ${clientName(w.client)}`.toLowerCase().includes(search.value.toLowerCase())) || []);
+const filteredCases = computed(() => data.value?.cases.filter(w => `${w.name} ${w.title} ${w.topic} ${w.company} ${clientName(w.client)}`.toLowerCase().includes(search.value.toLowerCase())) || []);
 function clientName(email: string) { return data.value?.clients.find(c => c.email === email)?.label || email; }
 function complete(w: Workflow) { return w.stages.find(s => s.name === w.stage)?.role === 'Complete'; }
 function editTemplate(t?: Template) { template.value = t ? { name: t.name, title: t.title, topic: t.topic, expected_modified: t.modified, stage_list: JSON.parse(t.stages) } : { name: '', title: '', topic: '', expected_modified: '', stage_list: defaults() }; }
