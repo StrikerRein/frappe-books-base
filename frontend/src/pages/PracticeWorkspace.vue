@@ -85,7 +85,7 @@
             <strong class="mt-3 block text-3xl font-semibold tabular-nums">{{ counts.waiting }}</strong>
             <span class="mt-2 block text-xs text-gray-500">Workflows needing a response</span>
           </button>
-          <button type="button" class="metric-card text-left" :aria-pressed="filter === 'all'" @click="setFilter('all')">
+          <button type="button" class="metric-card text-left" :aria-pressed="filter === 'open'" @click="setFilter('open')">
             <span class="metric-label">Active workflows</span>
             <strong class="mt-3 block text-3xl font-semibold tabular-nums">{{ counts.active }}</strong>
             <span class="mt-2 block text-xs text-gray-500">Across enabled client entities</span>
@@ -123,7 +123,8 @@
                 <label class="sm:w-48">
                   <span class="sr-only">Filter workflows</span>
                   <select v-model="filter" class="field-input !mt-0">
-                    <option value="all">All work</option>
+                    <option value="open">All active work</option>
+                    <option value="all">All including completed</option>
                     <option value="review">My review</option>
                     <option value="waiting">Waiting for client</option>
                     <option value="draft">Drafts</option>
@@ -265,7 +266,8 @@ const visibleClients = computed(() => [...(workspace.value?.clients || [])]
   .sort((a, b) => a.label.localeCompare(b.label)));
 const visibleCases = computed(() => orderWork(workspace.value?.cases || []).filter((work) => {
   if (selectedClient.value !== 'all' && work.client !== selectedClient.value) return false;
-  if (filter.value !== 'all' && workStatus(work) !== filter.value) return false;
+  if (filter.value === 'open' && workStatus(work) === 'complete') return false;
+  if (filter.value !== 'all' && filter.value !== 'open' && workStatus(work) !== filter.value) return false;
   const needle = search.value.trim().toLocaleLowerCase();
   return !needle || [work.name, work.title, work.topic, work.company, clientLabel(work.client)].join(' ').toLocaleLowerCase().includes(needle);
 }));
