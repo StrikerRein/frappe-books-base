@@ -8,7 +8,7 @@
         <p class="mt-2 text-sm text-gray-600">Keep original transactions, review categories and post only when your balances agree.</p>
       </div>
       <nav class="flex flex-wrap items-center gap-3 text-sm" aria-label="Bank statement navigation">
-        <RouterLink to="/practice" class="font-semibold text-blue-700 hover:underline">Practice</RouterLink>
+        <RouterLink v-if="fyo.can('AccountingSettings', 'write')" to="/practice" class="font-semibold text-blue-700 hover:underline">Practice</RouterLink>
         <RouterLink to="/bank-reallocation" class="font-semibold text-blue-700 hover:underline">Bulk reallocation</RouterLink>
         <RouterLink to="/bank-statements" class="rounded-lg border border-gray-300 bg-white px-3 py-2 font-semibold text-gray-700 hover:bg-gray-50">All statements</RouterLink>
       </nav>
