@@ -97,7 +97,7 @@ def workspace(source_site=None):
         tasks=frappe.get_all(review.TASK,filters={'workflow':name},fields=['name','question','status','kind','answer','classification','percentage','suggested_category','review_note','modified'],limit_page_length=0)
         cases.append(dict(name=name,title=doc.title,template=doc.template,topic=doc.topic,client=doc.client,company=doc.company,source_site=doc.source_site,due_date=doc.due_date,stage=doc.stage,stages=json.loads(doc.stages),modified=doc.modified,tasks=tasks,history=json.loads(doc.workflow_log or '[]')))
     profile=review.profile()
-    return dict(templates=templates,cases=cases,clients=profile['clients'],sources={s:l for s,l in profile['sources'].items() if not source_site or s==source_site})
+    return dict(templates=templates,cases=cases,clients=[c for c in profile['clients'] if not source_site or source_site in c['sources']],sources={s:l for s,l in profile['sources'].items() if not source_site or s==source_site})
 
 
 def save_template(title,topic,stage_list,name='',expected_modified=''):

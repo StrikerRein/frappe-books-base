@@ -22,8 +22,6 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePhoneSidebar } from './usePhoneSidebar';
 
-const TAB_GROUPS = ['dashboard', 'sales', 'purchases', 'reports'];
-
 const route = useRoute();
 const router = useRouter();
 const { groups, active } = usePhoneSidebar();
@@ -33,8 +31,9 @@ const searchTab: SidebarRoot = {
   icon: 'lucide-search',
   route: '/search',
 };
+const mainTab = groups.some((group) => group.name === 'practice') ? 'practice' : 'dashboard';
 const tabs = [
-  ...groups.filter((group) => TAB_GROUPS.includes(group.name)),
+  ...groups.filter((group) => [mainTab, 'sales', 'purchases', 'reports'].includes(group.name)),
   searchTab,
 ];
 const activeTab = computed(() =>

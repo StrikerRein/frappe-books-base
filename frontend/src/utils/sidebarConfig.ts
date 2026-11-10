@@ -40,6 +40,8 @@ function isVisible(item: SidebarItem | SidebarRoot): boolean {
 const pageRights: Record<string, () => boolean> = {
   'chart-of-accounts': () => fyo.can('Account', 'read'),
   settings: canEditSettings,
+  practice: canEditSettings,
+  workflows: canEditSettings,
 };
 
 /** Whether the user can read the list, open the report or use the page the route shows. */
@@ -186,6 +188,20 @@ function getReportSidebar() {
 
 function getCompleteSidebar(): SidebarConfig {
   return [
+    {
+      label: t`Practice`,
+      name: 'practice',
+      route: '/practice',
+      icon: 'lucide-briefcase-business',
+      hidden: () => !canEditSettings(),
+    },
+    {
+      label: t`Client Workflows`,
+      name: 'client-workflows',
+      route: '/workflows',
+      icon: 'lucide-list-checks',
+      hidden: () => !canEditSettings(),
+    },
     {
       label: t`Get Started`,
       name: 'get-started',

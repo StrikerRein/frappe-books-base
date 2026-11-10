@@ -24,6 +24,11 @@ class IntegrationTestWorkflows(IntegrationTestCase):
             name=wf.create(template,client,source,'Tax review test',question='Clarify this tax item')
             doc=frappe.get_doc(wf.WORKFLOW,name)
             self.assertEqual(doc.stage,'Assigned')
+            scoped=wf.workspace(source)
+            self.assertEqual(scoped['sources'],{source:'Example company'})
+            self.assertIn(client,{c['email'] for c in scoped['clients']})
+            self.assertTrue(all(source in c['sources'] for c in scoped['clients']))
+            self.assertTrue(all(c['source_site']==source for c in scoped['cases']))
             # Editing a template does not rewrite an existing workflow.
             wf.save_template('Workflow test template','Tax',wf.DEFAULT_STAGES,name=template)
             self.assertEqual(len(json.loads(frappe.get_doc(wf.WORKFLOW,name).stages)),6)

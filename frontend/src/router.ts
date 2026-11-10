@@ -32,6 +32,7 @@ declare module 'vue-router' {
 }
 
 const routes: RouteRecordRaw[] = [
+  { path: '/practice', component: () => import('src/pages/PracticeWorkspace.vue') },
   { path: '/report-comparison/:name', component: () => import('src/pages/ReportComparison.vue') },
   { path: '/workflows', component: () => import('src/pages/Workflows.vue') },
   {

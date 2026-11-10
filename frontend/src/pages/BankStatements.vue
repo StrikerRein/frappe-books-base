@@ -1,14 +1,18 @@
 <template>
-  <div class="h-full overflow-auto p-5 text-ink-gray-8">
-    <div class="flex items-center justify-between mb-5">
-      <h1 class="text-xl font-semibold">Bank statements</h1>
-      <RouterLink to="/bank-reallocation" class="underline"
-        >Bulk reallocate transactions</RouterLink
-      >
-      <RouterLink to="/bank-statements" class="underline"
-        >All batches</RouterLink
-      >
-    </div>
+  <main class="h-full overflow-y-auto bg-gray-50 px-4 py-6 text-gray-900 sm:px-7">
+    <div class="mx-auto max-w-7xl">
+    <header class="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+      <div>
+        <p class="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-700">Bookkeeping</p>
+        <h1 class="text-2xl font-semibold tracking-tight">Bank statements</h1>
+        <p class="mt-2 text-sm text-gray-600">Keep original transactions, review categories and post only when your balances agree.</p>
+      </div>
+      <nav class="flex flex-wrap items-center gap-3 text-sm" aria-label="Bank statement navigation">
+        <RouterLink v-if="fyo.can('AccountingSettings', 'write')" to="/practice" class="font-semibold text-blue-700 hover:underline">Practice</RouterLink>
+        <RouterLink to="/bank-reallocation" class="font-semibold text-blue-700 hover:underline">Bulk reallocation</RouterLink>
+        <RouterLink to="/bank-statements" class="rounded-lg border border-gray-300 bg-white px-3 py-2 font-semibold text-gray-700 hover:bg-gray-50">All statements</RouterLink>
+      </nav>
+    </header>
     <p v-if="error" role="alert" class="p-3 mb-4 bg-red-50 text-red-700">
       {{ error }}
     </p>
@@ -19,7 +23,7 @@
         {{ batch.bank_account }} · {{ batch.from_date }} to
         {{ batch.to_date }} · {{ batch.status }}
       </p>
-      <div class="flex gap-8 my-4">
+      <div class="my-4 flex flex-wrap gap-3 rounded-xl border border-gray-200 bg-white p-4">
         <p>
           Opening <strong>{{ money(batch.opening_balance) }}</strong>
         </p>
@@ -289,16 +293,18 @@
       </section>
     </template>
     <template v-else-if="!busy">
-      <section class="border rounded p-4 mb-6">
-        <h2 class="font-semibold mb-2">Upload a statement batch</h2>
-        <p class="mb-3">
-          Each upload keeps the original bank lines together. Review the
-          categories, then post the batch once.
-        </p>
-        <button class="underline mb-3" @click="template">
-          Download CSV template
+      <section class="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <h2 class="text-lg font-semibold">Upload a statement</h2>
+        <p class="mb-5 mt-1 text-sm leading-6 text-gray-600">A simple, three-step process. Importing does not post anything until you approve the statement.</p>
+        <ol class="mb-6 grid gap-3 text-sm sm:grid-cols-3">
+          <li class="rounded-xl border border-blue-100 bg-blue-50 p-3"><strong class="block text-blue-900">1. Upload CSV</strong><span class="mt-1 block text-gray-600">Choose your bank and enter statement balances.</span></li>
+          <li class="rounded-xl border border-gray-200 p-3"><strong class="block">2. Review categories</strong><span class="mt-1 block text-gray-600">Classify business, private and mixed spending.</span></li>
+          <li class="rounded-xl border border-gray-200 p-3"><strong class="block">3. Confirm &amp; post</strong><span class="mt-1 block text-gray-600">Check the reconciliation before updating the ledger.</span></li>
+        </ol>
+        <button type="button" class="mb-4 text-sm font-semibold text-blue-700 underline" @click="template">
+          Download the required CSV template
         </button>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label
             >Statement name<input
               v-model="title"
@@ -329,7 +335,7 @@
               step="0.01"
               class="border rounded p-2 w-full"
           /></label>
-          <label class="col-span-2"
+          <label class="sm:col-span-2"
             >Statement CSV<input
               type="file"
               accept=".csv"
@@ -338,7 +344,7 @@
           /></label>
         </div>
         <button
-          class="border rounded px-3 py-2 mt-3"
+          class="mt-4 rounded-lg bg-blue-700 px-5 py-2.5 font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="busy || !file || !title || !bankAccount"
           @click="upload"
         >
@@ -350,7 +356,13 @@
           ledger; this upload posts statement movements.
         </p>
       </section>
-      <table class="w-full">
+      <section class="overflow-x-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold">Recent statements</h2>
+          <span class="text-sm text-gray-500">{{ batches.length }} batch(es)</span>
+        </div>
+        <div v-if="!batches.length" class="rounded-lg bg-gray-50 p-6 text-center text-sm text-gray-600">No statements imported yet. Use the form above to upload the first CSV.</div>
+        <table v-else class="w-full min-w-[600px] text-sm">
         <thead>
           <tr class="text-left">
             <th>Statement</th>
@@ -375,9 +387,11 @@
             <td>{{ b.status }}</td>
           </tr>
         </tbody>
-      </table>
+        </table>
+      </section>
     </template>
-  </div>
+    </div>
+  </main>
 </template>
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
