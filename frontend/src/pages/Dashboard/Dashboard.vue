@@ -16,6 +16,17 @@
       <div
         class="space-y-4 px-4 pb-10 pt-3 md:mx-auto md:max-w-4xl md:space-y-6 md:p-0"
       >
+        <RouterLink
+          v-if="canRead.practice"
+          to="/practice"
+          class="flex items-center justify-between gap-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-900 no-underline transition hover:bg-blue-100"
+        >
+          <span>
+            <strong class="block text-sm">Open your practice workspace</strong>
+            <span class="mt-1 block text-xs">Clients, outstanding reviews and bank work in one place.</span>
+          </span>
+          <span aria-hidden="true" class="lucide-arrow-right size-5 shrink-0" />
+        </RouterLink>
         <PeriodSelector
           v-if="isMobile"
           :value="period"
@@ -85,6 +96,7 @@ export default {
       sales: fyo.can(ModelNameEnum.SalesInvoice, 'read'),
       purchases: fyo.can(ModelNameEnum.PurchaseInvoice, 'read'),
       ledger: fyo.can(ModelNameEnum.AccountingLedgerEntry, 'read'),
+      practice: fyo.can('AccountingSettings', 'write'),
     };
     return { isMobile, canRead };
   },
